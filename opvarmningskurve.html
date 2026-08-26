@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fra is til damp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0: #030810;
+  --bg1: #060e18;
+  --bg2: #0a1622;
+  --bg3: #0f1e2d;
+  --border: #1a3a52;
+  --green:  #00ff9f;
+  --cyan:   #00cfff;
+  --yellow: #ffd93d;
+  --text: #d0eef5;
+  --dim:  #8ec8d8;
+  --mono: 'Courier New', 'Lucida Console', monospace;
+  --ui: 'Share Tech Mono', monospace;
+  --body: 'Exo 2', sans-serif;
+  --tr: 0.15s ease;
+  --n1:#00ff9f; --n2:#00cfff; --n3:#ffd93d; --n4:#ff8a5c; --n5:#c77dff; --n6:#ff5c8a;
+}
+[data-theme="light"] {
+  --bg0: #e8e0d2;
+  --bg1: #f4eee3;
+  --bg2: #fdfaf4;
+  --bg3: #fdfaf4;
+  --border: #c8c0b0;
+  --green:  #1D9E75;
+  --cyan:   #378ADD;
+  --yellow: #c07800;
+  --text: #1a1a1a;
+  --dim:  #333333;
+  --n1:#1D9E75; --n2:#378ADD; --n3:#9c5e00; --n4:#c2410c; --n5:#7a2da8; --n6:#c0306a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg0);
+  color: var(--text);
+  font-family: var(--body);
+  padding: 8px 12px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ---------- Kompakt topbjælke ---------- */
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg1);
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  flex: 0 0 auto;
+}
+[data-theme="light"] header { background: #fdfaf4; }
+.title-group { display: flex; align-items: center; gap: 10px; }
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: .16em;
+  color: var(--green);
+  text-transform: uppercase;
+}
+html:not([data-theme="light"]) h1 { text-shadow: 0 0 10px rgba(0,255,159,.4); }
+
+/* Streng-ikon med svingende bevægelse */
+.icon-str { width: 26px; height: 26px; display: block; }
+.icon-str .peg { fill: var(--green); }
+.icon-str .wv { stroke: var(--green); fill: none; transform-origin: 13px 13px; animation: strOsc 1.5s ease-in-out infinite; }
+@keyframes strOsc { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(-1); } }
+html:not([data-theme="light"]) .icon-str { filter: drop-shadow(0 0 4px rgba(0,255,159,.6)); }
+
+.hdr-btns { display: flex; gap: 7px; flex-wrap: wrap; }
+.btn-hdr {
+  font-family: var(--ui);
+  font-size: 12px;
+  letter-spacing: .08em;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+  padding: 6px 13px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: var(--tr);
+  user-select: none;
+}
+.btn-hdr:hover { border-color: var(--green); color: var(--green); }
+html:not([data-theme="light"]) .btn-hdr:hover { box-shadow: 0 0 10px rgba(0,255,159,.35); }
+[data-theme="light"] .btn-hdr { font-weight: 700; }
+
+/* ---------- Hovedlayout ---------- */
+.main-grid {
+  display: grid;
+  grid-template-columns: 268px 1fr;
+  gap: 8px;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/* Sikkerhedsventil: bliver vinduet meget lavt, scroller kun kolonnen —
+   selve siden forbliver uden scroll. */
+.sidebar { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; }
+.content-col { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; }
+
+.panel {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  padding: 8px 11px;
+  flex: 0 0 auto;
+}
+[data-theme="light"] .panel { background: #fdfaf4; }
+.panel.grow { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+
+.canvas-holder { flex: 1 1 0; min-height: 190px; position: relative; background: var(--bg2); border: 1px solid var(--border); }
+[data-theme="light"] .canvas-holder { background: #fdfaf4; }
+canvas#scene { display: block; width: 100%; height: 100%; cursor: crosshair; }
+
+.sec-title {
+  font-family: var(--ui);
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: var(--green);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+  flex: 0 0 auto;
+}
+[data-theme="light"] .sec-title { font-weight: 700; }
+.sym { text-transform: none; }
+
+/* ---------- Matematisk sats ----------
+   Formler skrives som TeX i data-tex og sættes op af TeX-sætteren i scriptet.
+
+   SKRIFTEN er Latin Modern Math — den samme Computer Modern-tegning, LaTeX
+   selv bruger. Den er indlejret i filen som en delmængde på ca. 20 kB med
+   netop de tegn, formlerne bruger, så den virker uden netforbindelse og uden
+   at eleverne skal installere noget. Findes skriften allerede på maskinen
+   (fx med en TeX-installation), bruges den lokale i stedet.
+
+   Matematik-skrifttyper har ingen kursiv-VARIANT: de kursive bogstaver er
+   selvstændige tegn i Unicodes matematiske alfabet (U+1D44E og frem).
+   Sætteren oversætter derfor variable til de tegn — font-style bruges ikke.
+
+   Størrelsen følger brødteksten. I LaTeX er en fremhævet ligning sat i
+   nøjagtig samme grad som teksten omkring; det er kun luften og brøkernes
+   opsætning, der ændrer sig. */
+@font-face {
+  font-family: 'LM Math Sub';
+  src: local('Latin Modern Math'), local('LatinModernMath-Regular'),
+       url(data:font/woff2;base64,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) format('woff2');
+  font-display: swap;
+}
+.math, .mathd {
+  font-family: 'LM Math Sub', 'Latin Modern Math', 'STIX Two Math',
+               'Cambria Math', serif;
+  font-style: normal;            /* kursiven ligger i tegnene selv */
+  font-variant-ligatures: none;
+  white-space: nowrap;
+  text-transform: none;
+}
+/* Latin Modern har lav x-højde; 1,14 em matcher brødtekstens
+   optiske størrelse, så formlerne hverken springer i øjnene
+   eller forsvinder i teksten. */
+.math  { font-size: 1.14em; }
+.mathd { font-size: 1.18em; }
+
+/* Fremhævet ligning på egen linje */
+.eqd { display: block; text-align: center; margin: 1.1em 0; line-height: 1.9; }
+
+.mv, .mn, .mtext, .mp { font-style: normal; }
+.mfun { font-style: normal; padding-right: .08em; }  /* sin, cos, … */
+.mo   { padding: 0 .19em; }                          /* + − · × */
+.mu   { padding: 0 .02em 0 0; }                      /* fortegn */
+.mr   { padding: 0 .28em; }                          /* = ≈ ⟺ */
+.mcomma { padding-right: .18em; }
+.mabs { padding: 0 .06em; }
+.mslash { padding: 0 .04em; }
+.mquad { display: inline-block; width: 1.1em; }
+.mthin { display: inline-block; width: .18em; }
+
+/* Sænkede og hævede tal */
+.msub, .msup { font-size: .72em; line-height: 0; }
+.msub { vertical-align: -.26em; }
+.msup { vertical-align: .55em; }
+
+/* Brøk — centreret om regnelinjen, som TeX' math axis */
+.mfrac {
+  display: inline-block; vertical-align: middle; text-align: center;
+  margin: 0 .14em; font-size: .88em;
+}
+.mathd .mfrac { font-size: .96em; }
+.mfrac > .mnum { display: block; padding: 0 .3em .08em; line-height: 1.12; }
+.mfrac > .mden {
+  display: block; padding: .1em .3em 0; line-height: 1.12;
+  border-top: .05em solid currentColor;
+}
+
+/* Kvadratrod */
+.msqrt { display: inline-block; vertical-align: middle; white-space: nowrap; }
+.msqrt > .mrad {
+  display: inline-block; vertical-align: middle;
+  transform: scaleY(1.45) translateY(-.03em); transform-origin: center;
+}
+.msqrt > .mrc {
+  display: inline-block; vertical-align: middle;
+  border-top: .05em solid currentColor; padding: .1em .18em .04em .08em;
+}
+
+/* Parenteser, der vokser med indholdet */
+.mfence {
+  display: inline-block; vertical-align: middle;
+  transform: scaleY(1.55); transform-origin: center;
+}
+.mfl { padding-right: .1em; }
+.mfr { padding-left: .1em; }
+
+/* Underpunkter i opgaverne */
+.modal ol > li { margin-bottom: .55em; }
+.modal ol ul { margin: .45em 0 .2em 1.1em; list-style: none; padding: 0; counter-reset: dl; }
+.modal ol ul > li { position: relative; padding-left: 1.5em; margin-bottom: .3em; counter-increment: dl; }
+.modal ol ul > li::before {
+  content: counter(dl, lower-alpha) ')'; position: absolute; left: 0;
+  color: var(--green); font-weight: 600;
+}
+
+/* ---------- Slidere ---------- */
+.ctl-row { margin-bottom: 8px; }
+.ctl-row:last-child { margin-bottom: 0; }
+.ctl-label {
+  font-family: var(--ui);
+  font-size: 12px;
+  letter-spacing: .08em;
+  color: var(--text);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+[data-theme="light"] .ctl-label { font-weight: 700; }
+.ctl-label .val {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--cyan);
+  text-transform: none;
+  white-space: nowrap;
+}
+
+input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px;
+  background: var(--green);
+  border: 2px solid var(--bg0);
+  border-radius: 50%;
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px;
+  background: var(--green);
+  border: 2px solid var(--bg0);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.slider-ends {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  color: var(--dim); margin-top: 2px;
+}
+.ctl-row.off { opacity: .35; pointer-events: none; }
+
+/* ---------- Knapper ---------- */
+.btn-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 8px; }
+.btn-row + .btn-row { margin-top: 7px; }
+.btn {
+  font-family: var(--ui);
+  font-size: 12px;
+  letter-spacing: .1em;
+  border: 1px solid var(--green);
+  background: var(--bg3);
+  color: var(--green);
+  padding: 6px 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: var(--tr);
+  user-select: none;
+}
+[data-theme="light"] .btn { font-weight: 700; }
+.btn:hover { background: rgba(0,255,159,.09); }
+html:not([data-theme="light"]) .btn:hover { box-shadow: 0 0 10px rgba(0,255,159,.4); }
+[data-theme="light"] .btn:hover { background: rgba(29,158,117,.10); }
+.btn.sec { border-color: var(--cyan); color: var(--cyan); }
+.btn.sec:hover { background: rgba(0,207,255,.09); }
+[data-theme="light"] .btn.sec:hover { background: rgba(55,138,221,.10); }
+
+/* ---------- Kontakter ---------- */
+.sw-row {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--ui); font-size: 12px; letter-spacing: .08em;
+  text-transform: uppercase; margin-bottom: 8px; cursor: pointer; user-select: none;
+}
+[data-theme="light"] .sw-row { font-weight: 700; }
+.sw { position: relative; width: 34px; height: 18px; flex-shrink: 0; }
+.sw input { opacity: 0; width: 0; height: 0; }
+.sw i {
+  position: absolute; inset: 0; background: var(--bg3);
+  border: 1px solid var(--border); transition: var(--tr);
+}
+.sw i:before {
+  content: ''; position: absolute; width: 12px; height: 12px;
+  left: 2px; top: 2px; background: var(--dim); transition: var(--tr);
+}
+.sw input:checked + i { border-color: var(--green); }
+.sw input:checked + i:before { transform: translateX(16px); background: var(--green); }
+
+/* ---------- Aflæsninger ---------- */
+.readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.ro { background: var(--bg2); border: 1px solid var(--border); padding: 5px 9px; }
+[data-theme="light"] .ro { background: #ffffff; }
+.ro.wide { grid-column: 1 / -1; }
+.ro .k {
+  font-family: var(--ui); font-size: 11px; letter-spacing: .06em;
+  color: var(--text); display: block; margin-bottom: 1px;
+}
+[data-theme="light"] .ro .k { font-weight: 700; }
+.ro .v { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--cyan); display: block; }
+.ro .v.grn { color: var(--green); }
+.ro .v.yel { color: var(--yellow); }
+
+.preset-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.btn-sm {
+  font-family: var(--ui); font-size: 11.5px; letter-spacing: .06em;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text);
+  padding: 5px 10px; cursor: pointer; text-transform: uppercase;
+  transition: var(--tr); user-select: none;
+}
+.btn-sm:hover { border-color: var(--green); color: var(--green); }
+.btn-sm.reset { margin-left: 14px; border-color: var(--cyan); color: var(--cyan); }
+.btn-sm.reset:hover { background: rgba(0,207,255,.09); }
+[data-theme="light"] .btn-sm { font-weight: 700; }
+
+/* ---------- Modaler ---------- */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.65); z-index: 50;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--bg1); border: 1px solid var(--green);
+  max-width: 720px; width: 100%; max-height: 84vh;
+  overflow-y: auto; padding: 20px 24px;
+}
+[data-theme="light"] .modal { background: #fdfaf4; border-color: #1D9E75; }
+.modal h2 {
+  font-family: 'Orbitron', sans-serif; font-size: 15px; letter-spacing: .1em;
+  color: var(--green); text-transform: uppercase; margin-bottom: 14px;
+  border-bottom: 1px solid var(--border); padding-bottom: 8px;
+}
+.modal p, .modal li { font-size: 14.5px; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+.modal ol, .modal ul { margin: 0 0 10px 22px; }
+.modal .acc { color: var(--cyan); font-weight: 600; }
+.modal .acc-y { color: var(--yellow); font-weight: 600; }
+[data-theme="light"] .modal .acc-y { color: #c07800; }
+.modal-close-row { text-align: right; margin-top: 12px; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--bg3); border: 1px solid var(--green); color: var(--green);
+  font-family: var(--ui); font-size: 13px; letter-spacing: .08em;
+  padding: 10px 22px; opacity: 0; pointer-events: none;
+  transition: opacity .3s; z-index: 99;
+}
+.toast.show { opacity: 1; }
+
+@media (max-width: 980px) {
+  html, body { overflow: auto; height: auto; }
+  .main-grid { grid-template-columns: 1fr; }
+  .canvas-holder { height: 46vw; min-height: 220px; }
+  .panel.grow { flex: 0 0 auto; }
+}
+/* ---------- Stofvalg ---------- */
+.stof-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.btn-stof {
+  font-family: var(--ui); font-size: 12px; letter-spacing: .06em;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text);
+  padding: 7px 4px; cursor: pointer; text-transform: uppercase;
+  transition: var(--tr); user-select: none;
+}
+.btn-stof:hover { border-color: var(--green); color: var(--green); }
+.btn-stof.aktiv { border-color: var(--green); color: var(--green); background: rgba(0,255,159,.10); }
+[data-theme="light"] .btn-stof { font-weight: 700; }
+[data-theme="light"] .btn-stof.aktiv { background: rgba(29,158,117,.12); }
+
+/* ---------- Grafens lærred ---------- */
+/* Uden denne regel bruger lærredet sin egen pixelstørrelse og flyder ud
+   over panelet. */
+canvas#graf { display: block; width: 100%; height: 100%; cursor: crosshair; }
+
+/* ---------- Molekylefelt ---------- */
+.mol-grid { display: grid; grid-template-columns: 460px 1fr; gap: 16px; align-items: center; }
+.mol-holder { height: 200px; position: relative; background: var(--bg2); border: 1px solid var(--border); }
+[data-theme="light"] .mol-holder { background: #fdfaf4; }
+canvas#mol { display: block; width: 100%; height: 100%; }
+.mol-tekst {
+  font-family: var(--body); font-size: 14px; line-height: 1.6;
+  color: var(--text);
+}
+[data-theme="light"] .mol-tekst { font-weight: 600; }
+
+/* ---------- Energiregnskab ---------- */
+.ebar {
+  display: flex; height: 26px; width: 100%;
+  border: 1px solid var(--border); background: var(--bg2); overflow: hidden;
+}
+[data-theme="light"] .ebar { background: #ffffff; }
+.eseg { height: 100%; width: 0; transition: width .08s linear; }
+.eseg.e1 { background: var(--n2); }
+.eseg.e2 { background: var(--n3); }
+.eseg.e3 { background: var(--n1); }
+.eseg.e4 { background: var(--n4); }
+.eleg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+.el { display: flex; align-items: flex-start; gap: 6px; }
+.el i {
+  width: 12px; height: 12px; flex-shrink: 0; margin-top: 3px;
+  border: 1px solid var(--bg0); display: block;
+}
+[data-theme="light"] .el i { border-color: #7a7266; }
+.el.l1 i { background: var(--n2); } .el.l2 i { background: var(--n3); }
+.el.l3 i { background: var(--n1); } .el.l4 i { background: var(--n4); }
+.el .kt { font-family: var(--ui); font-size: 11px; letter-spacing: .04em; color: var(--text); display: block; }
+[data-theme="light"] .el .kt { font-weight: 700; }
+.el .vt { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--cyan); display: block; margin-top: 1px; }
+
+@media (max-width: 980px) {
+  .eleg { grid-template-columns: repeat(2, 1fr); }
+  .mol-grid { grid-template-columns: 1fr; }
+  .mol-holder { height: 46vw; min-height: 180px; }
+}
+
+/* ---------- Termometer-ikon ---------- */
+.icon-th { width: 26px; height: 26px; display: block; }
+.icon-th .tube { fill: none; stroke: var(--green); stroke-width: 2; }
+.icon-th .bulb { fill: var(--green); }
+.icon-th .merc { fill: var(--green); transform-origin: 13px 18px; animation: thRise 2.2s ease-in-out infinite; }
+@keyframes thRise { 0%,100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255,159,.6)); }
+
+/* ---------- Datatabel i modal ---------- */
+.dtab { border-collapse: collapse; width: 100%; margin-bottom: 8px; }
+.dtab th, .dtab td {
+  border: 1px solid var(--border); padding: 5px 9px;
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  color: var(--text); text-align: right;
+}
+.dtab th { color: var(--green); font-family: var(--ui); letter-spacing: .06em; }
+.dtab td:first-child, .dtab th:first-child {
+  text-align: left; font-family: var(--body); font-weight: 600; color: var(--text);
+}
+.dtab-note { font-size: 13px; color: var(--text); }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title-group">
+      <svg class="icon-th" viewBox="0 0 26 26" aria-hidden="true">
+        <rect class="tube" x="10" y="2.5" width="6" height="15" rx="3"/>
+        <circle class="bulb" cx="13" cy="19.5" r="4.2"/>
+        <rect class="merc" x="11.6" y="6" width="2.8" height="12"/>
+      </svg>
+      <h1>Fra is til damp</h1>
+    </div>
+    <div class="hdr-btns">
+      <button class="btn-hdr" id="btnForklaring">Forklaring</button>
+      <button class="btn-hdr" id="btnOpgave">Opgaver</button>
+      <button class="btn-hdr" id="btnKopier">Kopier kode</button>
+      <button class="btn-hdr" id="btnTema">Lyst tema</button>
+    </div>
+  </header>
+
+  <div class="main-grid">
+
+    <div class="sidebar">
+
+      <div class="panel">
+        <div class="sec-title">Stof</div>
+        <div class="stof-row" id="stofRow">
+          <button class="btn-stof aktiv" data-stof="vand">Vand</button>
+          <button class="btn-stof" data-stof="ethanol">Ethanol</button>
+          <button class="btn-stof" data-stof="tin">Tin</button>
+          <button class="btn-stof" data-stof="stofx">Stof X</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="sec-title">Kontrol</div>
+
+        <div class="ctl-row">
+          <div class="ctl-label">
+            <span>Effekt <span class="sym">P</span></span>
+            <span class="val" id="pVal">1000 W</span>
+          </div>
+          <input type="range" id="pSlider" min="200" max="2000" step="50" value="1000">
+          <div class="slider-ends"><span>200 W</span><span>2000 W</span></div>
+        </div>
+
+        <div class="ctl-row">
+          <div class="ctl-label">
+            <span>Masse <span class="sym">m</span></span>
+            <span class="val" id="mVal">500 g</span>
+          </div>
+          <input type="range" id="mSlider" min="100" max="500" step="10" value="500">
+          <div class="slider-ends"><span>100 g</span><span>500 g</span></div>
+        </div>
+
+        <div class="ctl-row">
+          <div class="ctl-label">
+            <span>Starttemperatur</span>
+            <span class="val" id="tVal">&minus;20 &deg;C</span>
+          </div>
+          <input type="range" id="tSlider" min="-40" max="-5" step="1" value="-20">
+          <div class="slider-ends"><span id="tEnd0">&minus;40 &deg;C</span><span id="tEnd1">&minus;5 &deg;C</span></div>
+        </div>
+
+        <div class="ctl-row">
+          <div class="ctl-label">
+            <span>Tidsfaktor</span>
+            <span class="val" id="fVal">&times;20</span>
+          </div>
+          <input type="range" id="fSlider" min="1" max="200" step="1" value="20">
+          <div class="slider-ends"><span>&times;1</span><span>&times;200</span></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="btnStart">Start</button>
+          <button class="btn sec" id="btnNulstil">Nulstil</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="sec-title">Afl&aelig;sninger</div>
+        <div class="readouts">
+          <div class="ro"><span class="k">Temperatur <span class="sym">T</span></span><span class="v grn" id="roT">&ndash;</span></div>
+          <div class="ro"><span class="k">Tilf&oslash;rt energi <span class="sym">&Delta;E</span></span><span class="v" id="roE">&ndash;</span></div>
+          <div class="ro"><span class="k">Tid <span class="sym">&Delta;t</span></span><span class="v" id="roTid">&ndash;</span></div>
+          <div class="ro"><span class="k">Tilstand</span><span class="v" id="roFase">&ndash;</span></div>
+          <div class="ro wide"><span class="k" id="roAndelK">Andel smeltet</span><span class="v yel" id="roAndel">&ndash;</span></div>
+          <div class="ro wide"><span class="k">Energi til hele forl&oslash;bet</span><span class="v" id="roTot">&ndash;</span></div>
+          <div class="ro wide"><span class="k">M&aring;ling p&aring; grafen <span class="sym">&Delta;E</span></span><span class="v yel" id="roMaal">Klik to steder i grafen</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="content-col">
+
+      <div class="panel grow">
+        <div class="canvas-holder">
+          <canvas id="graf"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="sec-title">Molekyler</div>
+        <div class="mol-grid">
+          <div class="mol-holder">
+            <canvas id="mol"></canvas>
+          </div>
+          <div class="mol-tekst" id="molTekst">&nbsp;</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="sec-title">Energiregnskab</div>
+        <div class="ebar">
+          <span class="eseg e1" id="eb1"></span>
+          <span class="eseg e2" id="eb2"></span>
+          <span class="eseg e3" id="eb3"></span>
+          <span class="eseg e4" id="eb4"></span>
+        </div>
+        <div class="eleg">
+          <div class="el l1"><i></i><span><span class="kt" id="lk1">Opvarmning af is</span><span class="vt" id="lv1">&ndash;</span></span></div>
+          <div class="el l2"><i></i><span><span class="kt">Smeltning</span><span class="vt" id="lv2">&ndash;</span></span></div>
+          <div class="el l3"><i></i><span><span class="kt" id="lk3">Opvarmning af vand</span><span class="vt" id="lv3">&ndash;</span></span></div>
+          <div class="el l4"><i></i><span><span class="kt">Fordampning</span><span class="vt" id="lv4">&ndash;</span></span></div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Modaler SKAL ligge før script-tagget -->
+<div class="modal-bg" id="modalForklaring">
+  <div class="modal">
+    <h2>Forklaring</h2>
+
+    <p>Et stof tilføres varme med konstant effekt, og grafen viser, hvordan temperaturen udvikler sig. Bemærk, at der ligger <span class="acc">tilført energi</span> ud ad førsteaksen — ikke tid. Derfor ser kurven fuldstændig ens ud, uanset hvor kraftigt der varmes op: en større effekt betyder blot, at man kommer hurtigere hen ad aksen. Effekten er jo netop, hvor hurtigt energien omsættes:</p>
+    <span class="eqd" data-tex="P = \frac{\Delta E}{\Delta t}"></span>
+
+    <p>Kurven falder i fire afsnit. På de to <span class="acc">skrå</span> stykker stiger temperaturen, fordi den tilførte energi går til at øge molekylernes kinetiske energi. Her gælder</p>
+    <span class="eqd" data-tex="\Delta E_{\text{term}} = m\cdot c\cdot\Delta T"></span>
+    <p>Det betyder, at et stof med stor varmefylde <span class="eq" data-tex="c"></span> giver en skrå kurve med lav hældning: der skal meget energi til hver eneste grad. Læg mærke til, at det første skrå stykke er stejlere end det andet. Det er ikke tilfældigt — varmefylden for et fast stof er normalt lavere end for samme stof i væskefasen.</p>
+
+    <p>På de to <span class="acc">vandrette</span> stykker sker der noget andet. Her tilføres der lige så meget energi som før, men temperaturen rører sig ikke. Energien går ikke til bevægelse, men til at <span class="acc">bryde bindingerne</span> mellem molekylerne. Den kaldes <span class="acc">latent varme</span>, af latin for skjult, netop fordi den ikke kan ses på et termometer:</p>
+    <span class="eqd" data-tex="\Delta E = L\cdot\Delta m"></span>
+    <p>hvor <span class="eq" data-tex="L_s"></span> er smeltevarmen og <span class="eq" data-tex="L_f"></span> fordampningsvarmen.</p>
+
+    <p>I molekylefeltet kan man følge, hvad energien bruges til. I det faste stof sidder molekylerne fast i et gitter og vibrerer omkring hver sin plads, kraftigere og kraftigere. Ved smeltepunktet holder vibrationerne op med at vokse; i stedet rives molekylerne løs fra deres pladser, så de kan glide forbi hinanden. De hænger stadig sammen — det er en væske, ikke en gas. Først ved kogepunktet rives de <span class="acc">helt</span> fri af hinanden, og det er dyrt: for vand kræver fordampningen næsten syv gange så meget energi som smeltningen.</p>
+
+    <p>De tre stoffer pakker sig forskelligt, og det kan ses i molekylefeltet. Vandmolekylerne sidder i et åbent sekskantet gitter, hvor hvert molekyle holdes af flere naboer på én gang. Ethanol tegnes aflangt med en <span class="acc-y">gul OH-gruppe</span> i den ene ende — og da hvert molekyle kun har én OH-gruppe, kan de kun binde sig sammen i kæder, ikke i et net. Der er derfor færre bindinger at bryde pr. molekyle, og det er netop derfor, at både smeltevarmen og fordampningsvarmen for ethanol er væsentligt mindre end for vand. Tinatomerne ligger tætpakket med seks naboer, som i et metal. Molekylefeltet for <span class="acc">Stof X</span> viser også stoffets rigtige struktur — den ledetråd må du bruge.</p>
+
+    <p>For ethanol tegnes <span class="acc">to forskellige slags tiltrækning</span>. De kraftige grønne streger mellem OH-grupperne er hydrogenbindinger: stærke og retningsbestemte, og det er dem, der danner kæderne. De tynde stiplede streger på tværs er de svage tiltrækninger mellem molekylernes kulbrintehaler. De er hver for sig meget svagere, men der er mange af dem, og uden dem ville kæderne slet ikke hænge sammen til et fast stof. Når et molekyle rives løs, forsvinder begge slags. I væsken tegnes kun hydrogenbindingerne, for det er dem, man kan pege på som enkeltbindinger.</p>
+
+    <p><em>Om modellen:</em> Systemet regnes som perfekt isoleret, så al tilført energi bliver i stoffet. Det er en idealisering — en rigtig gryde afgiver hele tiden varme til køkkenet, og især under kogningen er tabet stort. Dampen forlader systemet, så forløbet slutter, når det sidste er fordampet. Bevægelsen i molekylefeltet er <span class="acc-y">stærkt overdrevet</span>. Størrelsesforholdet er pyntet. Antallet af molekyler er 72, hvor en dråbe vand indeholder omkring <span data-tex="10^{21}"></span>. Fordampningen er simplificeret: i virkeligheden sker der også en lille fordampning mens væsken varmes op, men i simuleringen sker hele fordampningen ved kogepunktet.</p>
+
+    <h2 style="margin-top:20px;">Stofdata brugt i simuleringen</h2>
+    <table class="dtab">
+      <tr><th></th><th>Vand</th><th>Ethanol</th><th>Tin</th></tr>
+      <tr><td>Smeltepunkt</td><td>0 °C</td><td>−114 °C</td><td>232 °C</td></tr>
+      <tr><td>Kogepunkt</td><td>100 °C</td><td>78 °C</td><td>2602 °C</td></tr>
+      <tr><td>Varmefylde, fast</td><td>2040</td><td>970</td><td>227</td></tr>
+      <tr><td>Varmefylde, flydende</td><td>4182</td><td>2300</td><td>240</td></tr>
+      <tr><td>Smeltevarme <span data-tex="L_s"></span></td><td>334</td><td>109</td><td>59,2</td></tr>
+      <tr><td>Fordampningsvarme <span data-tex="L_f"></span></td><td>2257</td><td>837</td><td>2492</td></tr>
+    </table>
+    <p class="dtab-note">Varmefylder i J/(kg·K), latent varme i kJ/kg. Vands værdier er dem fra noten. Værdierne for ethanol og tin er omregnet fra molare tabelværdier. <span class="acc-y">Stof X står ikke i tabellen</span> — dets seks værdier skal måles på grafen. Det er et virkeligt stof, og alle seks værdier kan findes i en datatabel.</p>
+
+    <div class="modal-close-row"><button class="btn" data-close="modalForklaring">Luk</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalOpgave">
+  <div class="modal">
+    <h2>Opgaver</h2>
+    <ol>
+
+      <li>Start med vand, 500 g, −20 °C og 1000 W. Tryk <span class="acc">Start</span>, og se forløbet igennem.
+        <ul>
+          <li>Beskriv med dine egne ord, hvad der sker med temperaturen i hvert af de fire afsnit.</li>
+          <li>Klik to steder i grafen for at måle. Find den energi, der skal til for at bringe isen fra −20 °C op til 0 °C, og kontrollér din måling med <span class="eq" data-tex="\Delta E_{\text{term}} = m\cdot c\cdot\Delta T"></span>. Varmefylden står i <span class="acc">Forklaring</span>.</li>
+          <li>Der tilføres lige meget energi pr. sekund hele vejen igennem. Hvorfor står temperaturen så helt stille i de to vandrette afsnit?</li>
+        </ul>
+      </li>
+
+      <li>Bestem de to latente varmer.
+        <ul>
+          <li>Mål <span class="eq" data-tex="\Delta E"></span> for det første plateau, og bestem smeltevarmen som <span class="eq" data-tex="L_s = \Delta E/m"></span>. Sammenlign med tabellen i <span class="acc">Forklaring</span>.</li>
+          <li>Gør det samme for det andet plateau, og bestem <span class="eq" data-tex="L_f"></span>.</li>
+          <li>Hvor mange gange større er <span class="eq" data-tex="L_f"></span> end <span class="eq" data-tex="L_s"></span>? Forklar forskellen ud fra, hvad der sker med bindingerne mellem molekylerne i de to processer — kig med i molekylefeltet.</li>
+        </ul>
+      </li>
+
+      <li>De to skrå stykker.
+        <ul>
+          <li>Hvilket af dem er stejlest? Hvad betyder en stejl hældning for, hvor meget energi der skal til pr. grad?</li>
+          <li>Mål <span class="eq" data-tex="\Delta E"></span> for opvarmningen af vandet fra 0 °C til 100 °C, og bestem varmefylden som <span class="eq" data-tex="c = \frac{\Delta E}{m\cdot\Delta T}"></span>.</li>
+          <li>Bestem på samme måde <span class="eq" data-tex="c"></span> for isen, og beregn forholdet mellem de to. Passer det med, hvad du kan se på de to hældninger?</li>
+        </ul>
+      </li>
+
+      <li>Hvad betyder effekten, og hvad betyder massen?
+        <ul>
+          <li>Nulstil, og kør forløbet igennem igen med <span class="eq" data-tex="P = 2000\,\text{W}"></span>. Hvad ændrer sig på grafen, og hvad ændrer sig i aflæsningerne? Forklar med <span class="eq" data-tex="P = \Delta E/\Delta t"></span>.</li>
+          <li>Sæt nu massen ned til 250 g. Denne gang ændrer kurven sig. Hvad sker der med den — og hvad sker der <em>ikke</em>?</li>
+          <li>Aflæs, hvor lang tid det tager at koge de 500 g vand helt væk ved 1000 W. Passer det med din erfaring fra et køkken? Hvad er der set bort fra i modellen?</li>
+        </ul>
+      </li>
+
+      <li>Sammenligning af de tre stoffer.
+        <ul>
+          <li>Hvor stor en brøkdel af den samlede energi går til fordampningen af vandet? Brug <span class="acc">Energiregnskab</span>.</li>
+          <li>Skift til ethanol og kør forløbet. Sammenlign de fire dele af energiregnskabet med vandets. Hvilket af de to stoffer kræver mest energi i alt for at gå fra fast stof til damp?</li>
+          <li>Skift til tin. Smelteplateauet er nu så smalt, at det næsten ikke kan ses. Mål det alligevel, og bestem <span class="eq" data-tex="L_s"></span> for tin. Forklar, hvorfor det fylder så lidt, når det er præcis den samme slags proces som når is smelter.</li>
+        </ul>
+      </li>
+
+      <li>Et ukendt stof. Skift til <span class="acc">Stof X</span>, og kør forløbet. Der står ingen af dets data i tabellen — alt skal måles.
+        <ul>
+          <li>Aflæs smeltepunktet og kogepunktet direkte på temperaturaksen.</li>
+          <li>Mål de to plateauer, og bestem <span class="eq" data-tex="L_s"></span> og <span class="eq" data-tex="L_f"></span>.</li>
+          <li>Mål de to skrå stykker, og bestem <span class="eq" data-tex="c"></span> for både den faste form og væsken. Husk at bruge den temperaturændring, du selv har aflæst.</li>
+          <li>Stil dine seks tal op ved siden af vandets, ethanolens og tinnets. Hvad ligner Stof X mest — og hvad ligner det slet ikke? Kig også på molekylefeltet.</li>
+          <li>Stof X er et virkeligt stof. Slå op i en datatabel, og find ud af hvilket. Nøjes ikke med ét tal, der passer — kontrollér mindst tre af dine seks målinger mod tabellen, før du beslutter dig.</li>
+        </ul>
+      </li>
+
+    </ol>
+    <div class="modal-close-row"><button class="btn" data-close="modalOpgave">Luk</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Kode kopieret til udklipsholderen</div>
+
+<script>
+'use strict';
+
+/* ================= Lille TeX-sætter =================
+   Formler skrives som TeX i attributten data-tex og sættes op ved indlæsning.
+   Der understøttes netop den delmængde, disse simuleringer bruger:
+
+     \frac{a}{b}   \sqrt{a}   a_{n}   a^{2}   \left( … \right)
+     \lambda \pi \omega \gamma \mu \Delta      græske bogstaver
+     \cdot \times \pm \approx \le \ge \ne \Leftrightarrow \to
+     \sin \cos \tan \log \ln                   opret (ikke kursiv)
+     \text{…}                                  opret tekst, fx enheder
+     |a|                                       numerisk værdi
+     \\  \\,                                    tyndt mellemrum, fx foran enheder
+     0,75                                      danske decimaltal skrives direkte
+
+   Variable sættes kursivt, tal og enheder opret — præcis som i LaTeX.
+   Skriften er Latin Modern Math, indlejret i stilarket som en delmængde.
+   Ingen eksterne biblioteker, så filen virker også uden netforbindelse. */
+(function () {
+  'use strict';
+  const GREEK = {
+    alpha:'α', beta:'β', gamma:'γ', delta:'δ', theta:'θ', lambda:'λ', mu:'μ',
+    pi:'π', rho:'ρ', sigma:'σ', phi:'φ', omega:'ω',
+    Delta:'Δ', Lambda:'Λ', Omega:'Ω', Sigma:'Σ'
+  };
+  /* [tegn, klasse] — 'o' = regneoperator (smal luft), 'r' = relation (bred luft) */
+  const OPS = {
+    cdot:['·','o'], times:['×','o'], div:['÷','o'], pm:['±','o'], mp:['∓','o'],
+    approx:['≈','r'], ne:['≠','r'], le:['≤','r'], ge:['≥','r'],
+    Leftrightarrow:['⟺','r'], Rightarrow:['⟹','r'], to:['→','r'],
+    ldots:['…','p'], dots:['…','p']
+  };
+  const FUNCS = ['sin','cos','tan','log','ln','exp','max','min'];
+
+  /* Matematik-skrifttyper har ingen kursiv-variant. De kursive bogstaver er
+     selvstændige tegn i Unicodes matematiske alfabet, og det er dem, en
+     variabel skal sættes med. h har sin egen plads (U+210E, Plancks konstant),
+     fordi U+1D455 er reserveret. */
+  function kursiv(c) {
+    const o = c.charCodeAt(0);
+    if (c === 'h') return '\u210E';
+    if (o >= 97 && o <= 122) return String.fromCodePoint(0x1D44E + o - 97);   /* a-z */
+    if (o >= 65 && o <= 90)  return String.fromCodePoint(0x1D434 + o - 65);   /* A-Z */
+    return c;
+  }
+  /* små græske bogstaver er variable og sættes kursivt; store holdes oprette */
+  const GREEK_IT = {
+    alpha:0x1D6FC, beta:0x1D6FD, gamma:0x1D6FE, delta:0x1D6FF, theta:0x1D703,
+    lambda:0x1D706, mu:0x1D707, pi:0x1D70B, rho:0x1D70C, sigma:0x1D70E,
+    phi:0x1D711, omega:0x1D714
+  };
+  const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  function render(src, display) {
+    let i = 0, prev = null;      /* type af forrige tegn — til fortegnsreglen */
+    const s = src;
+
+    function ws() { while (i < s.length && s[i] === ' ') i++; }
+
+    /* et argument: {...} eller præcis ét element */
+    function arg() {
+      ws();
+      if (s[i] === '{') { i++; const h = seq('}'); if (s[i] === '}') i++; return h; }
+      return one() || '';
+    }
+
+    /* hæft _ og ^ på et grundelement */
+    function scripts(base) {
+      let sub = null, sup = null;
+      for (;;) {
+        ws();
+        if (s[i] === '_' && sub === null) { i++; sub = arg(); }
+        else if (s[i] === '^' && sup === null) { i++; sup = arg(); }
+        else break;
+      }
+      if (sub === null && sup === null) return base;
+      let h = base;
+      if (sup !== null) h += '<span class="msup">' + sup + '</span>';
+      if (sub !== null) h += '<span class="msub">' + sub + '</span>';
+      return h;
+    }
+
+    /* ét element uden efterfølgende scripts */
+    function one() {
+      ws();
+      if (i >= s.length) return null;
+      const c = s[i];
+
+      if (c === '\\') {
+        let j = i + 1, name = '';
+        while (j < s.length && /[A-Za-z]/.test(s[j])) name += s[j++];
+        if (!name) {
+          /* \  \, \; = tynde mellemrum;  ellers et bogstaveligt tegn */
+          const nxt = s[i + 1];
+          i += 2;
+          if (nxt === ' ' || nxt === ',' || nxt === ';') return '<span class="mthin"></span>';
+          return '<span class="mp">' + esc(nxt || '') + '</span>';
+        }
+        i = j;
+        if (name === 'frac') {
+          const a = arg(), b = arg();
+          mark('v');
+          return '<span class="mfrac"><span class="mnum">' + a +
+                 '</span><span class="mden">' + b + '</span></span>';
+        }
+        if (name === 'sqrt') {
+          const a = arg();
+          return '<span class="msqrt"><span class="mrad">√</span>' +
+                 '<span class="mrc">' + a + '</span></span>';
+        }
+        if (name === 'text') {
+          /* \text{} skal læses som RÅ tekst — ellers bliver enheder som m/s
+             fortolket som variable og sat kursivt. */
+          ws();
+          let t = '';
+          if (s[i] === '{') {
+            i++; let d = 1;
+            while (i < s.length && d > 0) {
+              if (s[i] === '{') d++;
+              else if (s[i] === '}') { d--; if (!d) { i++; break; } }
+              t += s[i++];
+            }
+          } else { t = s[i++] || ''; }
+          mark('v');
+          return '<span class="mtext">' + esc(t) + '</span>';
+        }
+        if (name === 'left')  { ws(); const p = s[i++] || '('; mark('open'); return '<span class="mfence mfl">' + esc(p) + '</span>'; }
+        if (name === 'right') { ws(); const p = s[i++] || ')'; return '<span class="mfence mfr">' + esc(p) + '</span>'; }
+        if (name === 'quad')  { return '<span class="mquad"></span>'; }
+        if (GREEK_IT[name])   { mark('v'); return '<span class="mv">' + String.fromCodePoint(GREEK_IT[name]) + '</span>'; }
+        if (GREEK[name])      { mark('v'); return '<span class="mv">' + GREEK[name] + '</span>'; }
+        if (OPS[name])        { mark(OPS[name][1]); return '<span class="m' + OPS[name][1] + '">' + OPS[name][0] + '</span>'; }
+        if (FUNCS.indexOf(name) >= 0) { return '<span class="mfun">' + name + '</span>'; }
+        return '<span class="mtext">' + esc(name) + '</span>';
+      }
+
+      if (c === '{') { i++; const h = seq('}'); if (s[i] === '}') i++; return h; }
+
+      /* tal — hele tallet i ét, så komma og punktum ikke bliver operatorer */
+      if (/[0-9]/.test(c)) {
+        let n = '';
+        while (i < s.length && /[0-9.,]/.test(s[i])) n += s[i++];
+        n = n.replace(/[.,]$/, m => (i--, ''));
+        mark('n');
+        return '<span class="mn">' + n + '</span>';
+      }
+      if (/[A-Za-z]/.test(c)) { i++; mark('v'); return '<span class="mv">' + kursiv(c) + '</span>'; }
+      if ('+-−'.indexOf(c) >= 0) {
+        i++;
+        /* fortegn (unært) hvis der ikke står noget at regne på til venstre */
+        const kl = (prev === null || prev === 'o' || prev === 'r' || prev === 'open') ? 'mu' : 'mo';
+        mark('o');
+        return '<span class="' + kl + '">' + (c === '-' ? '−' : c) + '</span>';
+      }
+      if ('=<>'.indexOf(c) >= 0) { i++; mark('r'); return '<span class="mr">' + esc(c) + '</span>'; }
+      if (c === '/') { i++; return '<span class="mo mslash">/</span>'; }
+      if (c === '|') { i++; return '<span class="mabs">|</span>'; }
+      if (c === '(' || c === ')' || c === '[' || c === ']') {
+        i++; mark(c === '(' || c === '[' ? 'open' : 'v');
+        return '<span class="mp">' + c + '</span>';
+      }
+      if (c === ',') { i++; return '<span class="mcomma">,</span>'; }
+      if (c === ' ') { i++; return ''; }
+      i++;
+      return '<span class="mp">' + esc(c) + '</span>';
+    }
+
+    function seq(stop) {
+      let out = '';
+      while (i < s.length && s[i] !== stop) {
+        const before = i;
+        const a = one();
+        if (a === null) break;
+        out += scripts(a);
+        if (i === before) { i++; }      /* sikkerhedsventil mod uendelig løkke */
+      }
+      return out;
+    }
+
+    /* holder styr på, hvad der sidst blev sat — så et minus kan skelnes fra
+       et fortegn. Kaldes af one() via de enkelte grene. */
+    function mark(t) { prev = t; }
+
+    return '<span class="' + (display ? 'mathd' : 'math') + '">' + seq(null) + '</span>';
+  }
+
+  function setUp(root) {
+    (root || document).querySelectorAll('[data-tex]').forEach(function (el) {
+      if (el.dataset.done) return;
+      el.innerHTML = render(el.getAttribute('data-tex'), el.classList.contains('eqd'));
+      el.dataset.done = '1';
+    });
+  }
+  window.TeX = { render: render, setUp: setUp };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setUp(); });
+  else setUp();
+})();
+
+/* ================= Tema ================= */
+const htmlEl = document.documentElement;
+const btnTema = document.getElementById('btnTema');
+function isLight() { return htmlEl.getAttribute('data-theme') === 'light'; }
+function D(dark, light) { return isLight() ? light : dark; }
+
+btnTema.addEventListener('click', () => {
+  if (isLight()) { htmlEl.removeAttribute('data-theme'); btnTema.textContent = 'Lyst tema'; }
+  else { htmlEl.setAttribute('data-theme', 'light'); btnTema.textContent = 'Mørkt tema'; }
+  farveCache = null;
+});
+
+/* Farverne hentes fra stilarkets variable, så canvas og HTML altid følges ad.
+   Cachen ryddes ved temaskift. */
+let farveCache = null;
+function F(navn) {
+  if (!farveCache) {
+    farveCache = {};
+    const cs = getComputedStyle(htmlEl);
+    ['--text','--dim','--green','--cyan','--yellow','--border','--bg1','--bg2',
+     '--n1','--n2','--n3','--n4'].forEach(k => { farveCache[k] = cs.getPropertyValue(k).trim(); });
+  }
+  return farveCache[navn];
+}
+
+/* ================= Modaler ================= */
+function bindModal(btnId, modalId) {
+  document.getElementById(btnId).addEventListener('click', () =>
+    document.getElementById(modalId).classList.add('open'));
+}
+bindModal('btnForklaring', 'modalForklaring');
+bindModal('btnOpgave', 'modalOpgave');
+document.querySelectorAll('[data-close]').forEach(b =>
+  b.addEventListener('click', () => document.getElementById(b.dataset.close).classList.remove('open')));
+document.querySelectorAll('.modal-bg').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-bg.open').forEach(m => m.classList.remove('open'));
+});
+
+/* ================= Kopier kode ================= */
+document.getElementById('btnKopier').addEventListener('click', () => {
+  const code = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  navigator.clipboard.writeText(code).then(() => {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  });
+});
+
+/* ================= Dansk talformatering ================= */
+/* Fysik-konvention: decimalkomma, men ALDRIG tusindtalsseparator */
+function daNum(x, digits) {
+  return x.toLocaleString('da-DK', {
+    minimumFractionDigits: digits, maximumFractionDigits: digits, useGrouping: false });
+}
+function tidTekst(s) {
+  if (s < 90) return daNum(s, 1) + ' s';
+  const t = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const r = Math.round(s % 60);
+  if (t > 0) return t + ' t ' + m + ' min';
+  return m + ' min ' + r + ' s';
+}
+
+/* === FYSIK-KERNE START ===
+   Opvarmning af et stof med konstant effekt, fra fast form til fuldstændig
+   fordampning. Systemet regnes isoleret, så al tilført energi bliver i stoffet.
+
+   Uden faseovergang gælder    dE = m*c*dT     (varmefylde)
+   ved faseovergang gælder     dE = L*dm       (latent varme)
+
+   Forløbet består derfor af fire trin med hver sit energiforbrug:
+     E1 = m*cFast   * (Ts - T0)     opvarmning af fast stof til smeltepunktet
+     E2 = m*Ls                      smeltning ved konstant temperatur
+     E3 = m*cVaeske * (Tk - Ts)     opvarmning af væsken til kogepunktet
+     E4 = m*Lf                      fordampning ved konstant temperatur
+
+   Temperaturen som funktion af tilført energi er stykkevis eksakt — der
+   integreres ikke numerisk, så aflæsninger passer nøjagtigt med formlerne.
+   Sektionen er DOM-fri.
+
+   Varmefylder i J/(kg*K), latent varme i J/kg. Vands værdier er notens.
+   Ethanol og tin er omregnet fra molare tabelværdier:
+     ethanol  M = 46,07 g/mol,  dHs = 5,02 kJ/mol,   dHf = 38,56 kJ/mol
+     tin      M = 118,71 g/mol, dHs = 7,03 kJ/mol,   dHf = 295,8 kJ/mol
+
+   Stof X er et VIRKELIGT stof, hvis navn med vilje ikke står nogen steder —
+   heller ikke her. Alle seks værdier er tabelværdier, så eleven kan slå sig
+   frem til svaret. De latente varmer er omregnet fra M = 200,59 g/mol,
+   dHs = 2,29 kJ/mol og dHf = 59,2 kJ/mol. Molekylefeltet viser stoffets
+   rigtige struktur og er dermed en lovlig ledetråd.
+
+   Starttemperaturen er lagt langt under smeltepunktet, så det første skrå
+   stykke bliver bredt nok til at kunne måles. Varmefylden for den faste form
+   regnes konstant i hele intervallet — samme idealisering som for is.   */
+
+const STOF = {
+  vand: {
+    navn:'Vand', fastNavn:'Is', vaeskeNavn:'Vand',
+    cFast:2040, cVaeske:4182, Ts:0, Tk:100, Ls:334e3, Lf:2257e3,
+    tMin:-40, tMax:-5, tStd:-20, aksTop:120, tempoStd:20, gitter:'hex', form:'kugle',
+    lblFast:'Opvarmning af is', lblVaeske:'Opvarmning af vand',
+    segFast:'Is', segVaeske:'Vand'
+  },
+  ethanol: {
+    navn:'Ethanol', fastNavn:'Fast ethanol', vaeskeNavn:'Ethanol',
+    cFast:970, cVaeske:2300, Ts:-114, Tk:78, Ls:109e3, Lf:837e3,
+    tMin:-160, tMax:-120, tStd:-140, aksTop:100, tempoStd:9, gitter:'skraa', form:'aflang',
+    lblFast:'Opvarmning af fast ethanol', lblVaeske:'Opvarmning af ethanol',
+    segFast:'Fast', segVaeske:'Væske'
+  },
+  stofx: {
+    navn:'Stof X', fastNavn:'Fast form', vaeskeNavn:'Væske',
+    cFast:142, cVaeske:139.5, Ts:-38.83, Tk:356.73, Ls:11.4e3, Lf:295e3,
+    tMin:-120, tMax:-60, tStd:-100, aksTop:380, tempoStd:2, gitter:'tri', form:'kugle',
+    lblFast:'Opvarmning af fast form', lblVaeske:'Opvarmning af væske',
+    segFast:'Fast', segVaeske:'Væske'
+  },
+  tin: {
+    navn:'Tin', fastNavn:'Fast tin', vaeskeNavn:'Flydende tin',
+    cFast:227, cVaeske:240, Ts:231.9, Tk:2602, Ls:59.2e3, Lf:2492e3,
+    tMin:0, tMax:200, tStd:20, aksTop:2700, tempoStd:21, gitter:'tri', form:'kugle',
+    lblFast:'Opvarmning af fast tin', lblVaeske:'Opvarmning af flydende tin',
+    segFast:'Fast', segVaeske:'Væske'
+  }
+};
+
+const M_AKSE = 0.500;   /* kg — energiaksen fastholdes ved den største masse,
+                           så en ændring af massen kan SES på kurvens længde */
+
+/* tempoStd er valgt, så hvert stof tager omtrent 75 sekunder på skærmen ved
+   1000 W. Uden det ville forløbene få vidt forskellig længde, fordi den
+   samlede energi går fra 185 kJ til 1584 kJ afhængigt af stoffet. */
+
+function trin(st, m, T0) {
+  const E1 = m * st.cFast    * (st.Ts - T0);
+  const E2 = m * st.Ls;
+  const E3 = m * st.cVaeske  * (st.Tk - st.Ts);
+  const E4 = m * st.Lf;
+  return { E1:E1, E2:E2, E3:E3, E4:E4,
+           b1:E1, b2:E1+E2, b3:E1+E2+E3, b4:E1+E2+E3+E4 };
+}
+
+function tilstand(st, T0, E, tr) {
+  if (E <= tr.b1) return { T: tr.E1 > 0 ? T0 + (st.Ts - T0) * E / tr.E1 : st.Ts,
+                           fase:'fast', smeltet:0, fordampet:0 };
+  if (E <= tr.b2) return { T: st.Ts, fase:'smeltning',
+                           smeltet:(E - tr.b1) / tr.E2, fordampet:0 };
+  if (E <= tr.b3) return { T: st.Ts + (st.Tk - st.Ts) * (E - tr.b2) / tr.E3,
+                           fase:'vaeske', smeltet:1, fordampet:0 };
+  if (E <  tr.b4) return { T: st.Tk, fase:'fordampning',
+                           smeltet:1, fordampet:(E - tr.b3) / tr.E4 };
+  return { T: st.Tk, fase:'faerdig', smeltet:1, fordampet:1 };
+}
+/* === FYSIK-KERNE SLUT === */
+
+
+/* === MOLEKYLEMODEL START ===
+   En skematisk fremstilling af de 54 molekyler i normerede koordinater,
+   hvor kassen er x, y i [0,1] og y peger opad.
+
+   Fast form: molekylerne sidder på hver sin gitterplads og svinger omkring
+   den. De tre stoffer pakker forskelligt:
+
+     vand      honeycomb — hvert molekyle har tre naboer, og der er hulrum i
+               strukturen, som i isens sekskantede gitter. Molekylerne tegnes
+               som kugler, og hver binding er en streg.
+     ethanol   et skævt (monoklint) gitter af aflange molekyler med hver sin
+               gule OH-gruppe. Ethanol har kun ÉN OH-gruppe, så molekylerne
+               kan kun binde sig sammen to og to i lange kæder — ikke i et net
+               som vandets. Derfor tegnes bindingerne mellem OH-grupperne, og
+               derfor er ethanols smelte- og fordampningsvarme mindre end
+               vands. Molekylerne kan desuden rotere, når de er frie.
+     tin       tætpakket med seks naboer, som et metal. Stof X tegnes på
+               samme måde, fordi dets rigtige struktur er den samme — det er
+               en ledetråd, eleven må bruge.
+
+   Smeltning: molekylerne rives løs fra pladserne ét ad gangen, i takt med
+   hvor stor en del af stoffet der er smeltet. De frie molekyler bevæger sig
+   rundt mellem hinanden, men holdes stadig inde i væsken.
+
+   Fordampning: molekylerne skydes ud gennem toppen ét ad gangen, og
+   væskeoverfladen synker tilsvarende.
+
+   Bindingerne tegnes som streger mellem molekyler tættere på hinanden end
+   bindCut. Antallet af streger falder derfor af sig selv, når gitteret
+   brydes — det er ikke noget, der styres udefra.
+
+   BEMÆRK: farten er stærkt overdrevet. I virkeligheden vokser molekylernes
+   fart kun med kvadratroden af den absolutte temperatur, så forskellen
+   mellem 0 °C og 100 °C ville næsten ikke kunne ses. Rækkefølgen er rigtig,
+   størrelsesforholdet er pyntet. Sektionen er DOM-fri. */
+
+const NMOL = 72;
+let mols = [], rangSm = [], rangFd = [], molR = .05, bindCut = .16, loftFuld = .7;
+let form = 'kugle', ohAfst = .03, naboPar = [], svagPar = [], svagCut = 0;
+
+/* Kassens bredde i samme enhed som højden, der altid er 1. Sættes efter
+   lærredets form, så x og y tegnes med SAMME skala — ellers ville gitteret
+   se strakt ud. */
+let boxW = 2.4;
+
+function bland(n) {
+  const a = []; for (let i = 0; i < n; i++) a.push(i);
+  for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+
+function bygMolekyler(st) {
+  const kant = .05, Wbrug = boxW - 2 * kant, Hmaal = .52;
+  const pts = [];
+  form = st.form; svagCut = 0;
+
+  if (st.gitter === 'hex') {
+    /* honeycomb: hvert molekyle har tre naboer, og der er hulrum i gitteret.
+       Arealet pr. molekyle er 3*sqrt(3)/4 * b^2, hvor b er bindingslængden. */
+    const b = Math.sqrt(Hmaal * Wbrug / (1.299 * NMOL));
+    const a = Math.sqrt(3) * b;
+    molR = .375 * b; bindCut = 1.25 * b;
+    const ni = Math.ceil(boxW / a) + 2, nj = Math.ceil(1.4 / (1.5 * b)) + 2;
+    for (let j = 0; j < nj; j++) for (let i = -nj; i < ni + nj; i++) {
+      const x0 = i * a + j * a / 2, y0 = j * 1.5 * b;
+      for (let k = 0; k < 2; k++) {
+        const x = x0 + kant + b / 2, y = y0 + k * b + kant + b / 2;
+        if (x > kant && x < boxW - kant && y > kant) pts.push({ x: x, y: y, vin: 0 });
+      }
+    }
+
+  } else if (st.gitter === 'skraa') {
+    /* skævt gitter: rækkerne er forskudt 0,33 af en gitterafstand og ligger
+       tættere end i et tætpakket gitter. Hverken vinkler eller afstande er
+       sekskantede. Alle molekyler hælder samme vej, så OH-grupperne står over
+       hinanden fra række til række og danner skrå kæder. Tallet 0,90 er valgt,
+       så netop naboen i kæden binder — ikke naboen ved siden af (afstand 1,00)
+       eller den anden diagonal (1,04). */
+    const rk = .80;                                   /* rækkeafstand / a */
+    const a = Math.sqrt(Hmaal * Wbrug / (rk * NMOL));
+    molR = .42 * rk * a; bindCut = .90 * a; ohAfst = .62 * molR;
+    /* De svage tiltrækninger mellem molekylernes haler går på TVÆRS af
+       kæderne: naboen ved siden af (afstand 1,00) og den anden diagonal
+       (1,04). Kædenaboen (0,865) er allerede en hydrogenbinding. */
+    svagCut = 1.06 * a;
+    const ni = Math.ceil(boxW / a) + 3, nj = Math.ceil(1.4 / (rk * a)) + 2;
+    for (let j = 0; j < nj; j++) for (let i = -2; i < ni; i++) {
+      const x = i * a + j * .33 * a + kant + a / 2, y = j * rk * a + kant + a * .45;
+      if (x > kant && x < boxW - kant && y > kant)
+        pts.push({ x: x, y: y, vin: Math.PI / 2 + .35 + (Math.random() - .5) * .12 });
+    }
+
+  } else {
+    /* tætpakket trekantgitter: seks naboer, som i et metal.
+       Arealet pr. molekyle er sqrt(3)/2 * a^2. */
+    const a = Math.sqrt(Hmaal * Wbrug / (.866 * NMOL));
+    molR = .40 * a; bindCut = 1.15 * a;
+    const ni = Math.ceil(boxW / a) + 2, nj = Math.ceil(1.4 / (a * .866)) + 2;
+    for (let j = 0; j < nj; j++) for (let i = 0; i < ni; i++) {
+      const x = i * a + (j % 2) * a / 2 + kant + a / 2, y = j * a * .866 + kant + a / 2;
+      if (x > kant && x < boxW - kant && y > kant) pts.push({ x: x, y: y, vin: 0 });
+    }
+  }
+
+  pts.sort((p, q) => (p.y - q.y) || (p.x - q.x));
+  const valgt = pts.slice(0, NMOL);
+  loftFuld = Math.min(.97, valgt[valgt.length - 1].y + 3 * molR);
+
+  mols = valgt.map(p => ({
+    sx: p.x, sy: p.y, x: p.x, y: p.y, vx: 0, vy: 0,
+    fri: false, flyver: false, vaek: false,
+    vin0: p.vin, vin: p.vin, dvin: (Math.random() < .5 ? -1 : 1) * (.6 + Math.random() * 1.4),
+    ph: Math.random() * 6.283, ph2: Math.random() * 6.283,
+    w: 5 + Math.random() * 4, w2: 5 + Math.random() * 4
+  }));
+  const sm = bland(NMOL), fd = bland(NMOL);
+  rangSm = []; rangFd = [];
+  for (let k = 0; k < NMOL; k++) { rangSm[sm[k]] = k; rangFd[fd[k]] = k; }
+
+  /* Hvem der er bundet til hvem i det faste stof afgøres af GITTERPLADSERNE,
+     ikke af de øjeblikkelige positioner. Ellers ville bindingerne blinke, når
+     molekylerne vibrerer kraftigere — og det er netop pointen, at de holder,
+     lige indtil stoffet smelter. */
+  naboPar = []; svagPar = [];
+  for (let i = 0; i < NMOL; i++) for (let j = i + 1; j < NMOL; j++) {
+    const A = mols[i], B = mols[j];
+    const pa = bindePunkt({ x: A.sx, y: A.sy, vin: A.vin0 });
+    const pb = bindePunkt({ x: B.sx, y: B.sy, vin: B.vin0 });
+    if (Math.hypot(pb.x - pa.x, pb.y - pa.y) <= bindCut) { naboPar.push([i, j]); continue; }
+    /* svage tiltrækninger mellem molekylernes kroppe — kun der, hvor der
+       ikke i forvejen er en hydrogenbinding */
+    if (svagCut > 0 && Math.hypot(B.sx - A.sx, B.sy - A.sy) <= svagCut) svagPar.push([i, j]);
+  }
+}
+
+/* Det punkt, en binding tegnes fra. For ethanol er det OH-gruppen for enden
+   af molekylet — det er den, der danner hydrogenbindingen. */
+function bindePunkt(o) {
+  if (form !== 'aflang') return o;
+  return { x: o.x + Math.cos(o.vin) * ohAfst, y: o.y + Math.sin(o.vin) * ohAfst };
+}
+
+function nulstilMolekyler() {
+  mols.forEach(o => {
+    o.x = o.sx; o.y = o.sy; o.vx = 0; o.vy = 0; o.vin = o.vin0;
+    o.fri = false; o.flyver = false; o.vaek = false;
+  });
+}
+
+/* Udsvinget/farten som funktion af temperaturen. Fysisk er farten
+   proportional med kvadratroden af den absolutte temperatur; her strækkes
+   resultatet ud over intervallet [0,35 ; 1], så ændringen kan ses. */
+function bevaegelse(st, T) {
+  const u = Math.sqrt(T + 273.15);
+  const u0 = Math.sqrt(st.tMin + 273.15), u1 = Math.sqrt(st.Tk + 273.15);
+  const f = Math.max(0, Math.min(1, (u - u0) / (u1 - u0)));
+  return .35 + .65 * f;
+}
+
+let molUr = 0;
+
+function opdaterMolekyler(dt, st, s) {
+  molUr += dt;
+  const d = bevaegelse(st, s.T);
+  const amp = .45 * molR * d;
+  const fart = .38 * d;
+
+  const nFri  = Math.round(s.smeltet   * NMOL);
+  const nVaek = Math.round(s.fordampet * NMOL);
+  const tilbage = NMOL - nVaek;
+  const loft = .05 + (loftFuld - .05) * (tilbage / NMOL);
+
+  for (let k = 0; k < NMOL; k++) {
+    const o = mols[k];
+    if (o.vaek) continue;
+
+    if (!o.fri && rangSm[k] < nFri) {                    /* rives løs af gitteret */
+      o.fri = true;
+      const v = Math.random() * 6.283;
+      o.vx = Math.cos(v) * fart; o.vy = Math.sin(v) * fart;
+    }
+    if (o.fri && !o.flyver && rangFd[k] < nVaek) {       /* rives helt fri */
+      o.flyver = true;
+      o.vx = (Math.random() - .5) * .18; o.vy = .85;
+    }
+
+    if (!o.fri) {                                        /* svinger om sin plads */
+      o.x = o.sx + amp * Math.cos(o.w * molUr + o.ph);
+      o.y = o.sy + amp * Math.sin(o.w2 * molUr + o.ph2);
+      o.vin = o.vin0 + .5 * d * Math.sin(o.w * molUr + o.ph2);   /* vipper lidt */
+      continue;
+    }
+    o.vin += o.dvin * d * dt;                            /* frie molekyler roterer */
+
+    if (o.flyver) {
+      o.x += o.vx * dt; o.y += o.vy * dt;
+      if (o.y > 1.3) o.vaek = true;
+      continue;
+    }
+
+    const v = Math.hypot(o.vx, o.vy) || 1;               /* farten følger temperaturen */
+    o.vx = o.vx / v * fart; o.vy = o.vy / v * fart;
+    o.x += o.vx * dt; o.y += o.vy * dt;
+    klem(o, loft);
+  }
+
+  /* Molekylerne kan ikke ligge oven i hinanden. Én runde er ikke nok, når
+     væskeoverfladen synker og presser dem sammen — tre runder er rigeligt. */
+  const d2 = 2 * molR;
+  for (let runde = 0; runde < 3; runde++) {
+    for (let i = 0; i < NMOL; i++) {
+      const a = mols[i];
+      if (a.vaek || a.flyver) continue;
+      for (let j = i + 1; j < NMOL; j++) {
+        const b = mols[j];
+        if (b.vaek || b.flyver) continue;
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const r = Math.hypot(dx, dy);
+        if (r >= d2) continue;
+        let ux, uy;
+        if (r < 1e-6) { ux = Math.random() - .5; uy = Math.random() - .5;
+                        const n = Math.hypot(ux, uy) || 1; ux /= n; uy /= n; }
+        else { ux = dx / r; uy = dy / r; }
+        const ov = d2 - r;
+        if (a.fri && b.fri) {
+          a.x -= ux * ov / 2; a.y -= uy * ov / 2;
+          b.x += ux * ov / 2; b.y += uy * ov / 2;
+          klem(a, loft); klem(b, loft);
+        } else if (a.fri) { a.x -= ux * ov; a.y -= uy * ov; klem(a, loft); }
+        else if (b.fri)   { b.x += ux * ov; b.y += uy * ov; klem(b, loft); }
+      }
+    }
+  }
+}
+
+/* holder et frit molekyle inde i væsken og vender farten ved kanterne */
+function klem(o, loft) {
+  if (o.x < molR)        { o.x = molR;        o.vx =  Math.abs(o.vx); }
+  if (o.x > boxW - molR) { o.x = boxW - molR; o.vx = -Math.abs(o.vx); }
+  if (o.y < molR)        { o.y = molR;        o.vy =  Math.abs(o.vy); }
+  const tag = Math.max(molR * 2, loft - molR);
+  if (o.y > tag)         { o.y = tag;         o.vy = -Math.abs(o.vy); }
+}
+
+/* === MOLEKYLEMODEL SLUT === */
+
+
+/* ================= Tilstand ================= */
+let stofKey = 'vand', st = STOF.vand;
+let P = 1000, m = .500, T0 = -20, tempo = 20;
+let E = 0, tid = 0, koerer = false;
+let tr = trin(st, m, T0);
+let aksE = trin(st, M_AKSE, st.tMin).b4;
+let marks = [], hoverE = null;
+
+const el = id => document.getElementById(id);
+
+function beregnAkse() { aksE = trin(st, M_AKSE, st.tMin).b4; }
+function beregnTrin() { tr = trin(st, m, T0); }
+
+function nulstil() {
+  E = 0; tid = 0; koerer = false; marks = []; hoverE = null;
+  nulstilMolekyler();
+  el('btnStart').textContent = 'Start';
+}
+
+/* ================= Stofvalg ================= */
+function vaelgStof(key) {
+  stofKey = key; st = STOF[key];
+  document.querySelectorAll('.btn-stof').forEach(b =>
+    b.classList.toggle('aktiv', b.dataset.stof === key));
+
+  const ts = el('tSlider');
+  ts.min = st.tMin; ts.max = st.tMax; ts.value = st.tStd;
+  T0 = st.tStd;
+  el('tEnd0').textContent = daNum(st.tMin, 0).replace('-', '−') + ' °C';
+  el('tEnd1').textContent = daNum(st.tMax, 0).replace('-', '−') + ' °C';
+  el('tVal').textContent  = daNum(T0, 0).replace('-', '−') + ' °C';
+
+  const fs = el('fSlider');
+  fs.value = st.tempoStd; tempo = st.tempoStd;
+  el('fVal').textContent = '×' + tempo;
+
+  el('lk1').textContent = st.lblFast;
+  el('lk3').textContent = st.lblVaeske;
+
+  bygMolekyler(st);
+  beregnAkse(); beregnTrin(); nulstil();
+}
+
+document.querySelectorAll('.btn-stof').forEach(b =>
+  b.addEventListener('click', () => vaelgStof(b.dataset.stof)));
+
+/* ================= Skydere og knapper ================= */
+el('pSlider').addEventListener('input', e => {
+  P = +e.target.value; el('pVal').textContent = P + ' W';
+});
+el('mSlider').addEventListener('input', e => {
+  m = +e.target.value / 1000; el('mVal').textContent = e.target.value + ' g';
+  beregnTrin(); nulstil();
+});
+el('tSlider').addEventListener('input', e => {
+  T0 = +e.target.value;
+  el('tVal').textContent = daNum(T0, 0).replace('-', '−') + ' °C';
+  beregnTrin(); nulstil();
+});
+el('fSlider').addEventListener('input', e => {
+  tempo = +e.target.value; el('fVal').textContent = '×' + tempo;
+});
+
+el('btnStart').addEventListener('click', () => {
+  if (E >= tr.b4) nulstil();
+  koerer = !koerer;
+  el('btnStart').textContent = koerer ? 'Pause' : 'Start';
+});
+el('btnNulstil').addEventListener('click', nulstil);
+
+/* ================= Canvas ================= */
+function opsaet(canvas) {
+  const ctx = canvas.getContext('2d');
+  const o = { ctx: ctx, W: 0, H: 0 };
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const host = canvas.parentElement;
+    const w = host.clientWidth, h = host.clientHeight;
+    if (w < 2 || h < 2) return;
+    o.W = w; o.H = h;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas.parentElement);
+  resize();
+  return o;
+}
+const grafCv = document.getElementById('graf');
+const molCv  = document.getElementById('mol');
+const G = opsaet(grafCv);
+const M = opsaet(molCv);
+
+/* ---- Grafens geometri ---- */
+function felt() {
+  const v = 66, h = 18, o = 16, u = 38;
+  return { x0: v, x1: G.W - h, y0: o, y1: G.H - u, w: G.W - v - h, h: G.H - o - u };
+}
+function xE(f, e) { return f.x0 + f.w * e / aksE; }
+function yT(f, t) { return f.y1 - f.h * (t - st.tMin) / (st.aksTop - st.tMin); }
+
+function pentTrin(raa) {
+  const p = Math.pow(10, Math.floor(Math.log10(raa))), f = raa / p;
+  const n = f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10;
+  return n * p;
+}
+
+function evtTilE(e) {
+  const r = grafCv.getBoundingClientRect();
+  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+  const f = felt();
+  const px = cx / r.width * G.W;
+  return Math.max(0, Math.min(aksE, (px - f.x0) / f.w * aksE));
+}
+grafCv.addEventListener('mousemove', e => { hoverE = evtTilE(e); });
+grafCv.addEventListener('mouseleave', () => { hoverE = null; });
+grafCv.addEventListener('click', e => {
+  const v = evtTilE(e);
+  if (marks.length >= 2) marks.length = 0; else marks.push(v);
+  visMaaling();
+});
+grafCv.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const v = evtTilE(e); hoverE = v;
+  if (marks.length >= 2) marks.length = 0; else marks.push(v);
+  visMaaling();
+}, { passive: false });
+
+function visMaaling() {
+  const r = el('roMaal');
+  if (marks.length === 0) r.textContent = 'Klik to steder i grafen';
+  else if (marks.length === 1) r.textContent = 'Klik ét sted mere';
+  else r.textContent = 'ΔE = ' + daNum(Math.abs(marks[1] - marks[0]) / 1000, 1) + ' kJ';
+}
+
+
+/* ================= Tegning af grafen ================= */
+function segmenter() {
+  return [
+    { e0: 0,     e1: tr.b1, t0: T0,    t1: st.Ts, farve: '--n2', navn: st.segFast },
+    { e0: tr.b1, e1: tr.b2, t0: st.Ts, t1: st.Ts, farve: '--n3', navn: 'Smeltning' },
+    { e0: tr.b2, e1: tr.b3, t0: st.Ts, t1: st.Tk, farve: '--n1', navn: st.segVaeske },
+    { e0: tr.b3, e1: tr.b4, t0: st.Tk, t1: st.Tk, farve: '--n4', navn: 'Fordampning' }
+  ];
+}
+
+function tegnGraf(s) {
+  const c = G.ctx;
+  if (G.W < 2 || G.H < 2) return;
+  const f = felt();
+  c.clearRect(0, 0, G.W, G.H);
+  if (f.w < 20 || f.h < 20) return;
+
+  const tyk = isLight() ? 1 : 0;
+
+  /* --- gitter --- */
+  const dx = pentTrin(aksE / 1000 / 7) * 1000;
+  const dy = pentTrin((st.aksTop - st.tMin) / 10);
+  c.strokeStyle = D('rgba(26,58,82,0.55)', 'rgba(140,124,96,0.22)');
+  c.lineWidth = 1;
+  for (let e = dx; e < aksE; e += dx) {
+    const x = xE(f, e);
+    c.beginPath(); c.moveTo(x, f.y0); c.lineTo(x, f.y1); c.stroke();
+  }
+  for (let t = Math.ceil(st.tMin / dy) * dy; t <= st.aksTop; t += dy) {
+    const y = yT(f, t);
+    c.beginPath(); c.moveTo(f.x0, y); c.lineTo(f.x1, y); c.stroke();
+  }
+
+  /* --- akser --- */
+  c.strokeStyle = D('#2f6d92', '#8a8274');
+  c.lineWidth = 1.5 + tyk * .5;
+  c.beginPath(); c.moveTo(f.x0, f.y0); c.lineTo(f.x0, f.y1); c.lineTo(f.x1, f.y1); c.stroke();
+
+  c.fillStyle = F('--text');
+  c.font = '700 12px "Courier New", monospace';
+  c.textAlign = 'right'; c.textBaseline = 'middle';
+  for (let t = Math.ceil(st.tMin / dy) * dy; t <= st.aksTop; t += dy) {
+    c.fillText(daNum(t, 0).replace('-', '−'), f.x0 - 7, yT(f, t));
+  }
+  c.textAlign = 'center'; c.textBaseline = 'top';
+  for (let e = 0; e <= aksE + 1; e += dx) {
+    if (e > aksE) break;
+    c.fillText(daNum(e / 1000, 0), xE(f, e), f.y1 + 7);
+  }
+
+  c.font = '700 11px "Share Tech Mono", monospace';
+  c.textAlign = 'right'; c.textBaseline = 'bottom';
+  c.fillText('tilført energi ΔE  (kJ)', f.x1, f.y1 + 34);
+  c.save();
+  c.translate(14, f.y0 + 4);
+  c.rotate(-Math.PI / 2);
+  c.textAlign = 'right'; c.textBaseline = 'top';
+  c.fillText('temperatur T  (°C)', 0, 0);
+  c.restore();
+
+  /* --- kurven --- */
+  const segs = segmenter();
+  c.lineCap = 'round'; c.lineJoin = 'round';
+  segs.forEach(sg => {
+    if (E <= sg.e0 || sg.e1 <= sg.e0) return;
+    const e = Math.min(E, sg.e1);
+    const t = sg.t0 + (sg.t1 - sg.t0) * (e - sg.e0) / (sg.e1 - sg.e0);
+    c.strokeStyle = F(sg.farve);
+    c.lineWidth = 3 + tyk * .6;
+    c.beginPath();
+    c.moveTo(xE(f, sg.e0), yT(f, sg.t0));
+    c.lineTo(xE(f, e), yT(f, t));
+    c.stroke();
+  });
+
+  /* --- navne på afsnittene --- */
+  c.font = '700 12px "Share Tech Mono", monospace';
+  c.textAlign = 'center'; c.textBaseline = 'bottom';
+  segs.forEach(sg => {
+    if (E <= sg.e0) return;
+    const e = Math.min(E, sg.e1);
+    const bred = xE(f, e) - xE(f, sg.e0);
+    if (bred < 52) return;
+    const em = (sg.e0 + e) / 2;
+    const tm = sg.t0 + (sg.t1 - sg.t0) * (em - sg.e0) / (sg.e1 - sg.e0);
+    /* vandrette afsnit får navnet UNDER linjen — øverst i feltet ligger
+       målingen, og de to må ikke støde sammen */
+    const flad = sg.t0 === sg.t1;
+    c.fillStyle = F(sg.farve);
+    c.textBaseline = flad ? 'top' : 'bottom';
+    c.fillText(sg.navn, xE(f, em), yT(f, tm) + (flad ? 10 : -9));
+  });
+
+  /* --- måling --- */
+  if (marks.length) {
+    c.strokeStyle = F('--yellow'); c.lineWidth = 1.5 + tyk * .5;
+    marks.forEach(v => {
+      const x = xE(f, v);
+      c.beginPath(); c.moveTo(x, f.y0); c.lineTo(x, f.y1); c.stroke();
+    });
+    if (marks.length === 2) {
+      const xa = xE(f, marks[0]), xb = xE(f, marks[1]), y = f.y0 + 20;
+      c.beginPath(); c.moveTo(xa, y); c.lineTo(xb, y); c.stroke();
+      c.fillStyle = F('--yellow');
+      c.font = '700 12px "Courier New", monospace';
+      c.textAlign = 'center'; c.textBaseline = 'bottom';
+      c.fillText(daNum(Math.abs(marks[1] - marks[0]) / 1000, 1) + ' kJ', (xa + xb) / 2, y - 5);
+    }
+  }
+
+  /* --- markøren --- */
+  if (hoverE !== null) {
+    const x = xE(f, hoverE);
+    c.strokeStyle = D('rgba(208,238,245,.45)', 'rgba(26,26,26,.40)');
+    c.lineWidth = 1;
+    c.beginPath(); c.moveTo(x, f.y0); c.lineTo(x, f.y1); c.stroke();
+    c.fillStyle = F('--text');
+    c.font = '700 11px "Courier New", monospace';
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillText(daNum(hoverE / 1000, 1), x, f.y0 + 2);
+  }
+
+  /* --- det aktuelle punkt --- */
+  if (E > 0) {
+    const x = xE(f, E), y = yT(f, s.T);
+    c.setLineDash([4, 4]);
+    c.strokeStyle = F('--cyan'); c.lineWidth = 1.2;
+    c.beginPath(); c.moveTo(f.x0, y); c.lineTo(x, y); c.lineTo(x, f.y1); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle = F('--text');
+    c.beginPath(); c.arc(x, y, 5, 0, 6.283); c.fill();
+    c.strokeStyle = D('#030810', '#fdfaf4'); c.lineWidth = 2;
+    c.beginPath(); c.arc(x, y, 5, 0, 6.283); c.stroke();
+  }
+}
+
+/* ================= Tegning af molekylefeltet ================= */
+function tegnMol(s) {
+  const c = M.ctx;
+  if (M.W < 2 || M.H < 2) return;
+  c.clearRect(0, 0, M.W, M.H);
+
+  const pad = 9;
+  const sk = M.H - 2 * pad;                    /* px pr. enhed — ENS i x og y */
+  const bw = Math.min(boxW * sk, M.W - 2 * pad);
+  const vx = (M.W - bw) / 2;
+  const X = x => vx + x * sk;
+  const Y = y => pad + (1 - y) * sk;
+  const rp = molR * sk;
+
+  /* beholderen */
+  c.strokeStyle = D('#2f6d92', '#8a8274'); c.lineWidth = 2;
+  c.beginPath();
+  c.moveTo(X(0), Y(1)); c.lineTo(X(0), Y(0)); c.lineTo(X(boxW), Y(0)); c.lineTo(X(boxW), Y(1));
+  c.stroke();
+
+  /* Bindinger. For ethanol tegnes de mellem OH-grupperne, ellers mellem
+     midtpunkterne. To molekyler, der begge sidder i gitteret, er bundet efter
+     nabolisten — de slipper først, når et af dem rives løs. Er mindst det ene
+     frit, afgør den øjeblikkelige afstand, om der er en binding. */
+  /* De svage tiltrækninger mellem molekylernes haler tegnes tyndt og stiplet,
+     så de ikke forveksles med hydrogenbindingerne. De holder kæderne sammen
+     på tværs — uden dem ville stoffet ikke være fast. De tegnes kun mellem
+     molekyler, der begge stadig sidder i gitteret. */
+  if (svagPar.length) {
+    c.save();
+    c.setLineDash([3, 3]); c.lineWidth = 1.5; c.strokeStyle = F('--cyan');
+    svagPar.forEach(p => {
+      const a = mols[p[0]], b = mols[p[1]];
+      if (a.fri || b.fri) return;
+      c.beginPath(); c.moveTo(X(a.x), Y(a.y)); c.lineTo(X(b.x), Y(b.y)); c.stroke();
+    });
+    c.restore();
+  }
+
+  c.strokeStyle = F('--green'); c.lineWidth = 2;
+  const streg = (a, b) => {
+    const pa = bindePunkt(a), pb = bindePunkt(b);
+    c.beginPath(); c.moveTo(X(pa.x), Y(pa.y)); c.lineTo(X(pb.x), Y(pb.y)); c.stroke();
+  };
+  naboPar.forEach(p => {
+    const a = mols[p[0]], b = mols[p[1]];
+    if (a.fri || b.fri) return;
+    streg(a, b);
+  });
+  for (let i = 0; i < NMOL; i++) {
+    const a = mols[i];
+    if (a.vaek || a.flyver) continue;
+    const pa = bindePunkt(a);
+    for (let j = i + 1; j < NMOL; j++) {
+      const b = mols[j];
+      if (b.vaek || b.flyver) continue;
+      if (!a.fri && !b.fri) continue;
+      const pb = bindePunkt(b);
+      if (Math.hypot(pb.x - pa.x, pb.y - pa.y) > bindCut) continue;
+      streg(a, b);
+    }
+  }
+
+  /* molekyler */
+  const kant = D('#030810', '#fdfaf4');
+  c.lineWidth = 1.4;
+  mols.forEach(o => {
+    if (o.vaek) return;
+    const kx = X(o.x), ky = Y(o.y);
+    c.fillStyle = o.flyver ? F('--n4') : F('--cyan');
+    c.strokeStyle = kant;
+    if (form === 'aflang') {
+      /* aflangt molekyle: kulbrintehalen som en ellipse, OH-gruppen som en
+         lille gul kugle for enden. Lærredets y-akse vender nedad, derfor −vin. */
+      c.save();
+      c.translate(kx, ky); c.rotate(-o.vin);
+      c.beginPath(); c.ellipse(0, 0, rp * 1.12, rp * .58, 0, 0, 6.283);
+      c.fill(); c.stroke();
+      c.restore();
+      const ox = kx + Math.cos(o.vin) * ohAfst * sk;
+      const oy = ky - Math.sin(o.vin) * ohAfst * sk;
+      c.fillStyle = o.flyver ? F('--n4') : F('--yellow');
+      c.beginPath(); c.arc(ox, oy, rp * .46, 0, 6.283); c.fill(); c.stroke();
+    } else {
+      c.beginPath(); c.arc(kx, ky, rp, 0, 6.283); c.fill(); c.stroke();
+    }
+  });
+}
+
+const MOLTEKST = {
+  fast:        'Molekylerne sidder fast på hver sin plads i gitteret og vibrerer kraftigere, efterhånden som temperaturen stiger.',
+  smeltning:   'Nu bruges energien til at bryde bindinger i stedet for at øge vibrationerne. Molekylerne rives løs af gitteret og begynder at glide forbi hinanden — men de hænger stadig sammen. Derfor står temperaturen stille.',
+  vaeske:      'Alle molekyler er frie og glider rundt mellem hinanden. Energien går igen til bevægelse, så temperaturen stiger.',
+  fordampning: 'Molekylerne rives nu helt fri af hinanden og forlader væsken. Det kræver langt mere energi end smeltningen, og temperaturen står stille imens.',
+  faerdig:     'Alt stoffet er fordampet og har forladt systemet.'
+};
+
+/* ================= Aflæsninger og energiregnskab ================= */
+const FASENAVN = { fast: 'fast', smeltning: 'smelter', vaeske: 'væske',
+                   fordampning: 'koger', faerdig: 'damp' };
+
+function opdaterUdlaesning(s) {
+  const stor = Math.abs(s.T) >= 200;
+  el('roT').textContent   = daNum(s.T, stor ? 0 : 1).replace('-', '−') + ' °C';
+  el('roE').textContent   = daNum(E / 1000, 1) + ' kJ';
+  el('roTid').textContent = tidTekst(tid);
+  el('roTot').textContent = daNum(tr.b4 / 1000, 1) + ' kJ';
+
+  el('roFase').textContent =
+    s.fase === 'fast'        ? st.fastNavn :
+    s.fase === 'smeltning'   ? st.fastNavn + ' + ' + st.vaeskeNavn :
+    s.fase === 'vaeske'      ? st.vaeskeNavn :
+    s.fase === 'fordampning' ? st.vaeskeNavn + ' + damp' : 'damp';
+
+  if (s.fase === 'fordampning' || s.fase === 'faerdig') {
+    el('roAndelK').textContent = 'Andel fordampet';
+    el('roAndel').textContent  = daNum(s.fordampet * 100, 0) + ' %';
+  } else {
+    el('roAndelK').textContent = 'Andel smeltet';
+    el('roAndel').textContent  = daNum(s.smeltet * 100, 0) + ' %';
+  }
+
+  el('molTekst').textContent = MOLTEKST[s.fase];
+}
+
+function opdaterBar() {
+  const d = [
+    Math.max(0, Math.min(E, tr.b1)),
+    Math.max(0, Math.min(E - tr.b1, tr.E2)),
+    Math.max(0, Math.min(E - tr.b2, tr.E3)),
+    Math.max(0, Math.min(E - tr.b3, tr.E4))
+  ];
+  for (let i = 0; i < 4; i++) {
+    el('eb' + (i + 1)).style.width = (100 * d[i] / tr.b4) + '%';
+    el('lv' + (i + 1)).textContent =
+      daNum(d[i] / 1000, 1) + ' kJ · ' + daNum(100 * d[i] / tr.b4, 0) + ' %';
+  }
+}
+
+/* ================= Løkke ================= */
+let sidst = 0;
+function loop(ts) {
+  const dt = sidst ? Math.min((ts - sidst) / 1000, .05) : 0;
+  sidst = ts;
+
+  if (koerer) {
+    E += P * dt * tempo;
+    tid += dt * tempo;
+    if (E >= tr.b4) {
+      E = tr.b4; koerer = false;
+      el('btnStart').textContent = 'Start';
+    }
+  }
+
+  /* kassens form følger lærredet; ændrer den sig mærkbart, bygges gitteret om */
+  if (M.W > 2 && M.H > 2) {
+    const nyBoxW = Math.max(1.2, Math.min(4, (M.W - 18) / (M.H - 18)));
+    if (Math.abs(nyBoxW - boxW) > .04) { boxW = nyBoxW; bygMolekyler(st); }
+  }
+
+  const s = tilstand(st, T0, E, tr);
+  opdaterMolekyler(dt, st, s);
+  tegnGraf(s); tegnMol(s);
+  opdaterUdlaesning(s); opdaterBar();
+  requestAnimationFrame(loop);
+}
+
+/* ================= Start ================= */
+bygMolekyler(st);
+beregnAkse(); beregnTrin();
+visMaaling();
+requestAnimationFrame(loop);
+
+</script>
+</body>
+</html>
