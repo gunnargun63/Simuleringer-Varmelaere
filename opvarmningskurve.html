@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+
 :root {
   --bg0: #030810;
   --bg1: #060e18;
@@ -1012,6 +1013,11 @@ function tidTekst(s) {
    integreres ikke numerisk, så aflæsninger passer nøjagtigt med formlerne.
    Sektionen er DOM-fri.
 
+   dens er væskens densitet delt med det faste stofs, og bruges kun til at
+   sætte væskeoverfladen i molekylefeltet. Næsten alle stoffer udvider sig ved
+   smeltning, så overfladen stiger en anelse. Vand er undtagelsen: isens
+   hulrum lukkes, og overfladen synker.
+
    Varmefylder i J/(kg*K), latent varme i J/kg. Vands værdier er notens.
    Ethanol og tin er omregnet fra molare tabelværdier:
      ethanol  M = 46,07 g/mol,  dHs = 5,02 kJ/mol,   dHf = 38,56 kJ/mol
@@ -1030,28 +1036,28 @@ function tidTekst(s) {
 const STOF = {
   vand: {
     navn:'Vand', fastNavn:'Is', vaeskeNavn:'Vand',
-    cFast:2040, cVaeske:4182, Ts:0, Tk:100, Ls:334e3, Lf:2257e3,
+    cFast:2040, cVaeske:4182, Ts:0, Tk:100, Ls:334e3, Lf:2257e3, dens:1.09,
     tMin:-40, tMax:-5, tStd:-20, aksTop:120, tempoStd:20, gitter:'hex', form:'kugle',
     lblFast:'Opvarmning af is', lblVaeske:'Opvarmning af vand',
     segFast:'Is', segVaeske:'Vand'
   },
   ethanol: {
     navn:'Ethanol', fastNavn:'Fast ethanol', vaeskeNavn:'Ethanol',
-    cFast:970, cVaeske:2300, Ts:-114, Tk:78, Ls:109e3, Lf:837e3,
+    cFast:970, cVaeske:2300, Ts:-114, Tk:78, Ls:109e3, Lf:837e3, dens:0.95,
     tMin:-160, tMax:-120, tStd:-140, aksTop:100, tempoStd:9, gitter:'skraa', form:'aflang',
     lblFast:'Opvarmning af fast ethanol', lblVaeske:'Opvarmning af ethanol',
     segFast:'Fast', segVaeske:'Væske'
   },
   stofx: {
     navn:'Stof X', fastNavn:'Fast form', vaeskeNavn:'Væske',
-    cFast:142, cVaeske:139.5, Ts:-38.83, Tk:356.73, Ls:11.4e3, Lf:295e3,
+    cFast:142, cVaeske:139.5, Ts:-38.83, Tk:356.73, Ls:11.4e3, Lf:295e3, dens:0.96,
     tMin:-120, tMax:-60, tStd:-100, aksTop:380, tempoStd:2, gitter:'tri', form:'kugle',
     lblFast:'Opvarmning af fast form', lblVaeske:'Opvarmning af væske',
     segFast:'Fast', segVaeske:'Væske'
   },
   tin: {
     navn:'Tin', fastNavn:'Fast tin', vaeskeNavn:'Flydende tin',
-    cFast:227, cVaeske:240, Ts:231.9, Tk:2602, Ls:59.2e3, Lf:2492e3,
+    cFast:227, cVaeske:240, Ts:231.9, Tk:2602, Ls:59.2e3, Lf:2492e3, dens:0.96,
     tMin:0, tMax:200, tStd:20, aksTop:2700, tempoStd:21, gitter:'tri', form:'kugle',
     lblFast:'Opvarmning af fast tin', lblVaeske:'Opvarmning af flydende tin',
     segFast:'Fast', segVaeske:'Væske'
@@ -1125,8 +1131,9 @@ function tilstand(st, T0, E, tr) {
    størrelsesforholdet er pyntet. Sektionen er DOM-fri. */
 
 const NMOL = 72;
-let mols = [], rangSm = [], rangFd = [], molR = .05, bindCut = .16, loftFuld = .7;
+let mols = [], rangSm = [], rangFd = [], molR = .05, bindCut = .16;
 let form = 'kugle', ohAfst = .03, naboPar = [], svagPar = [], svagCut = 0;
+let hFast = .6, dens = 1;
 
 /* Kassens bredde i samme enhed som højden, der altid er 1. Sættes efter
    lærredets form, så x og y tegnes med SAMME skala — ellers ville gitteret
@@ -1149,7 +1156,7 @@ function bygMolekyler(st) {
        Arealet pr. molekyle er 3*sqrt(3)/4 * b^2, hvor b er bindingslængden. */
     const b = Math.sqrt(Hmaal * Wbrug / (1.299 * NMOL));
     const a = Math.sqrt(3) * b;
-    molR = .375 * b; bindCut = 1.25 * b;
+    molR = .46 * b; bindCut = 1.25 * b;
     const ni = Math.ceil(boxW / a) + 2, nj = Math.ceil(1.4 / (1.5 * b)) + 2;
     for (let j = 0; j < nj; j++) for (let i = -nj; i < ni + nj; i++) {
       const x0 = i * a + j * a / 2, y0 = j * 1.5 * b;
@@ -1168,7 +1175,7 @@ function bygMolekyler(st) {
        eller den anden diagonal (1,04). */
     const rk = .80;                                   /* rækkeafstand / a */
     const a = Math.sqrt(Hmaal * Wbrug / (rk * NMOL));
-    molR = .42 * rk * a; bindCut = .90 * a; ohAfst = .62 * molR;
+    molR = .46 * rk * a; bindCut = .90 * a; ohAfst = .62 * molR;
     /* De svage tiltrækninger mellem molekylernes haler går på TVÆRS af
        kæderne: naboen ved siden af (afstand 1,00) og den anden diagonal
        (1,04). Kædenaboen (0,865) er allerede en hydrogenbinding. */
@@ -1184,7 +1191,7 @@ function bygMolekyler(st) {
     /* tætpakket trekantgitter: seks naboer, som i et metal.
        Arealet pr. molekyle er sqrt(3)/2 * a^2. */
     const a = Math.sqrt(Hmaal * Wbrug / (.866 * NMOL));
-    molR = .40 * a; bindCut = 1.15 * a;
+    molR = .42 * a; bindCut = 1.15 * a;
     const ni = Math.ceil(boxW / a) + 2, nj = Math.ceil(1.4 / (a * .866)) + 2;
     for (let j = 0; j < nj; j++) for (let i = 0; i < ni; i++) {
       const x = i * a + (j % 2) * a / 2 + kant + a / 2, y = j * a * .866 + kant + a / 2;
@@ -1194,7 +1201,14 @@ function bygMolekyler(st) {
 
   pts.sort((p, q) => (p.y - q.y) || (p.x - q.x));
   const valgt = pts.slice(0, NMOL);
-  loftFuld = Math.min(.97, valgt[valgt.length - 1].y + 3 * molR);
+
+  /* Højden af det faste stof, og den højde væsken skal have. De fleste stoffer
+     udvider sig en smule ved smeltning, så overfladen stiger. Vand er
+     undtagelsen: isens hulrum lukkes, vandet fylder mindre, og overfladen
+     synker. dens er densiteten af væsken delt med densiteten af det faste
+     stof. */
+  hFast = Math.min(.97, valgt[valgt.length - 1].y + molR);
+  dens = st.dens || 1;
 
   mols = valgt.map(p => ({
     sx: p.x, sy: p.y, x: p.x, y: p.y, vx: 0, vy: 0,
@@ -1258,7 +1272,12 @@ function opdaterMolekyler(dt, st, s) {
   const nFri  = Math.round(s.smeltet   * NMOL);
   const nVaek = Math.round(s.fordampet * NMOL);
   const tilbage = NMOL - nVaek;
-  const loft = .05 + (loftFuld - .05) * (tilbage / NMOL);
+
+  /* Loftet er væskens overflade. Under smeltningen glider det fra det faste
+     stofs højde ned (eller op) til væskens, og under fordampningen synker det
+     i takt med, at der bliver færre molekyler tilbage. */
+  const hVaeske = hFast / dens * (tilbage / NMOL);
+  const loft = hFast + (hVaeske - hFast) * Math.min(1, s.smeltet);
 
   for (let k = 0; k < NMOL; k++) {
     const o = mols[k];
@@ -1294,9 +1313,39 @@ function opdaterMolekyler(dt, st, s) {
     klem(o, loft);
   }
 
-  /* Molekylerne kan ikke ligge oven i hinanden. Én runde er ikke nok, når
-     væskeoverfladen synker og presser dem sammen — tre runder er rigeligt. */
+  /* STØD. Når to molekyler rammer hinanden, bytter de normalkomponenten af
+     hastigheden — det er hvad to lige tunge kugler gør i et elastisk stød.
+     Uden dette skridt ville molekylerne kun blive skubbet fra hinanden uden
+     at ændre retning, og så kiler de sig fast i en klump i stedet for at
+     blande sig som en væske. */
   const d2 = 2 * molR;
+  for (let i = 0; i < NMOL; i++) {
+    const a = mols[i];
+    if (a.vaek || a.flyver) continue;
+    for (let j = i + 1; j < NMOL; j++) {
+      const b = mols[j];
+      if (b.vaek || b.flyver || (!a.fri && !b.fri)) continue;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const r = Math.hypot(dx, dy);
+      if (r >= d2 || r < 1e-9) continue;
+      const ux = dx / r, uy = dy / r;
+      const vn = (b.vx - a.vx) * ux + (b.vy - a.vy) * uy;
+      if (vn >= 0) continue;                             /* de er på vej fra hinanden */
+      if (a.fri && b.fri) {
+        a.vx += vn * ux; a.vy += vn * uy;
+        b.vx -= vn * ux; b.vy -= vn * uy;
+      } else if (a.fri) {                                /* preller af et gitterbundet */
+        const pn = a.vx * ux + a.vy * uy;
+        a.vx -= 2 * pn * ux; a.vy -= 2 * pn * uy;
+      } else {
+        const pn = b.vx * ux + b.vy * uy;
+        b.vx -= 2 * pn * ux; b.vy -= 2 * pn * uy;
+      }
+    }
+  }
+
+  /* Molekylerne kan ikke ligge oven i hinanden. Rettelsen er symmetrisk, så
+     den ikke i sig selv flytter væsken til den ene side. */
   for (let runde = 0; runde < 3; runde++) {
     for (let i = 0; i < NMOL; i++) {
       const a = mols[i];
@@ -1684,7 +1733,7 @@ function tegnMol(s) {
          lille gul kugle for enden. Lærredets y-akse vender nedad, derfor −vin. */
       c.save();
       c.translate(kx, ky); c.rotate(-o.vin);
-      c.beginPath(); c.ellipse(0, 0, rp * 1.12, rp * .58, 0, 0, 6.283);
+      c.beginPath(); c.ellipse(0, 0, rp * 1.05, rp * .60, 0, 0, 6.283);
       c.fill(); c.stroke();
       c.restore();
       const ox = kx + Math.cos(o.vin) * ohAfst * sk;
