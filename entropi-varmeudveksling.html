@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entropi og varmeudveksling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#030810; --bg1:#060e18; --bg2:#0a1622; --bg3:#0f1e2d;
+  --border:#1a3a52;
+  --green:#00ff9f; --cyan:#00cfff; --yellow:#ffd93d;
+  --text:#d0eef5; --dim:#8ec8d8;
+  --font:'Courier New','Lucida Console',monospace;
+  --tr:0.15s ease;
+  --kold:#00cfff; --varm:#ffd93d; --tot:#00ff9f;
+}
+[data-theme="light"]{
+  --bg0:#e8e0d2; --bg1:#f4eee3; --bg2:#fdfaf4; --bg3:#fdfaf4;
+  --border:#d6cbb8;
+  --green:#1D9E75; --cyan:#378ADD; --yellow:#c07800;
+  --text:#1a1a1a; --dim:#333333;
+  --kold:#378ADD; --varm:#9c5e00; --tot:#1D9E75;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg0); color:var(--text);
+  font-family:var(--font); font-size:12px; line-height:1.5;
+  padding:10px 12px 12px 12px;
+  height:100vh; height:100dvh; overflow:auto;
+  display:flex; flex-direction:column; gap:10px;
+}
+/* På smalle skærme falder layoutet til én spalte, og da må der gerne scrolles */
+@media (max-width:900px){
+  body{ height:auto; overflow:auto; }
+}
+
+/* ---------- header ---------- */
+header{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; flex:0 0 auto;
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.ice-icon{width:21px;height:21px;color:var(--cyan);display:inline-flex;flex-shrink:0;
+  animation:gp 2.8s ease-in-out infinite;}
+.ice-icon svg{display:block;width:100%;height:100%;fill:currentColor;}
+@keyframes gp{
+  0%,100%{opacity:1; filter:drop-shadow(0 0 5px var(--cyan));}
+  50%{opacity:.55; filter:none;}
+}
+[data-theme="light"] .ice-icon{animation:gpl 2.8s ease-in-out infinite;}
+@keyframes gpl{0%,100%{opacity:1;}50%{opacity:.55;}}
+h1{
+  font-family:'Orbitron',var(--font); font-weight:700; font-size:16px;
+  letter-spacing:.20em; color:var(--green); margin:0;
+  text-shadow:0 0 12px rgba(0,255,159,.35);
+}
+[data-theme="light"] h1{text-shadow:none;}
+.utils{display:flex; gap:7px; flex-wrap:wrap;}
+.btn-sm{
+  background:var(--bg2); border:1px solid var(--border); color:var(--text);
+  font-family:var(--font); font-size:11px; letter-spacing:.08em;
+  padding:6px 11px; cursor:pointer; transition:var(--tr);
+}
+.btn-sm:hover{border-color:var(--green); color:var(--green);}
+[data-theme="light"] .btn-sm{font-weight:700;}
+
+/* ---------- layout ---------- */
+.wrap{
+  display:grid; grid-template-columns:232px 1fr; gap:10px;
+  flex:1 1 auto; min-height:0;
+}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; flex:none; min-height:auto;}
+}
+.col-left{min-height:0; overflow-y:auto;}
+.col-right{display:flex; flex-direction:column; gap:10px; min-height:0;}
+
+.box{
+  background:var(--bg1); border:1px solid var(--border);
+  padding:10px 11px; display:flex; flex-direction:column; gap:7px;
+}
+.sec-title{
+  font-size:11px; letter-spacing:.22em; color:var(--green);
+  text-transform:uppercase; font-weight:700;
+  border-bottom:1px solid var(--border); padding-bottom:5px; margin:0 0 3px 0;
+}
+
+/* ---------- sliders ---------- */
+.ctl{display:flex; flex-direction:column; gap:4px;}
+.ctl-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+.ctl-lab{font-size:11px; color:var(--dim); letter-spacing:.04em; text-transform:none;}
+[data-theme="light"] .ctl-lab{font-weight:700;}
+.ctl-val{font-size:12px; font-weight:700; color:var(--cyan); white-space:nowrap;}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; width:100%; height:5px;
+  background:var(--bg3); border:1px solid var(--border); outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:15px; height:15px; background:var(--cyan);
+  border:1px solid var(--bg0); cursor:pointer; border-radius:2px;
+}
+input[type=range]::-moz-range-thumb{
+  width:15px; height:15px; background:var(--cyan);
+  border:1px solid var(--bg0); cursor:pointer; border-radius:2px;
+}
+input[type=range]:disabled{opacity:.45; cursor:not-allowed;}
+
+.btn-row{display:flex; gap:7px;}
+.btn{
+  flex:1; background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:.1em;
+  padding:8px 6px; cursor:pointer; transition:var(--tr); text-transform:uppercase;
+}
+.btn:hover{border-color:var(--green); color:var(--green);}
+.btn.run{border-color:var(--green); color:var(--green);}
+
+.chk{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--dim); cursor:pointer;}
+[data-theme="light"] .chk{font-weight:700;}
+.chk input{width:14px;height:14px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0;}
+
+/* ---------- canvas ---------- */
+.cv-holder{background:var(--bg1); border:1px solid var(--border); position:relative;}
+canvas#scene{display:block; position:absolute; inset:0; width:100%; height:100%;}
+canvas#grafT{display:block; position:absolute; inset:0; width:100%; height:100%;}
+canvas#grafS{display:block; position:absolute; inset:0; width:100%; height:100%;}
+
+/* Scene og grafer deler den ledige højde: grafrækken får godt halvanden gang scenen */
+.scene-holder{flex:1 1 0; min-height:130px;}
+.grafs{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  flex:1.6 1 0; min-height:170px;
+}
+.grafs .box{min-height:0;}
+.grafs .graf-holder{flex:1 1 auto; min-height:0;}
+@media (max-width:900px){
+  .scene-holder{flex:none; height:250px;}
+  .grafs{grid-template-columns:1fr; flex:none;}
+  .grafs .graf-holder{height:250px;}
+}
+
+/* ---------- aflæsninger ---------- */
+.strip{
+  flex:0 0 auto; background:var(--bg1); border:1px solid var(--border);
+  padding:7px 8px; display:flex; flex-direction:column; gap:6px;
+}
+.meters{display:grid; grid-template-columns:repeat(6,1fr); gap:7px;}
+@media (max-width:1100px){.meters{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:560px){.meters{grid-template-columns:repeat(2,1fr);}}
+.meter{background:var(--bg3); border:1px solid var(--border); padding:5px 8px; min-width:0;}
+.mlabel{
+  font-size:10px; letter-spacing:.04em; color:var(--dim); display:block;
+  margin-bottom:1px; text-transform:none; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
+}
+[data-theme="light"] .mlabel{font-weight:700;}
+.mval{font-size:15px; font-weight:700; color:var(--text); font-family:var(--font);}
+.mval.kold{color:var(--kold);} .mval.varm{color:var(--varm);} .mval.tot{color:var(--tot);}
+.munit{font-size:11px; color:var(--dim); font-weight:400;}
+[data-theme="light"] .munit{font-weight:700;}
+
+/* ---------- sammenligning: én linje ---------- */
+.cmp-line{
+  font-size:11px; color:var(--dim); letter-spacing:.02em;
+  border-top:1px solid var(--border); padding-top:5px;
+  display:flex; gap:16px; flex-wrap:wrap; align-items:baseline;
+  min-height:2.7em;   /* plads reserveret, så udfyldningen ikke flytter layoutet */
+}
+[data-theme="light"] .cmp-line{font-weight:700;}
+.cmp-line .lbl{color:var(--green); letter-spacing:.14em; text-transform:uppercase; font-size:10px;}
+.cmp-line b{color:var(--text); font-size:12.5px;}
+[data-theme="light"] .cmp-line b{color:#111;}
+.hidden-note{font-size:11px; color:var(--dim);}
+[data-theme="light"] .hidden-note{font-weight:700;}
+
+/* ---------- modal ---------- */
+.modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.72);
+  display:none; align-items:flex-start; justify-content:center;
+  padding:26px 14px; overflow-y:auto; z-index:50;
+}
+[data-theme="light"] .modal{background:rgba(60,50,35,.6);}
+.modal.vis{display:flex;}
+.modal-inner{
+  background:var(--bg1); border:1px solid var(--border);
+  max-width:820px; width:100%; padding:20px 22px;
+}
+.modal-inner h2{
+  font-family:'Orbitron',var(--font); font-size:13px; letter-spacing:.18em;
+  color:var(--green); margin:0 0 14px 0; text-transform:uppercase;
+}
+.modal-inner h3{
+  font-size:11px; letter-spacing:.18em; color:var(--cyan); text-transform:uppercase;
+  margin:18px 0 7px 0; font-weight:700;
+}
+.modal-inner p, .modal-inner li{font-size:12px; color:var(--text); line-height:1.75;}
+[data-theme="light"] .modal-inner p,[data-theme="light"] .modal-inner li{color:#161616; font-weight:700;}
+.modal-inner ol,.modal-inner ul{padding-left:19px; margin:7px 0;}
+.modal-inner li{margin-bottom:7px;}
+.close-row{display:flex; justify-content:flex-end; margin-top:16px;}
+table.tbl{border-collapse:collapse; width:100%; margin:9px 0; font-size:11px;}
+table.tbl th,table.tbl td{border:1px solid var(--border); padding:5px 8px; text-align:left; color:var(--text);}
+[data-theme="light"] table.tbl th,[data-theme="light"] table.tbl td{color:#161616; font-weight:700;}
+table.tbl th{color:var(--cyan); letter-spacing:.06em;}
+[data-theme="light"] table.tbl th{color:#2767a8;}
+
+/* ---------- formelsætter ---------- */
+.eq{display:inline-block; vertical-align:middle; font-family:'Latin Modern Math','Cambria Math',Georgia,serif;
+    font-style:normal; text-transform:none; white-space:nowrap;}
+.eqd{display:block; text-align:center; margin:13px 0; font-size:15px;
+     font-family:'Latin Modern Math','Cambria Math',Georgia,serif; text-transform:none;}
+.eq .var,.eqd .var{font-style:italic;}
+.eq .frac,.eqd .frac{display:inline-flex; flex-direction:column; align-items:center;
+  vertical-align:middle; margin:0 .18em; text-align:center;}
+.eq .frac>.num,.eqd .frac>.num{padding:0 .28em; border-bottom:1.4px solid currentColor;}
+.eq .frac>.den,.eqd .frac>.den{padding:0 .28em;}
+.eq sub,.eqd sub{font-size:.68em; font-style:normal;}
+
+.legend{display:flex; gap:13px; flex-wrap:wrap; font-size:10.5px; flex:0 0 auto;}
+[data-theme="light"] .legend{font-weight:700;}
+.lg{display:flex; align-items:center; gap:5px; color:var(--dim);}
+.sw{width:13px; height:3px; display:inline-block; flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="ice-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 1.5l1.7 2.9 2.6-1.1-.6 2.8 2.8-.6-1.1 2.6 2.9 1.7-2.9 1.7 1.1 2.6-2.8-.6.6 2.8-2.6-1.1L12 22.5l-1.7-2.9-2.6 1.1.6-2.8-2.8.6 1.1-2.6L3.7 14l2.9-1.7-1.1-2.6 2.8.6-.6-2.8 2.6 1.1L12 1.5zm0 6.1a4.4 4.4 0 100 8.8 4.4 4.4 0 000-8.8z"/></svg>
+    </span>
+    <h1>Entropi og varmeudveksling</h1>
+  </div>
+  <div class="utils">
+    <button class="btn-sm" id="bForklar">Forklaring</button>
+    <button class="btn-sm" id="bOpgaver">Opgaver</button>
+    <button class="btn-sm" id="bKopier">Kopier kode</button>
+    <button class="btn-sm" id="bTema">Lyst tema</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ VENSTRE: KONTROLLER ============ -->
+  <div class="box col-left">
+    <div class="sec-title">Opstilling</div>
+
+    <div class="ctl">
+      <div class="ctl-top">
+        <span class="ctl-lab"><span class="eq"><span class="var">m</span></span> &mdash; masse af is</span>
+        <span class="ctl-val" id="vM">1,00 kg</span>
+      </div>
+      <input type="range" id="sM" min="10" max="200" step="5" value="100">
+    </div>
+
+    <div class="ctl">
+      <div class="ctl-top">
+        <span class="ctl-lab"><span class="eq"><span class="var">T</span><sub>is</sub></span> &mdash; isens start</span>
+        <span class="ctl-val" id="vTis">0 &deg;C</span>
+      </div>
+      <input type="range" id="sTis" min="-40" max="0" step="1" value="0">
+    </div>
+
+    <div class="ctl">
+      <div class="ctl-top">
+        <span class="ctl-lab"><span class="eq"><span class="var">T</span><sub>sø</sub></span> &mdash; søens temp.</span>
+        <span class="ctl-val" id="vTso">10 &deg;C</span>
+      </div>
+      <input type="range" id="sTso" min="0" max="80" step="1" value="10">
+    </div>
+
+    <div class="ctl">
+      <div class="ctl-top">
+        <span class="ctl-lab">Animationsfart</span>
+        <span class="ctl-val" id="vSpd">1,0 &times;</span>
+      </div>
+      <input type="range" id="sSpd" min="2" max="40" step="1" value="10">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn run" id="bRun">Start</button>
+      <button class="btn" id="bReset">Nulstil</button>
+    </div>
+
+    <div class="sec-title" style="margin-top:8px;">Visning</div>
+    <label class="chk"><input type="checkbox" id="cSkjul"> Skjul entropitæller</label>
+    <label class="chk"><input type="checkbox" id="cZoom"> Zoom på totalentropien</label>
+  </div>
+
+  <!-- ============ HØJRE ============ -->
+  <div class="col-right">
+
+    <div class="cv-holder scene-holder"><canvas id="scene"></canvas></div>
+
+    <div class="strip">
+      <div class="meters">
+        <div class="meter"><span class="mlabel">Tilført varme <span class="eq"><span class="var">Q</span></span></span>
+          <span class="mval" id="mQ">0,0</span> <span class="munit">kJ</span></div>
+        <div class="meter"><span class="mlabel">Is-system <span class="eq"><span class="var">T</span></span></span>
+          <span class="mval kold" id="mTis">0,0</span> <span class="munit">&deg;C</span></div>
+        <div class="meter"><span class="mlabel">Sø <span class="eq"><span class="var">T</span></span></span>
+          <span class="mval varm" id="mTso">10,0</span> <span class="munit">&deg;C</span></div>
+        <div class="meter ent"><span class="mlabel"><span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span></span>
+          <span class="mval kold" id="mSis">0,0</span> <span class="munit">J/K</span></div>
+        <div class="meter ent"><span class="mlabel"><span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span></span>
+          <span class="mval varm" id="mSso">0,0</span> <span class="munit">J/K</span></div>
+        <div class="meter ent"><span class="mlabel"><span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span></span>
+          <span class="mval tot" id="mStot">0,0</span> <span class="munit">J/K</span></div>
+      </div>
+      <div class="cmp-line" id="cmpLinje">
+        <span class="lbl">Sammenligning</span>
+        <span id="cmpTekst">Kør processen til ende, så udfyldes felterne.</span>
+      </div>
+    </div>
+
+    <div class="grafs">
+      <div class="box">
+        <div class="sec-title">Temperatur mod tilført varme</div>
+        <div class="cv-holder graf-holder"><canvas id="grafT"></canvas></div>
+        <div class="legend">
+          <span class="lg"><span class="sw" id="lgw1"></span> Is-systemet</span>
+          <span class="lg"><span class="sw" id="lgw2"></span> Søen (konstant)</span>
+        </div>
+      </div>
+      <div class="box">
+        <div class="sec-title" id="grafStitel">Entropi mod tilført varme</div>
+        <div class="cv-holder graf-holder"><canvas id="grafS"></canvas></div>
+        <div class="legend" id="lgS">
+          <span class="lg"><span class="sw" id="lgw3"></span> <span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span></span>
+          <span class="lg"><span class="sw" id="lgw4"></span> <span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span></span>
+          <span class="lg"><span class="sw" id="lgw5"></span> <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= MODALER ================= -->
+<div class="modal" id="mForklar"><div class="modal-inner">
+  <h2>Forklaring</h2>
+
+  <h3>Opstillingen</h3>
+  <p>En isterning lægges i en sø. Søen er så stor, at dens temperatur ikke ændrer sig, uanset
+  hvor meget varme den afgiver. Vi kalder den et <b>varmereservoir</b>. Isen varmes op til
+  smeltepunktet (hvis den er koldere end 0&nbsp;&deg;C), smelter, og smeltevandet varmes derefter
+  op til søens temperatur. Processen standser, når de to temperaturer er ens.</p>
+
+  <h3>Entropi</h3>
+  <p>Når et system ved den absolutte temperatur <span class="eq"><span class="var">T</span></span>
+  tilføres en lille varmemængde <span class="eq"><span class="var">Q</span></span>, er tilvæksten i entropi</p>
+  <div class="eqd">&Delta;<span class="var">S</span> =
+    <span class="frac"><span class="num"><span class="var">Q</span></span><span class="den"><span class="var">T</span></span></span></div>
+  <p>Is-systemets entropi <b>stiger</b>, fordi det modtager varme. Søens entropi <b>falder</b>,
+  fordi den afgiver varme. Men søen er varmere, og <span class="eq"><span class="var">T</span></span>
+  står i nævneren &mdash; derfor bliver søens fald mindre end isens stigning, og totalentropien bliver positiv.
+  Det er 2. hovedsætning, <span class="eq">&Delta;<span class="var">S</span> &ge; 0</span>.</p>
+
+  <h3>De tre bidrag</h3>
+  <p>Is-systemets samlede entropitilvækst består af op til tre led:</p>
+  <div class="eqd">&Delta;<span class="var">S</span><sub>is</sub> =
+    <span class="frac"><span class="num"><span class="var">m</span>&middot;<span class="var">c</span><sub>is</sub>&middot;&Delta;<span class="var">T</span></span><span class="den"><span class="var">T</span><sub>middel</sub></span></span> +
+    <span class="frac"><span class="num"><span class="var">m</span>&middot;<span class="var">L</span><sub>s</sub></span><span class="den"><span class="var">T</span><sub>smelt</sub></span></span> +
+    <span class="frac"><span class="num"><span class="var">m</span>&middot;<span class="var">c</span><sub>vand</sub>&middot;&Delta;<span class="var">T</span></span><span class="den"><span class="var">T</span><sub>middel</sub></span></span></div>
+  <p>Midterste led er <b>eksakt</b>, fordi temperaturen står helt stille under smeltningen.
+  De to yderste led er tilnærmelser, hvor der regnes med gennemsnitstemperaturen.
+  Søens bidrag er også eksakt, fordi søens temperatur er konstant:</p>
+  <div class="eqd">&Delta;<span class="var">S</span><sub>sø</sub> = &minus;
+    <span class="frac"><span class="num"><span class="var">Q</span><sub>total</sub></span><span class="den"><span class="var">T</span><sub>sø</sub></span></span></div>
+
+  <h3>Sammenligningen</h3>
+  <p><b>Gennemsnitsmetoden</b> bruger én gennemsnitstemperatur pr. trin &mdash; den, du selv regner med i hånden.
+  <b>Simuleringens løbende sum</b> lægger <span class="eq"><span class="var">Q</span>/<span class="var">T</span></span>
+  sammen i fire tusinde små skridt undervejs; det er i praksis integralet, regnet numerisk.
+  Sammenligningen viser, hvor god genvejen med gennemsnitstemperaturen er &mdash; ved en sø på
+  10&nbsp;&deg;C er afvigelsen under en tyvendedel af en J/K, ved 80&nbsp;&deg;C er den nogle få J/K.</p>
+
+  <h3>Den reversible grænse</h3>
+  <p>Sæt søens temperatur til 0&nbsp;&deg;C. Isen smelter stadig, men nu er
+  <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span> nul: entropien er uændret,
+  og processen er <b>reversibel</b>. Det er ikke varmen, der producerer entropi &mdash; det er
+  <b>temperaturforskellen</b>. Skru langsomt op for søens temperatur og se totalentropien vokse.</p>
+
+  <h3>Farverne og blandingen</h3>
+  <p>De lyse molekyler er dem, der kom fra isterningen. Farven er <b>ren bogføring</b> &mdash;
+  fysisk er de nøjagtig de samme vandmolekyler som søens.</p>
+  <p>Når processen er slut, ligger smeltevandet stadig fortrinsvis, hvor isterningen lå.
+  Det kunne se ud, som om der mangler noget: skulle molekylerne ikke fordele sig jævnt,
+  før entropien er på sit højeste? Nej. Blandingen ville <b>ikke</b> give mere entropi,
+  netop fordi molekylerne er ens. Naturen kan ikke se forskel på et vandmolekyle fra
+  isterningen og et fra søen, så en ombytning af to af dem fører ikke til en ny tilstand.
+  Entropien nåede sit maksimum i det øjeblik, de to temperaturer blev ens.</p>
+  <p>Havde isterningen derimod bestået af et <i>andet</i> stof &mdash; fx salt, der opløses
+  i vandet &mdash; ville opblandingen give et selvstændigt entropibidrag. Det regner denne
+  simulering ikke med, og den beskriver kun ét stof.</p>
+
+  <h3>Om molekylefeltet</h3>
+  <p>Molekylernes fart er <b>overdrevet</b>. I virkeligheden er der ikke stor forskel på farten
+  ved 0 og 100&nbsp;&deg;C &mdash; forskellen ville være umulig at se på skærmen.</p>
+  <p>Antallet af molekyler er heller ikke i forhold: en rigtig sø indeholder mange
+  størrelsesordener flere molekyler end isterningen &mdash; det er netop derfor, dens temperatur
+  ikke ændrer sig.</p>
+
+  <h3>Talværdier</h3>
+  <p>Varmefylde for is 2040&nbsp;J/(kg&middot;K), for vand 4182&nbsp;J/(kg&middot;K), smeltevarme
+  334&nbsp;kJ/kg. Absolut nulpunkt sat til &minus;273,15&nbsp;&deg;C.</p>
+
+  <div class="close-row"><button class="btn-sm modal-close">Luk</button></div>
+</div></div>
+
+<div class="modal" id="mOpgaver"><div class="modal-inner">
+  <h2>Opgaver</h2>
+
+  <h3>Opgave 1 &mdash; Isterningen i søen</h3>
+  <p>Sæt <span class="eq"><span class="var">m</span></span> = 1,00&nbsp;kg,
+  <span class="eq"><span class="var">T</span><sub>is</sub></span> = 0&nbsp;&deg;C og
+  <span class="eq"><span class="var">T</span><sub>sø</sub></span> = 10&nbsp;&deg;C.
+  Sæt flueben i <i>Skjul entropitæller</i> og kør processen til ende.</p>
+  <ol>
+    <li>Aflæs den samlede tilførte varme <span class="eq"><span class="var">Q</span></span>.
+        Kontrollér den ved selv at beregne varmen til smeltning og til opvarmning af smeltevandet.</li>
+    <li>Beregn de to bidrag til <span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span>
+        og læg dem sammen.</li>
+    <li>Beregn <span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span>.
+        Hvorfor må du her bruge søens temperatur direkte uden at tage noget gennemsnit?</li>
+    <li>Find <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span>.
+        Fjern fluebenet og sammenlign.</li>
+  </ol>
+  <p><b>Bemærk undervejs:</b> facit er en lille forskel mellem to store tal. Runder du de to
+  store tal af til hele J/K, inden du trækker dem fra hinanden, kan svaret nemt blive et helt J/K forkert.
+  Hvor mange betydende cifre skal du regne med undervejs?</p>
+
+  <h3>Opgave 2 &mdash; Hvor kommer entropien fra?</h3>
+  <p>Behold <span class="eq"><span class="var">m</span></span> = 1,00&nbsp;kg og
+  <span class="eq"><span class="var">T</span><sub>is</sub></span> = 0&nbsp;&deg;C.
+  Kør processen ved fire forskellige søtemperaturer og udfyld skemaet:</p>
+  <table class="tbl">
+    <tr><th><span class="eq"><span class="var">T</span><sub>sø</sub></span></th>
+        <th><span class="eq"><span class="var">Q</span></span> (kJ)</th>
+        <th><span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span></th>
+        <th><span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span></th>
+        <th><span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span></th></tr>
+    <tr><td>0 &deg;C</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>1 &deg;C</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>10 &deg;C</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>40 &deg;C</td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <ol>
+    <li>Hvad sker der med <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span>,
+        når søen er 0&nbsp;&deg;C? Isen smelter jo stadig &mdash; hvorfor stiger entropien så ikke?</li>
+    <li>Processen med søen på 0&nbsp;&deg;C kaldes <b>reversibel</b>. Forklar med dine egne ord,
+        hvad det betyder, og hvorfor de tre øvrige processer ikke er det.</li>
+    <li>Hvilken størrelse er det altså, der afgør, hvor meget entropi der produceres?</li>
+  </ol>
+
+  <h3>Opgave 3 &mdash; Massens betydning</h3>
+  <ol>
+    <li>Kør med 0,50&nbsp;kg og derefter med 1,00&nbsp;kg is, begge i en sø på 10&nbsp;&deg;C.
+        Hvad sker der med <span class="eq"><span class="var">Q</span></span>, og hvad sker der med
+        <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span>?</li>
+    <li>Læg mærke til kurvernes længde på grafen. Hvorfor bliver kurverne kortere, når massen falder,
+        i stedet for at grafen bare skalerer med?</li>
+    <li>Kør derefter 1,00&nbsp;kg is, der starter ved &minus;20&nbsp;&deg;C, i en sø på
+        10&nbsp;&deg;C. Processen har nu tre afsnit. Det første afsnit tilføres 40,8&nbsp;kJ og
+        det sidste 41,8&nbsp;kJ &mdash; altså næsten det samme. Beregn entropitilvæksten for hvert
+        af de to afsnit, og forklar ud fra formlen, hvorfor det afsnit, der får <b>mindst</b>
+        varme, giver <b>mest</b> entropi.</li>
+  </ol>
+
+  <h3>Opgave 4 &mdash; Den umulige proces</h3>
+  <p>Forestil dig, at varmen gik den anden vej: at søen ved 10&nbsp;&deg;C blev varmere,
+  mens isen ved 0&nbsp;&deg;C blev koldere.</p>
+  <ol>
+    <li>Hvilket fortegn ville <span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span>
+        og <span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span> have?</li>
+    <li>Beregn, hvad <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span> ville blive,
+        hvis 100&nbsp;kJ løb den forkerte vej mellem de to temperaturer.</li>
+    <li>Hvilken hovedsætning ville processen overholde, og hvilken ville den bryde?</li>
+  </ol>
+
+  <h3>Opgave 5 &mdash; Hvor god er genvejen?</h3>
+  <p>Kør processen til ende og se på metodesammenligningen.</p>
+  <ol>
+    <li>Ved <span class="eq"><span class="var">T</span><sub>sø</sub></span> = 10&nbsp;&deg;C:
+        hvor stor er forskellen mellem gennemsnitsmetoden og den eksakte værdi, i procent?</li>
+    <li>Gentag ved 80&nbsp;&deg;C. Hvorfor bliver tilnærmelsen dårligere, jo større
+        temperaturspringet er?</li>
+    <li>Hvorfor er smeltebidraget upåvirket, uanset hvad søens temperatur er?</li>
+  </ol>
+
+  <div class="close-row"><button class="btn-sm modal-close">Luk</button></div>
+</div></div>
+
+<script>
+"use strict";
+
+/* =====================================================================
+   FYSIKKERNE  (DOM-fri)
+   ---------------------------------------------------------------------
+   Model: 1 stk. is med massen m og starttemperaturen T_is lægges i en
+   sø ved T_sø. Søen behandles som et varmereservoir: dens temperatur er
+   konstant, uanset hvor meget varme den afgiver. Processen består af op
+   til tre trin, i rækkefølge efter tilført varme Q:
+
+       1) opvarmning af isen fra T_is til 0 °C      Q1 = m·c_is·ΔT
+       2) smeltning ved 0 °C                        Q2 = m·L_s
+       3) opvarmning af smeltevandet til T_sø       Q3 = m·c_vand·ΔT
+
+   Entropi opgøres på tre måder, der sammenlignes til slut:
+       gennemsnitsmetoden — én gennemsnitstemperatur pr. trin
+       løbende sum    — Σ ΔQ/T over N små skridt (numerisk integral)
+       eksakt         — m·c·ln(T2/T1) pr. opvarmningstrin
+
+   Søens bidrag er −Q_total/T_sø i alle tre, og er eksakt, fordi T_sø
+   er konstant.
+
+   Talværdier fra Gunnar Gunnarsson, "Varmelære 2025", tabel 1 og afsnit 5:
+       c_is   = 2040 J/(kg·K)
+       c_vand = 4182 J/(kg·K)
+       L_s    = 334 kJ/kg
+       0 K    = −273,15 °C
+   ===================================================================== */
+
+var C_IS = 2040, C_VAND = 4182, L_S = 334000, T0 = 273.15;
+var N_TRIN = 4000;                      // skridt i den løbende sum
+
+function forloeb(m, TisC, TsoC){
+  var Q1 = m*C_IS*(0 - TisC);
+  var Q2 = m*L_S;
+  var Q3 = m*C_VAND*(TsoC - 0);
+  return { Q1:Q1, Q2:Q2, Q3:Q3, Qtot:Q1+Q2+Q3 };
+}
+
+/* Is-systemets temperatur (°C) ved akkumuleret varme Q */
+function TvedQ(Q, f, m, TisC){
+  if(Q <= 0) return TisC;
+  if(Q < f.Q1) return TisC + Q/(m*C_IS);
+  if(Q < f.Q1 + f.Q2) return 0;
+  var r = (Q - f.Q1 - f.Q2)/(m*C_VAND);
+  return r;
+}
+
+/* Gennemsnitsmetoden: én gennemsnitstemperatur pr. trin */
+function gnsMetode(m, TisC, TsoC){
+  var f = forloeb(m, TisC, TsoC);
+  var s1 = f.Q1 > 0 ? f.Q1/(T0 + (TisC + 0)/2) : 0;
+  var s2 = f.Q2/T0;
+  var s3 = f.Q3 > 0 ? f.Q3/(T0 + (0 + TsoC)/2) : 0;
+  var sl = -f.Qtot/(T0 + TsoC);
+  return { is:s1+s2+s3, so:sl, total:s1+s2+s3+sl };
+}
+
+/* Eksakt med logaritmer */
+function eksaktMetode(m, TisC, TsoC){
+  var f = forloeb(m, TisC, TsoC);
+  var e1 = f.Q1 > 0 ? m*C_IS*Math.log(T0/(T0 + TisC)) : 0;
+  var e2 = f.Q2/T0;
+  var e3 = f.Q3 > 0 ? m*C_VAND*Math.log((T0 + TsoC)/T0) : 0;
+  var el = -f.Qtot/(T0 + TsoC);
+  return { is:e1+e2+e3, so:el, total:e1+e2+e3+el };
+}
+
+/* Løbende sum: bygger hele forløbet som N_TRIN punkter.
+   Uafhængig af billedfrekvens og animationsfart. */
+function byggForloeb(m, TisC, TsoC){
+  var f = forloeb(m, TisC, TsoC);
+  var dQ = f.Qtot/N_TRIN;
+  var Tso_K = T0 + TsoC;
+  var Q = 0, Sis = 0, Sso = 0;
+  var pkt = new Array(N_TRIN+1);
+  pkt[0] = { Q:0, T:TisC, Sis:0, Sso:0, Stot:0 };
+  for(var i=1;i<=N_TRIN;i++){
+    var Qm = Q + dQ/2;
+    var Tm = TvedQ(Qm, f, m, TisC);
+    Sis += dQ/(T0 + Tm);
+    Sso += -dQ/Tso_K;
+    Q += dQ;
+    pkt[i] = { Q:Q, T:TvedQ(Q, f, m, TisC), Sis:Sis, Sso:Sso, Stot:Sis+Sso };
+  }
+  return { f:f, pkt:pkt, dQ:dQ };
+}
+
+/* =====================================================================
+   HJÆLPERE
+   ===================================================================== */
+function daNum(x, dec){
+  if(!isFinite(x)) return "–";
+  var s = Math.abs(x).toFixed(dec).replace(".", ",");
+  return (x < 0 ? "\u2212" : "") + s;
+}
+var isDark = true;
+function D(d, l){ return isDark ? d : l; }
+
+/* =====================================================================
+   TILSTAND
+   ===================================================================== */
+var st = {
+  m:1.00, TisC:0, TsoC:10, spd:1.0,
+  koerer:false, idx:0, faerdig:false,
+  data:null
+};
+
+function genberegn(){
+  st.data = byggForloeb(st.m, st.TisC, st.TsoC);
+  st.idx = 0; st.faerdig = false; st.koerer = false;
+  byggMolekyler();
+  opdaterKnapper();
+  opdaterAflaesning();
+  tegnAlt();
+}
+
+/* =====================================================================
+   MOLEKYLEFELT
+   ===================================================================== */
+var N_IS = 36, N_SO = 78;
+var isMol = [], soMol = [], sceneW = 800, sceneH = 288;
+var gitterStep = 20;   // afstand mellem gitterpladser, følger lærredets bredde
+var P_STOED = 0.055;   // sandsynlighed pr. billede for et "sammenstød" (ny retning)
+
+/* Farten som funktion af molekylets EGEN temperatur. Samme funktion for begge
+   slags molekyler, så to systemer ved samme temperatur altid bevæger sig lige
+   hurtigt. Eksponenten er 4; fysisk er den 1/2 (v ∝ √T). Overdrivelsen er
+   nødvendig for at forskellen kan ses, og den er nævnt i Forklaring. */
+function fartVedT(TC){
+  return 0.95*Math.pow(Math.max(0.2,(T0 + TC)/T0), 4);
+}
+function nyRetning(mm){
+  var a = Math.random()*Math.PI*2;
+  mm.vx = Math.cos(a); mm.vy = Math.sin(a);
+}
+
+function byggMolekyler(){
+  isMol = []; soMol = [];
+
+  /* Sekskantet gitter (bikage). Opbygget som et trekantgitter med to
+     molekyler pr. celle — det giver åbne sekskanter med tre bindinger
+     pr. molekyle, altså den struktur, der er skitseret i lærebogsfigurer
+     af is, frem for en tætpakning. */
+  var a = Math.min(sceneW*0.026, 19);        // bindingslængde
+  gitterStep = a;
+  var celler_n = 4, celler_m = 4;            // 4·4 celler à 2 molekyler = 32
+  var a1x = Math.sqrt(3)*a, a1y = 0;
+  var a2x = Math.sqrt(3)*a/2, a2y = 1.5*a;
+  var bx = sceneW*0.10, by = sceneH*0.50 - (celler_m-1)*a2y/2 - a/2;
+
+  for(var n=0;n<celler_n;n++){
+    for(var mI=0;mI<celler_m;mI++){
+      var px = bx + n*a1x + mI*a2x;
+      var py = by + n*a1y + mI*a2y;
+      for(var b=0;b<2;b++){
+        var m1 = {
+          gx: px, gy: py + b*a,
+          x:0, y:0, fri:false, vx:0, vy:0,
+          ph:Math.random()*Math.PI*2, ph2:Math.random()*Math.PI*2,
+          ordre:Math.random()
+        };
+        nyRetning(m1);
+        isMol.push(m1);
+      }
+    }
+  }
+  N_IS = isMol.length;
+
+  /* Smeltningen begynder ved OVERFLADEN: molekylerne frigøres i rækkefølge
+     efter afstand fra klumpens midte, yderste først. Med tilfældig rækkefølge
+     smuldrer gitteret indefra, og bindingerne — det, øjet læser som "is" —
+     forsvinder længe før smeltningen er færdig. Et lille tilfældigt tillæg
+     gør kanten uregelmæssig, så det ikke ser mekanisk ud. */
+  var cx = 0, cy = 0, i;
+  for(i=0;i<isMol.length;i++){ cx += isMol[i].gx; cy += isMol[i].gy; }
+  cx /= isMol.length; cy /= isMol.length;
+  for(i=0;i<isMol.length;i++){
+    var dx = isMol[i].gx - cx, dy = isMol[i].gy - cy;
+    isMol[i].ordre = -Math.sqrt(dx*dx + dy*dy) + (Math.random()-0.5)*0.7*a;
+  }
+  isMol.sort(function(a2,b2){ return a2.ordre - b2.ordre; });
+  for(i=0;i<isMol.length;i++){ isMol[i].x = isMol[i].gx; isMol[i].y = isMol[i].gy; }
+
+  for(var k=0;k<N_SO;k++){
+    var m2 = {
+      x: sceneW*0.06 + Math.random()*sceneW*0.88,
+      y: sceneH*0.14 + Math.random()*sceneH*0.74,
+      vx:0, vy:0
+    };
+    nyRetning(m2);
+    soMol.push(m2);
+  }
+}
+
+/* Lærredet kan skifte størrelse midt i en kørsel (vinduet ændres, eller et
+   panel under scenen bliver en linje højere). Molekylerne skal da SKALERES,
+   ikke bygges om — ellers springer de frigjorte tilbage på gitterpladserne. */
+function skalerMolekyler(sx, sy){
+  var i, mm;
+  for(i=0;i<isMol.length;i++){
+    mm = isMol[i];
+    mm.gx *= sx; mm.gy *= sy;
+    mm.x  *= sx; mm.y  *= sy;
+  }
+  for(i=0;i<soMol.length;i++){
+    mm = soMol[i];
+    mm.x *= sx; mm.y *= sy;
+  }
+  gitterStep *= sx;
+}
+
+/* =====================================================================
+   CANVAS-OPSÆTNING
+   ===================================================================== */
+function setupCanvas(cv){
+  var dpr = window.devicePixelRatio || 1;
+  var r = cv.getBoundingClientRect();
+  var w = Math.max(60, Math.round(r.width)), h = Math.max(60, Math.round(r.height));
+  if(cv.width !== w*dpr || cv.height !== h*dpr){
+    cv.width = w*dpr; cv.height = h*dpr;
+  }
+  var ctx = cv.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return { ctx:ctx, w:w, h:h };
+}
+
+/* ---------------- SCENE ---------------- */
+function tegnScene(){
+  var cv = document.getElementById("scene");
+  var s = setupCanvas(cv); var ctx = s.ctx, w = s.w, h = s.h;
+  if(w !== sceneW || h !== sceneH){
+    /* Før kørslen er gitteret ikke i brug — byg det op i den rigtige størrelse.
+       Er kørslen i gang, skaleres i stedet, så frigjorte molekyler bliver, hvor de er. */
+    if(st.idx === 0 || !isMol.length){
+      sceneW = w; sceneH = h; byggMolekyler();
+    } else {
+      skalerMolekyler(w/sceneW, h/sceneH);
+      sceneW = w; sceneH = h;
+    }
+  }
+
+  ctx.fillStyle = D("#060e18","#f4eee3");
+  ctx.fillRect(0,0,w,h);
+
+  var d = st.data, p = d.pkt[st.idx], f = d.f;
+  var Q = p.Q;
+  var Tis = p.T;
+
+  /* --- søens vand som baggrundstoning --- */
+  var varmGrad = Math.min(1, Math.max(0, st.TsoC/60));
+  ctx.fillStyle = D("rgba(20,60,90,0.35)","rgba(120,170,205,0.20)");
+  ctx.fillRect(0,0,w,h);
+
+  /* --- ramme og etiketter --- */
+  ctx.strokeStyle = D("#1a3a52","#d6cbb8"); ctx.lineWidth = 1;
+  ctx.strokeRect(0.5,0.5,w-1,h-1);
+
+  /* --- fase --- */
+  var faseTxt, meltFrac = 0;
+  if(Q < f.Q1 - 1e-9){ faseTxt = "Isen varmes op"; }
+  else if(Q < f.Q1 + f.Q2 - 1e-9){
+    faseTxt = "Isen smelter";
+    meltFrac = f.Q2 > 0 ? (Q - f.Q1)/f.Q2 : 1;
+  } else {
+    faseTxt = (st.TsoC <= 0) ? "Termisk ligevægt" : "Smeltevandet varmes op";
+    meltFrac = 1;
+  }
+  if(st.faerdig) faseTxt = "Termisk ligevægt \u2014 processen er standset";
+
+  /* --- opdater molekyler --- */
+  /* Så længe der stadig smeltes, skal der være is at se. Et enkelt tilbage-
+     blevet molekyle har ingen binding og læses ikke som is, så det sidste par
+     holdes samlet, indtil smeltningen er helt færdig. De to inderste
+     gitterpladser er naboer, så parret har altid netop én binding. */
+  var nFri = Math.floor(meltFrac*N_IS + 1e-9);
+  if(meltFrac < 1) nFri = Math.min(nFri, N_IS - 2);
+  var vibr;
+  if(f.Q1 > 0 && Q < f.Q1) vibr = 0.35 + 1.55*(Q/f.Q1);
+  else vibr = 1.9;
+
+  /* Samme fartlov for begge slags — ved termisk ligevægt bliver de ens */
+  var soFart   = fartVedT(st.TsoC);
+  var koldFart = fartVedT(Tis);
+
+  var i, mm;
+  for(i=0;i<isMol.length;i++){
+    mm = isMol[i];
+    var skalVaereFri = (i < nFri);
+    if(skalVaereFri && !mm.fri){ mm.fri = true; nyRetning(mm); }
+    if(!skalVaereFri && mm.fri){ mm.fri = false; mm.x = mm.gx; mm.y = mm.gy; }
+
+    if(mm.fri){
+      if(Math.random() < P_STOED) nyRetning(mm);
+      mm.x += mm.vx*koldFart; mm.y += mm.vy*koldFart;
+      if(mm.x < 6){ mm.x = 6; mm.vx = Math.abs(mm.vx); }
+      if(mm.x > w-6){ mm.x = w-6; mm.vx = -Math.abs(mm.vx); }
+      if(mm.y < 6){ mm.y = 6; mm.vy = Math.abs(mm.vy); }
+      if(mm.y > h-6){ mm.y = h-6; mm.vy = -Math.abs(mm.vy); }
+    } else {
+      mm.ph += 0.20; mm.ph2 += 0.27;
+      mm.x = mm.gx + Math.sin(mm.ph)*vibr;
+      mm.y = mm.gy + Math.cos(mm.ph2)*vibr;
+    }
+  }
+  for(i=0;i<soMol.length;i++){
+    mm = soMol[i];
+    if(Math.random() < P_STOED) nyRetning(mm);
+    mm.x += mm.vx*soFart; mm.y += mm.vy*soFart;
+    if(mm.x < 6){ mm.x = 6; mm.vx = Math.abs(mm.vx); }
+    if(mm.x > w-6){ mm.x = w-6; mm.vx = -Math.abs(mm.vx); }
+    if(mm.y < 6){ mm.y = 6; mm.vy = Math.abs(mm.vy); }
+    if(mm.y > h-6){ mm.y = h-6; mm.vy = -Math.abs(mm.vy); }
+  }
+
+  /* --- søens molekyler --- */
+  /* Samme radius som is-molekylerne: det er det samme stof, kun farven
+     skiller dem ad som bogføring. */
+  var R_MOL = 3.0;
+  ctx.fillStyle = D("#ffd93d","#9c5e00");
+  for(i=0;i<soMol.length;i++){
+    ctx.beginPath(); ctx.arc(soMol[i].x, soMol[i].y, R_MOL, 0, 6.2832); ctx.fill();
+  }
+
+  /* --- bindinger i gitteret --- */
+  var bMax = gitterStep*1.20;   /* naboafstand er a; naest-naermeste er √3·a */
+  ctx.strokeStyle = D("#5fd8ff","#1763b0"); ctx.lineWidth = 1.6;
+  for(i=0;i<isMol.length;i++){
+    if(isMol[i].fri) continue;
+    for(var j=i+1;j<isMol.length;j++){
+      if(isMol[j].fri) continue;
+      var dx = isMol[i].gx - isMol[j].gx, dy = isMol[i].gy - isMol[j].gy;
+      if(dx*dx + dy*dy < bMax*bMax){
+        ctx.beginPath();
+        ctx.moveTo(isMol[i].x, isMol[i].y); ctx.lineTo(isMol[j].x, isMol[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  /* --- is-molekyler --- */
+  for(i=0;i<isMol.length;i++){
+    ctx.fillStyle = isMol[i].fri ? D("#7fe4ff","#2767a8") : D("#eaf6fa","#0b3a66");
+    ctx.beginPath(); ctx.arc(isMol[i].x, isMol[i].y, R_MOL, 0, 6.2832); ctx.fill();
+  }
+
+  /* --- tekst --- */
+  ctx.font = "bold 12px 'Courier New', monospace";
+  ctx.fillStyle = D("#eaf6fa","#111111");
+  ctx.textAlign = "left"; ctx.textBaseline = "top";
+  ctx.fillText(faseTxt, 10, 9);
+
+  ctx.font = "11px 'Courier New', monospace";
+  ctx.textAlign = "right";
+  ctx.fillStyle = D("#ffd93d","#9c5e00");
+  ctx.fillText("Sø (reservoir): " + daNum(st.TsoC,1) + " \u00B0C \u2014 konstant", w-10, 9);
+  ctx.fillStyle = D("#7fe4ff","#1763b0");
+  ctx.fillText("Is-system: " + daNum(Tis,1) + " \u00B0C", w-10, 25);
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = D("#bfe2ef","#333333");
+  ctx.fillText("Molekylernes fart er overdrevet \u2014 se Forklaring", 10, h-20);
+}
+
+/* ---------------- GRAF: T mod Q ---------------- */
+/* Aksen låses til den STØRSTE masse, skyderen tillader, så ingen kurve kan
+   løbe ud over aksen. Massen aflæses dermed på kurvens længde. */
+var M_REF = 2.00;
+function aksemaal(){
+  var fRef = forloeb(M_REF, st.TisC, st.TsoC);
+  return { Qmax: fRef.Qtot/1000 };
+}
+
+/* Runde aksetal: vælg et pænt skridt og snap grænserne udad */
+function pentSkridt(spand, n){
+  var raa = spand/n;
+  if(!(raa > 0)) return 1;
+  var mag = Math.pow(10, Math.floor(Math.log10(raa)));
+  var nrm = raa/mag;
+  var s = (nrm <= 1) ? 1 : (nrm <= 2) ? 2 : (nrm <= 5) ? 5 : 10;
+  return s*mag;
+}
+function pentAkse(lo, hi, nMaks){
+  if(hi - lo <= 0) hi = lo + 1;
+  var s = pentSkridt(hi - lo, nMaks);
+  var l = Math.floor(lo/s + 1e-9)*s, hg = Math.ceil(hi/s - 1e-9)*s;
+  var n = Math.round((hg - l)/s);
+  var vagt = 0;
+  while(n > nMaks && vagt++ < 12){
+    s = pentSkridt(s*1.7, 1);
+    l = Math.floor(lo/s + 1e-9)*s; hg = Math.ceil(hi/s - 1e-9)*s;
+    n = Math.round((hg - l)/s);
+  }
+  var dec = (Math.abs(s - Math.round(s)) < 1e-9) ? 0 : (s >= 0.1 ? 1 : 2);
+  return { lo:l, hi:hg, step:s, n:Math.max(1,n), dec:dec };
+}
+
+function tegnRamme(ctx,w,h,pad){
+  ctx.fillStyle = D("#060e18","#f4eee3"); ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle = D("#1a3a52","#d6cbb8"); ctx.lineWidth = 1;
+  ctx.strokeRect(0.5,0.5,w-1,h-1);
+}
+
+function tegnGrafT(){
+  var cv = document.getElementById("grafT");
+  var s = setupCanvas(cv); var ctx = s.ctx, w = s.w, h = s.h;
+  var pad = { l:48, r:12, t:14, b:38 };
+  tegnRamme(ctx,w,h,pad);
+
+  var ax = pentAkse(0, aksemaal().Qmax, 6);
+  var ay = pentAkse(Math.min(st.TisC, 0) - 2, Math.max(st.TsoC, 5) + 2, 6);
+
+  var X = function(q){ return pad.l + ((q-ax.lo)/(ax.hi-ax.lo))*(w-pad.l-pad.r); };
+  var Y = function(t){ return h-pad.b - ((t-ay.lo)/(ay.hi-ay.lo))*(h-pad.t-pad.b); };
+
+  /* gitter */
+  ctx.strokeStyle = D("#1d3a52","#ddd2c0"); ctx.lineWidth = 1;
+  var i;
+  for(i=0;i<=ax.n;i++){ var xx = X(ax.lo + i*ax.step);
+    ctx.beginPath(); ctx.moveTo(xx,pad.t); ctx.lineTo(xx,h-pad.b); ctx.stroke(); }
+  for(i=0;i<=ay.n;i++){ var yy = Y(ay.lo + i*ay.step);
+    ctx.beginPath(); ctx.moveTo(pad.l,yy); ctx.lineTo(w-pad.r,yy); ctx.stroke(); }
+
+  /* akser */
+  ctx.strokeStyle = D("#5a7a90","#888888"); ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,h-pad.b); ctx.lineTo(w-pad.r,h-pad.b); ctx.stroke();
+
+  /* tickstal */
+  ctx.font = "11px 'Courier New', monospace";
+  ctx.fillStyle = D("#bfe2ef","#222222");
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for(i=0;i<=ax.n;i++){
+    ctx.fillText(daNum(ax.lo + i*ax.step, ax.dec), X(ax.lo + i*ax.step), h-pad.b+7);
+  }
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for(i=0;i<=ay.n;i++){
+    ctx.fillText(daNum(ay.lo + i*ay.step, ay.dec), pad.l-7, Y(ay.lo + i*ay.step));
+  }
+
+  /* aksenavne */
+  ctx.fillStyle = D("#eaf6fa","#111111");
+  ctx.font = "bold 11px 'Courier New', monospace";
+  ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+  ctx.fillText("Tilført varme Q (kJ)", pad.l + (w-pad.l-pad.r)/2, h-6);
+  ctx.save();
+  ctx.translate(13, pad.t + (h-pad.t-pad.b)/2); ctx.rotate(-Math.PI/2);
+  ctx.textBaseline = "top";
+  ctx.fillText("Temperatur (\u00B0C)", 0, 0);
+  ctx.restore();
+
+  /* søens linje */
+  ctx.strokeStyle = D("#ffd93d","#9c5e00"); ctx.lineWidth = 2;
+  ctx.setLineDash([7,5]);
+  ctx.beginPath(); ctx.moveTo(pad.l, Y(st.TsoC)); ctx.lineTo(w-pad.r, Y(st.TsoC)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* is-systemets kurve */
+  var d = st.data;
+  ctx.strokeStyle = D("#34d6ff","#1763b0"); ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  var trin = Math.max(1, Math.floor(N_TRIN/400));
+  var foerste = true;
+  for(i=0;i<=st.idx;i+=trin){
+    var p = d.pkt[i];
+    var px = X(p.Q/1000), py = Y(p.T);
+    if(foerste){ ctx.moveTo(px,py); foerste = false; } else ctx.lineTo(px,py);
+  }
+  var pl = d.pkt[st.idx];
+  ctx.lineTo(X(pl.Q/1000), Y(pl.T));
+  ctx.stroke();
+
+  /* markør */
+  ctx.fillStyle = D("#ffffff","#08233f");
+  ctx.beginPath(); ctx.arc(X(pl.Q/1000), Y(pl.T), 4, 0, 6.2832); ctx.fill();
+  ctx.strokeStyle = D("#34d6ff","#1763b0"); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(X(pl.Q/1000), Y(pl.T), 4, 0, 6.2832); ctx.stroke();
+}
+
+/* ---------------- GRAF: S mod Q ---------------- */
+function tegnGrafS(){
+  var cv = document.getElementById("grafS");
+  var s = setupCanvas(cv); var ctx = s.ctx, w = s.w, h = s.h;
+  var pad = { l:56, r:12, t:14, b:38 };
+  tegnRamme(ctx,w,h,pad);
+
+  var zoom  = document.getElementById("cZoom").checked;
+
+  /* Samme referencemasse som Q-aksen, så massen ses på kurvens længde */
+  var refN = gnsMetode(M_REF, st.TisC, st.TsoC);
+  var ax = pentAkse(0, aksemaal().Qmax, 6), ay;
+  if(zoom){
+    var top = Math.max(refN.total, 1);
+    ay = pentAkse(-top*0.08, top*1.12, 6);
+  } else {
+    var mx = Math.max(Math.abs(refN.is), Math.abs(refN.so));
+    ay = pentAkse(-mx*1.10, mx*1.10, 6);
+  }
+
+  var X = function(q){ return pad.l + ((q-ax.lo)/(ax.hi-ax.lo))*(w-pad.l-pad.r); };
+  var Y = function(v){ return h-pad.b - ((v-ay.lo)/(ay.hi-ay.lo))*(h-pad.t-pad.b); };
+
+  ctx.strokeStyle = D("#1d3a52","#ddd2c0"); ctx.lineWidth = 1;
+  var i;
+  for(i=0;i<=ax.n;i++){ var xx = X(ax.lo + i*ax.step);
+    ctx.beginPath(); ctx.moveTo(xx,pad.t); ctx.lineTo(xx,h-pad.b); ctx.stroke(); }
+  for(i=0;i<=ay.n;i++){ var yy = Y(ay.lo + i*ay.step);
+    ctx.beginPath(); ctx.moveTo(pad.l,yy); ctx.lineTo(w-pad.r,yy); ctx.stroke(); }
+
+  /* nul-linje */
+  if(ay.lo < 0 && ay.hi > 0){
+    ctx.strokeStyle = D("#7f9fb5","#666666"); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.l, Y(0)); ctx.lineTo(w-pad.r, Y(0)); ctx.stroke();
+  }
+
+  ctx.strokeStyle = D("#5a7a90","#888888"); ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,h-pad.b); ctx.lineTo(w-pad.r,h-pad.b); ctx.stroke();
+
+  ctx.font = "11px 'Courier New', monospace";
+  ctx.fillStyle = D("#bfe2ef","#222222");
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for(i=0;i<=ax.n;i++){
+    ctx.fillText(daNum(ax.lo + i*ax.step, ax.dec), X(ax.lo + i*ax.step), h-pad.b+7);
+  }
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for(i=0;i<=ay.n;i++){
+    ctx.fillText(daNum(ay.lo + i*ay.step, ay.dec), pad.l-7, Y(ay.lo + i*ay.step));
+  }
+
+  ctx.fillStyle = D("#eaf6fa","#111111");
+  ctx.font = "bold 11px 'Courier New', monospace";
+  ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+  ctx.fillText("Tilført varme Q (kJ)", pad.l + (w-pad.l-pad.r)/2, h-6);
+  ctx.save();
+  ctx.translate(13, pad.t + (h-pad.t-pad.b)/2); ctx.rotate(-Math.PI/2);
+  ctx.textBaseline = "top";
+  ctx.fillText("Entropitilvækst (J/K)", 0, 0);
+  ctx.restore();
+
+  var d = st.data;
+  var trin = Math.max(1, Math.floor(N_TRIN/400));
+
+  function kurve(felt, farveD, farveL, bredde){
+    ctx.strokeStyle = D(farveD, farveL); ctx.lineWidth = bredde;
+    ctx.beginPath();
+    var f = true;
+    for(var k=0;k<=st.idx;k+=trin){
+      var p = d.pkt[k];
+      var px = X(p.Q/1000), py = Y(p[felt]);
+      if(f){ ctx.moveTo(px,py); f = false; } else ctx.lineTo(px,py);
+    }
+    var pl = d.pkt[st.idx];
+    ctx.lineTo(X(pl.Q/1000), Y(pl[felt]));
+    ctx.stroke();
+  }
+
+  if(!zoom){
+    kurve("Sis", "#34d6ff", "#1763b0", 2.2);
+    kurve("Sso", "#ffd93d", "#9c5e00", 2.2);
+  }
+  kurve("Stot", "#00ff9f", "#12805f", zoom ? 2.6 : 3.0);
+
+  var plast = d.pkt[st.idx];
+  ctx.fillStyle = D("#00ff9f","#12805f");
+  ctx.beginPath(); ctx.arc(X(plast.Q/1000), Y(plast.Stot), 4, 0, 6.2832); ctx.fill();
+
+  if(!zoom){
+    ctx.font = "11px 'Courier New', monospace";
+    ctx.fillStyle = D("#bfe2ef","#333333");
+    ctx.textAlign = "left"; ctx.textBaseline = "top";
+    ctx.fillText("Totalentropien er den lille forskel mellem de to store kurver", pad.l+6, pad.t+4);
+  }
+}
+
+function tegnAlt(){ tegnScene(); tegnGrafT(); tegnGrafS(); }
+
+/* =====================================================================
+   AFLÆSNINGER
+   ===================================================================== */
+function opdaterAflaesning(){
+  var d = st.data, p = d.pkt[st.idx];
+  document.getElementById("mQ").textContent   = daNum(p.Q/1000, 1);
+  document.getElementById("mTis").textContent = daNum(p.T, 1);
+  document.getElementById("mTso").textContent = daNum(st.TsoC, 1);
+  document.getElementById("mSis").textContent  = daNum(p.Sis, 1);
+  document.getElementById("mSso").textContent  = daNum(p.Sso, 1);
+  document.getElementById("mStot").textContent = daNum(p.Stot, 2);
+
+  var txt = document.getElementById("cmpTekst");
+  if(document.getElementById("cSkjul").checked){
+    txt.innerHTML = "skjult sammen med entropit\u00E6lleren.";
+  } else if(st.faerdig){
+    var n = gnsMetode(st.m, st.TisC, st.TsoC);
+    var e = eksaktMetode(st.m, st.TisC, st.TsoC);
+    txt.innerHTML =
+      "Gennemsnitsmetoden <b>" + daNum(n.total,2) + "</b> J/K" +
+      " &nbsp;\u00B7&nbsp; L\u00F8bende sum <b>" + daNum(p.Stot,2) + "</b> J/K" +
+      " &nbsp;\u00B7&nbsp; Eksakt <b>" + daNum(e.total,2) + "</b> J/K";
+  } else {
+    txt.innerHTML = "k\u00F8r processen til ende, s\u00E5 udfyldes felterne.";
+  }
+}
+
+function opdaterSkjul(){
+  var skjul = document.getElementById("cSkjul").checked;
+  Array.prototype.forEach.call(document.querySelectorAll(".meter.ent"), function(el){
+    el.style.visibility = skjul ? "hidden" : "";
+  });
+  opdaterAflaesning();
+}
+
+function opdaterKnapper(){
+  var b = document.getElementById("bRun");
+  b.textContent = st.faerdig ? "Færdig" : (st.koerer ? "Pause" : "Start");
+  b.disabled = st.faerdig;
+  b.style.opacity = st.faerdig ? "0.5" : "1";
+  var laas = st.koerer;
+  ["sM","sTis","sTso"].forEach(function(id){ document.getElementById(id).disabled = laas; });
+}
+
+/* =====================================================================
+   ANIMATION
+   ===================================================================== */
+var sidst = 0;
+function loop(ts){
+  if(!sidst) sidst = ts;
+  var dt = Math.min(0.05, (ts - sidst)/1000);
+  sidst = ts;
+  if(st.koerer && !st.faerdig){
+    /* fast antal skridt pr. sekund gange animationsfarten — kurven er den
+       samme uanset billedfrekvens og hastighed */
+    var pr_sek = N_TRIN/18;
+    st.idx += Math.max(1, Math.round(pr_sek*dt*st.spd));
+    if(st.idx >= N_TRIN){
+      st.idx = N_TRIN; st.faerdig = true; st.koerer = false;
+      opdaterKnapper();
+    }
+    opdaterAflaesning();
+  }
+  tegnAlt();
+  requestAnimationFrame(loop);
+}
+
+/* =====================================================================
+   HÆNDELSER
+   ===================================================================== */
+function bind(){
+  var sM = document.getElementById("sM"),
+      sTis = document.getElementById("sTis"),
+      sTso = document.getElementById("sTso"),
+      sSpd = document.getElementById("sSpd");
+
+  sM.addEventListener("input", function(){
+    st.m = parseInt(sM.value,10)/100;
+    document.getElementById("vM").textContent = daNum(st.m,2) + " kg";
+    genberegn();
+  });
+  sTis.addEventListener("input", function(){
+    st.TisC = parseInt(sTis.value,10);
+    document.getElementById("vTis").textContent = daNum(st.TisC,0) + " \u00B0C";
+    genberegn();
+  });
+  sTso.addEventListener("input", function(){
+    st.TsoC = parseInt(sTso.value,10);
+    document.getElementById("vTso").textContent = daNum(st.TsoC,0) + " \u00B0C";
+    genberegn();
+  });
+  sSpd.addEventListener("input", function(){
+    st.spd = parseInt(sSpd.value,10)/10;
+    document.getElementById("vSpd").textContent = daNum(st.spd,1) + " \u00D7";
+  });
+
+  document.getElementById("bRun").addEventListener("click", function(){
+    if(st.faerdig) return;
+    st.koerer = !st.koerer;
+    opdaterKnapper();
+  });
+  document.getElementById("bReset").addEventListener("click", function(){
+    st.idx = 0; st.faerdig = false; st.koerer = false;
+    byggMolekyler(); opdaterKnapper(); opdaterAflaesning(); tegnAlt();
+  });
+
+  document.getElementById("cSkjul").addEventListener("change", opdaterSkjul);
+  document.getElementById("cZoom").addEventListener("change", function(){
+    document.getElementById("grafStitel").textContent = this.checked
+      ? "Entropi mod tilført varme \u2014 kun totalentropien"
+      : "Entropi mod tilført varme";
+    document.getElementById("lgS").style.display = this.checked ? "none" : "";
+    tegnGrafS();
+  });
+
+  /* modaler */
+  function aabn(id){ document.getElementById(id).classList.add("vis"); }
+  document.getElementById("bForklar").addEventListener("click", function(){ aabn("mForklar"); });
+  document.getElementById("bOpgaver").addEventListener("click", function(){ aabn("mOpgaver"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".modal-close"), function(b){
+    b.addEventListener("click", function(){
+      Array.prototype.forEach.call(document.querySelectorAll(".modal"), function(m){ m.classList.remove("vis"); });
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".modal"), function(m){
+    m.addEventListener("click", function(e){ if(e.target === m) m.classList.remove("vis"); });
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape"){
+      Array.prototype.forEach.call(document.querySelectorAll(".modal"), function(m){ m.classList.remove("vis"); });
+    }
+  });
+
+  /* kopier kode */
+  document.getElementById("bKopier").addEventListener("click", function(){
+    var b = this, org = b.textContent;
+    var kilde = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    function ok(){ b.textContent = "Kopieret!"; setTimeout(function(){ b.textContent = org; }, 1600); }
+    function fejl(){ b.textContent = "Kunne ikke"; setTimeout(function(){ b.textContent = org; }, 1600); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(kilde).then(ok, fejl);
+    } else fejl();
+  });
+
+  /* tema */
+  document.getElementById("bTema").addEventListener("click", function(){
+    isDark = !isDark;
+    if(isDark){ document.documentElement.removeAttribute("data-theme"); this.textContent = "Lyst tema"; }
+    else { document.documentElement.setAttribute("data-theme","light"); this.textContent = "Mørkt tema"; }
+    saetLegender(); tegnAlt();
+  });
+
+  window.addEventListener("resize", function(){ tegnAlt(); });
+}
+
+function saetLegender(){
+  document.getElementById("lgw1").style.background = D("#34d6ff","#1763b0");
+  document.getElementById("lgw2").style.background = D("#ffd93d","#9c5e00");
+  document.getElementById("lgw3").style.background = D("#34d6ff","#1763b0");
+  document.getElementById("lgw4").style.background = D("#ffd93d","#9c5e00");
+  document.getElementById("lgw5").style.background = D("#00ff9f","#12805f");
+}
+
+/* =====================================================================
+   START
+   ===================================================================== */
+bind();
+saetLegender();
+genberegn();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
