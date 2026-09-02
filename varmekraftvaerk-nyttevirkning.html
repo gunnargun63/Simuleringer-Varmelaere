@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Varmekraftværk – Entropi og nyttevirkning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#030810; --bg1:#060e18; --bg2:#0a1622; --bg3:#0f1e2d;
+  --border:#1a3a52;
+  --green:#00ff9f; --cyan:#00cfff; --yellow:#ffd93d; --red:#ff5a76;
+  --text:#d0eef5; --dim:#8ec8d8;
+  --font:'Courier New','Lucida Console',monospace;
+  --tr:0.15s ease;
+  --ind:#ffd24a; --arb:#00ff9f; --kold:#39d6ff; --fjern:#ff7043;
+}
+[data-theme="light"]{
+  --bg0:#e8e0d2; --bg1:#f4eee3; --bg2:#fdfaf4; --bg3:#fdfaf4;
+  --border:#d6cbb8;
+  --green:#1D9E75; --cyan:#378ADD; --yellow:#c07800; --red:#a80f2c;
+  --text:#1a1a1a; --dim:#333333;
+  --ind:#8a5f00; --arb:#0f7a5a; --kold:#155fa8; --fjern:#a83e10;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg0); color:var(--text);
+  font-family:var(--font); font-size:12px; line-height:1.5;
+  padding:10px 12px 12px 12px;
+  height:100vh; height:100dvh; overflow:auto;
+  display:flex; flex-direction:column; gap:10px;
+}
+/* På smalle skærme falder layoutet til én spalte, og da må der gerne scrolles */
+@media (max-width:900px){
+  body{ height:auto; overflow:auto; }
+}
+
+/* ---------- header ---------- */
+header{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:14px; flex-wrap:wrap; flex:0 0 auto;
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.ic{width:21px;height:21px;color:var(--cyan);display:inline-flex;flex-shrink:0;
+  animation:gp 2.8s ease-in-out infinite;}
+.ic svg{display:block;width:100%;height:100%;fill:currentColor;}
+@keyframes gp{
+  0%,100%{opacity:1; filter:drop-shadow(0 0 5px var(--cyan));}
+  50%{opacity:.55; filter:none;}
+}
+[data-theme="light"] .ic{animation:gpl 2.8s ease-in-out infinite;}
+@keyframes gpl{0%,100%{opacity:1;}50%{opacity:.55;}}
+h1{
+  font-family:'Orbitron',var(--font); font-weight:700; font-size:16px;
+  letter-spacing:.20em; color:var(--green); margin:0;
+  text-shadow:0 0 12px rgba(0,255,159,.35);
+}
+[data-theme="light"] h1{text-shadow:none;}
+.utils{display:flex; gap:7px; flex-wrap:wrap;}
+.btn-sm{
+  background:var(--bg2); border:1px solid var(--border); color:var(--text);
+  font-family:var(--font); font-size:11px; letter-spacing:.08em;
+  padding:6px 11px; cursor:pointer; transition:var(--tr);
+}
+.btn-sm:hover{border-color:var(--green); color:var(--green);}
+[data-theme="light"] .btn-sm{font-weight:700;}
+
+/* ---------- layout ---------- */
+.wrap{
+  display:grid; grid-template-columns:242px 1fr; gap:10px;
+  flex:1 1 auto; min-height:0;
+}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr; flex:none; min-height:auto;}
+}
+.col-left{min-height:0; overflow-y:auto;}
+.col-right{display:flex; flex-direction:column; gap:10px; min-height:0;}
+
+.box{
+  background:var(--bg1); border:1px solid var(--border);
+  padding:10px 11px; display:flex; flex-direction:column; gap:7px;
+}
+.sec-title{
+  font-size:11px; letter-spacing:.22em; color:var(--green);
+  text-transform:uppercase; font-weight:700;
+  border-bottom:1px solid var(--border); padding-bottom:5px; margin:0 0 3px 0;
+}
+
+/* ---------- skydere ---------- */
+.ctl{display:flex; flex-direction:column; gap:4px;}
+.ctl-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+.ctl-lab{font-size:11px; color:var(--dim); letter-spacing:.04em; text-transform:none;}
+[data-theme="light"] .ctl-lab{font-weight:700;}
+.ctl-val{font-size:12px; font-weight:700; color:var(--cyan); white-space:nowrap;}
+.ctl-sub{font-size:10.5px; color:var(--dim); text-align:right; margin-top:-2px;}
+[data-theme="light"] .ctl-sub{font-weight:700;}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; width:100%; height:5px;
+  background:var(--bg3); border:1px solid var(--border); outline:none; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:15px; height:15px; background:var(--cyan);
+  border:1px solid var(--bg0); cursor:pointer; border-radius:2px;
+}
+input[type=range]::-moz-range-thumb{
+  width:15px; height:15px; background:var(--cyan);
+  border:1px solid var(--bg0); cursor:pointer; border-radius:2px;
+}
+
+.btn-row{display:flex; gap:7px;}
+.btn{
+  flex:1; background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  font-family:var(--font); font-size:11px; font-weight:700; letter-spacing:.1em;
+  padding:8px 6px; cursor:pointer; transition:var(--tr); text-transform:uppercase;
+}
+.btn:hover{border-color:var(--green); color:var(--green);}
+
+.chk{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--dim); cursor:pointer;}
+[data-theme="light"] .chk{font-weight:700;}
+.chk input{width:14px;height:14px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0;}
+
+/* ---------- lærred ---------- */
+.cv-holder{background:var(--bg1); border:1px solid var(--border); position:relative;}
+canvas#scene{display:block; position:absolute; inset:0; width:100%; height:100%;}
+.scene-holder{flex:1 1 auto; min-height:260px;}
+@media (max-width:900px){
+  .scene-holder{flex:none; height:380px;}
+}
+
+/* ---------- aflæsninger ---------- */
+.strip{
+  flex:0 0 auto; background:var(--bg1); border:1px solid var(--border);
+  padding:7px 8px; display:flex; flex-direction:column; gap:6px;
+}
+.tid-note{font-size:10.5px; color:var(--dim); letter-spacing:.02em;}
+[data-theme="light"] .tid-note{font-weight:700;}
+.meters{display:grid; grid-template-columns:repeat(6,1fr); gap:7px;}
+@media (max-width:1100px){.meters{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:560px){.meters{grid-template-columns:repeat(2,1fr);}}
+.meter{background:var(--bg3); border:1px solid var(--border); padding:5px 8px; min-width:0;}
+.mlabel{
+  font-size:10px; letter-spacing:.04em; color:var(--dim); display:block;
+  margin-bottom:1px; text-transform:none; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
+}
+[data-theme="light"] .mlabel{font-weight:700;}
+.mval{font-size:15px; font-weight:700; color:var(--text); font-family:var(--font);}
+.mval.ind{color:var(--ind);} .mval.arb{color:var(--arb);} .mval.kold{color:var(--kold);}
+.mval.fjern{color:var(--fjern);} .mval.tot{color:var(--green);} .mval.rod{color:var(--red);}
+.munit{font-size:11px; color:var(--dim); font-weight:400;}
+[data-theme="light"] .munit{font-weight:700;}
+/* Skjules med visibility, så målerstriben ikke skifter højde */
+.usynlig{visibility:hidden;}
+
+/* ---------- statuslinje: én linje ---------- */
+.cmp-line{
+  font-size:11px; color:var(--dim); letter-spacing:.02em;
+  border-top:1px solid var(--border); padding-top:5px;
+  display:flex; gap:14px; flex-wrap:wrap; align-items:baseline;
+  min-height:2.7em;   /* plads reserveret, så teksten ikke flytter layoutet */
+}
+[data-theme="light"] .cmp-line{font-weight:700;}
+.cmp-line .lbl{color:var(--green); letter-spacing:.14em; text-transform:uppercase; font-size:10px;}
+.cmp-line b{color:var(--text); font-size:12.5px;}
+[data-theme="light"] .cmp-line b{color:#111;}
+.cmp-line b.rod{color:var(--red);}
+
+/* ---------- modal ---------- */
+.modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.72);
+  display:none; align-items:flex-start; justify-content:center;
+  padding:26px 14px; overflow-y:auto; z-index:50;
+}
+[data-theme="light"] .modal{background:rgba(60,50,35,.6);}
+.modal.vis{display:flex;}
+.modal-inner{
+  background:var(--bg1); border:1px solid var(--border);
+  max-width:820px; width:100%; padding:20px 22px;
+}
+.modal-inner h2{
+  font-family:'Orbitron',var(--font); font-size:13px; letter-spacing:.18em;
+  color:var(--green); margin:0 0 14px 0; text-transform:uppercase;
+}
+.modal-inner h3{
+  font-size:11px; letter-spacing:.18em; color:var(--cyan); text-transform:uppercase;
+  margin:18px 0 7px 0; font-weight:700;
+}
+.modal-inner p, .modal-inner li{font-size:12px; color:var(--text); line-height:1.75;}
+[data-theme="light"] .modal-inner p,[data-theme="light"] .modal-inner li{color:#161616; font-weight:700;}
+.modal-inner ol,.modal-inner ul{padding-left:19px; margin:7px 0;}
+.modal-inner li{margin-bottom:7px;}
+.close-row{display:flex; justify-content:flex-end; margin-top:16px;}
+table.tbl{border-collapse:collapse; width:100%; margin:9px 0; font-size:11px;}
+table.tbl th,table.tbl td{border:1px solid var(--border); padding:5px 8px; text-align:left; color:var(--text);}
+[data-theme="light"] table.tbl th,[data-theme="light"] table.tbl td{color:#161616; font-weight:700;}
+table.tbl th{color:var(--cyan); letter-spacing:.06em;}
+[data-theme="light"] table.tbl th{color:#2767a8;}
+
+/* ---------- Matematisk sats ----------
+   Formler skrives som TeX i data-tex og sættes op af TeX-sætteren i scriptet.
+
+   SKRIFTEN er Latin Modern Math — den samme Computer Modern-tegning, LaTeX
+   selv bruger. Den er indlejret i filen som en delmængde på ca. 20 kB med
+   netop de tegn, formlerne bruger, så den virker uden netforbindelse og uden
+   at eleverne skal installere noget. Findes skriften allerede på maskinen
+   (fx med en TeX-installation), bruges den lokale i stedet.
+
+   Matematik-skrifttyper har ingen kursiv-VARIANT: de kursive bogstaver er
+   selvstændige tegn i Unicodes matematiske alfabet (U+1D44E og frem).
+   Sætteren oversætter derfor variable til de tegn — font-style bruges ikke.
+
+   Størrelsen følger brødteksten. I LaTeX er en fremhævet ligning sat i
+   nøjagtig samme grad som teksten omkring; det er kun luften og brøkernes
+   opsætning, der ændrer sig. */
+@font-face {
+  font-family: 'LM Math Sub';
+  src: local('Latin Modern Math'), local('LatinModernMath-Regular'),
+       url(data:font/woff2;base64,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) format('woff2');
+  font-display: swap;
+}
+.math, .mathd {
+  font-family: 'LM Math Sub', 'Latin Modern Math', 'STIX Two Math',
+               'Cambria Math', serif;
+  font-style: normal;            /* kursiven ligger i tegnene selv */
+  font-variant-ligatures: none;
+  white-space: nowrap;
+  text-transform: none;
+}
+/* Latin Modern har lav x-højde; 1,14 em matcher brødtekstens
+   optiske størrelse, så formlerne hverken springer i øjnene
+   eller forsvinder i teksten. */
+.math  { font-size: 1.14em; }
+.mathd { font-size: 1.18em; }
+
+/* Fremhævet ligning på egen linje */
+.eqd { display: block; text-align: center; margin: 1.1em 0; line-height: 1.9; }
+
+.mv, .mn, .mtext, .mp { font-style: normal; }
+.mfun { font-style: normal; padding-right: .08em; }  /* sin, cos, … */
+.mo   { padding: 0 .19em; }                          /* + − · × */
+.mu   { padding: 0 .02em 0 0; }                      /* fortegn */
+.mr   { padding: 0 .28em; }                          /* = ≈ ⟺ */
+.mcomma { padding-right: .18em; }
+.mabs { padding: 0 .06em; }
+.mslash { padding: 0 .04em; }
+.mquad { display: inline-block; width: 1.1em; }
+.mthin { display: inline-block; width: .18em; }
+
+/* Sænkede og hævede tal */
+.msub, .msup { font-size: .72em; line-height: 0; }
+.msub { vertical-align: -.26em; }
+.msup { vertical-align: .55em; }
+
+/* Brøk — centreret om regnelinjen, som TeX' math axis */
+.mfrac {
+  display: inline-block; vertical-align: middle; text-align: center;
+  margin: 0 .14em; font-size: .88em;
+}
+.mathd .mfrac { font-size: .96em; }
+.mfrac > .mnum { display: block; padding: 0 .3em .08em; line-height: 1.12; }
+.mfrac > .mden {
+  display: block; padding: .1em .3em 0; line-height: 1.12;
+  border-top: .05em solid currentColor;
+}
+
+/* Kvadratrod */
+.msqrt { display: inline-block; vertical-align: middle; white-space: nowrap; }
+.msqrt > .mrad {
+  display: inline-block; vertical-align: middle;
+  transform: scaleY(1.45) translateY(-.03em); transform-origin: center;
+}
+.msqrt > .mrc {
+  display: inline-block; vertical-align: middle;
+  border-top: .05em solid currentColor; padding: .1em .18em .04em .08em;
+}
+
+/* Parenteser, der vokser med indholdet */
+.mfence {
+  display: inline-block; vertical-align: middle;
+  transform: scaleY(1.55); transform-origin: center;
+}
+.mfl { padding-right: .1em; }
+.mfr { padding-left: .1em; }
+
+/* ---------- signaturforklaring ---------- */
+.legend{display:flex; gap:14px; flex-wrap:wrap; font-size:10.5px; flex:0 0 auto;}
+[data-theme="light"] .legend{font-weight:700;}
+.lg{display:flex; align-items:center; gap:5px; color:var(--dim);}
+.sw{width:14px; height:8px; display:inline-block; flex-shrink:0; border:1px solid currentColor;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="ic" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <ellipse cx="12" cy="6.4" rx="1.85" ry="4.3"/>
+        <ellipse cx="12" cy="6.4" rx="1.85" ry="4.3" transform="rotate(60 12 12)"/>
+        <ellipse cx="12" cy="6.4" rx="1.85" ry="4.3" transform="rotate(120 12 12)"/>
+        <ellipse cx="12" cy="6.4" rx="1.85" ry="4.3" transform="rotate(180 12 12)"/>
+        <ellipse cx="12" cy="6.4" rx="1.85" ry="4.3" transform="rotate(240 12 12)"/>
+        <ellipse cx="12" cy="6.4" rx="1.85" ry="4.3" transform="rotate(300 12 12)"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      </svg>
+    </span>
+    <h1>Varmekraftværk – Entropi og nyttevirkning</h1>
+  </div>
+  <div class="utils">
+    <button class="btn-sm" id="bForklar">Forklaring</button>
+    <button class="btn-sm" id="bOpgaver">Opgaver</button>
+    <button class="btn-sm" id="bKopier">Kopier kode</button>
+    <button class="btn-sm" id="bTema">Lyst tema</button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ VENSTRE: KONTROLLER ============ -->
+  <div class="box col-left">
+    <div class="sec-title">Værket</div>
+
+    <div class="ctl">
+      <div class="ctl-top">
+        <span class="ctl-lab"><span class="eq" data-tex="P_{h\text{øj}}"></span> &mdash; tilført effekt</span>
+        <span class="ctl-val" id="vPh">1000 MW</span>
+      </div>
+      <input type="range" id="sPh" min="200" max="2000" step="20" value="1000">
+    </div>
+
+    <div class="ctl">
+      <div class="ctl-top">
+        <span class="ctl-lab"><span class="eq" data-tex="P_{\text{el}}"></span> &mdash; fra generatoren</span>
+        <span class="ctl-val" id="vPe">450 MW</span>
+      </div>
+      <input type="range" id="sPe" min="0" max="1000" step="5" value="450">
+    </div>
+
+    <div class="ctl">
+      <div class="ctl-top">
+        <span class="ctl-lab"><span class="eq" data-tex="T_{h\text{øj}}"></span> &mdash; kedlen</span>
+        <span class="ctl-val" id="vTh">500 &deg;C</span>
+      </div>
+      <input type="range" id="sTh" min="100" max="1000" step="5" value="500">
+      <div class="ctl-sub" id="vThK">773,15 K</div>
+    </div>
+
+    <div class="ctl">
+      <div class="ctl-top">
+        <span class="ctl-lab"><span class="eq" data-tex="T_{\text{lav}}"></span> &mdash; kondensatoren</span>
+        <span class="ctl-val" id="vTl">25 &deg;C</span>
+      </div>
+      <input type="range" id="sTl" min="0" max="100" step="1" value="25">
+      <div class="ctl-sub" id="vTlK">298,15 K</div>
+    </div>
+
+    <label class="chk"><input type="checkbox" id="cKraft"> Kraftvarme</label>
+
+    <div class="btn-row">
+      <button class="btn" id="bReset">Nulstil</button>
+    </div>
+
+    <div class="sec-title" style="margin-top:8px;">Visning</div>
+    <label class="chk"><input type="checkbox" id="cSkjulEta"> Skjul nyttevirkning</label>
+    <label class="chk"><input type="checkbox" id="cCarnot"> Vis Carnot-grænsen</label>
+
+    <div class="legend" style="margin-top:8px;">
+      <span class="lg"><span class="sw" id="lg1"></span> <span class="eq" data-tex="Q_{h\text{øj}}"></span></span>
+      <span class="lg"><span class="sw" id="lg2"></span> <span class="eq" data-tex="A"></span></span>
+      <span class="lg"><span class="sw" id="lg3"></span> <span id="lg3t"><span class="eq" data-tex="Q_{\text{lav}}"></span></span></span>
+      <span class="lg"><span class="sw" id="lg4" style="height:3px;"></span> Vandets kredsløb</span>
+    </div>
+  </div>
+
+  <!-- ============ HØJRE ============ -->
+  <div class="col-right">
+
+    <div class="cv-holder scene-holder"><canvas id="scene"></canvas></div>
+
+    <div class="strip">
+      <div class="tid-note">Båndenes bredde er energistrømmen. Målerne viser <b>ét sekunds drift</b>,
+        altså <span class="eq" data-tex="Q = P\cdot\Delta t"></span> med
+        <span class="eq" data-tex="\Delta t = 1\,\text{s}"></span>.</div>
+      <div class="meters">
+        <div class="meter"><span class="mlabel">Kedel <span class="eq" data-tex="Q_{h\text{øj}}"></span></span>
+          <span class="mval ind" id="mQh">1000</span> <span class="munit">MJ</span></div>
+        <div class="meter"><span class="mlabel">Generator <span class="eq" data-tex="A"></span></span>
+          <span class="mval arb" id="mA">450</span> <span class="munit">MJ</span></div>
+        <div class="meter"><span class="mlabel" id="mQlLab">Kondensator <span class="eq" data-tex="Q_{\text{lav}}"></span></span>
+          <span class="mval kold" id="mQl">550</span> <span class="munit">MJ</span></div>
+        <div class="meter"><span class="mlabel">Nyttevirkning <span class="eq" data-tex="\eta"></span></span>
+          <span id="wEta"><span class="mval" id="mEta">45,0</span> <span class="munit">%</span></span></div>
+        <div class="meter"><span class="mlabel">Carnot-grænse <span class="eq" data-tex="\eta_{\text{max}}"></span></span>
+          <span id="wEtaM" class="usynlig"><span class="mval" id="mEtaM">61,4</span> <span class="munit">%</span></span></div>
+        <div class="meter"><span class="mlabel"><span class="eq" data-tex="\Delta S_{\text{total}}"></span></span>
+          <span class="mval tot" id="mS">551,3</span> <span class="munit">kJ/K</span></div>
+      </div>
+      <div class="cmp-line">
+        <span class="lbl">Status</span>
+        <span id="statusTekst">&nbsp;</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= MODALER ================= -->
+<div class="modal" id="mForklar"><div class="modal-inner">
+  <h2>Forklaring</h2>
+
+  <h3>Opstillingen</h3>
+  <p>Et varmekraftværk brænder brændsel af og overfører varmen
+  <span class="eq" data-tex="Q_{h\text{øj}}"></span> til en kedel med temperaturen
+  <span class="eq" data-tex="T_{h\text{øj}}"></span>. Vandet fordamper, dampen driver en turbine,
+  og turbinen trækker en generator, der leverer arbejdet
+  <span class="eq" data-tex="A"></span> som elektrisk energi. Bagefter ledes dampen ind i
+  kondensatoren ved den lave temperatur <span class="eq" data-tex="T_{\text{lav}}"></span>,
+  hvor den afgiver varmen <span class="eq" data-tex="Q_{\text{lav}}"></span> og bliver til vand igen.
+  Pumpen sender vandet tilbage til kedlen, og det hele begynder forfra. Det er en
+  <b>kredsproces</b>: det er den samme vandmængde, der løber rundt.</p>
+
+  <h3>Hvad billedet viser</h3>
+  <p>De brede bånd er <b>energien</b>. Bredden er proportional med energistrømmen, og skalaen er
+  låst til det største, skyderen tillader &mdash; ved 2000&nbsp;MW fylder indgangsbåndet det hele.
+  Derfor kan du aflæse værkets størrelse på båndets bredde og fordelingen på, hvordan det deler sig.</p>
+  <p>Den tynde lyse ledning med de vandrende prikker er <b>vandet</b>, ikke energien. Vandet løber
+  i et lukket kredsløb og bruges ikke op. Prikkerne bevæger sig med konstant fart, uanset hvad du
+  stiller på.</p>
+
+  <h3>Energiregnskabet</h3>
+  <p>Værket kører i stationær tilstand, så der ophobes ingen energi. Alt, hvad der kommer ind,
+  kommer også ud:</p>
+  <div class="eqd" data-tex="Q_{h\text{øj}} = A + Q_{\text{lav}}"></div>
+  <p>Nyttevirkningen er den brøkdel, vi får ud som arbejde:</p>
+  <div class="eqd" data-tex="\eta = \frac{A}{Q_{h\text{øj}}}"></div>
+
+  <h3>Effekt og energi</h3>
+  <p>Skyderne er <b>effekter</b> i MW, for det er sådan, et kraftværk beskrives. Formlen for entropi
+  kræver derimod en <b>energi</b>. De to hænger sammen ved
+  <span class="eq" data-tex="Q = P\cdot\Delta t"></span>, og her er tidsrummet valgt til ét sekund.
+  Derfor står der det samme tal på skyderen og på måleren &mdash; men med hver sin enhed:
+  1000&nbsp;MW i ét sekund er 1000&nbsp;MJ. Entropien er tilsvarende den, der produceres på ét sekund.</p>
+
+  <h3>Entropiregnskabet</h3>
+  <p>Kedlen afgiver varme og taber entropi. Kondensatoren modtager varme og vinder entropi.
+  Arbejdet fører ingen entropi med sig. Samlet:</p>
+  <div class="eqd" data-tex="\Delta S_{\text{total}} = \frac{Q_{\text{lav}}}{T_{\text{lav}}} - \frac{Q_{h\text{øj}}}{T_{h\text{øj}}}"></div>
+  <p>Temperaturerne skal være <b>absolutte</b>, altså i kelvin. Skyderne viser begge skalaer,
+  så du kan se, hvad du regner med.</p>
+
+  <h3>Carnot-grænsen</h3>
+  <p>Skru op for generatoren, og se entropitælleren falde mod nul. Ved nul er processen
+  <b>reversibel</b>, og der kan ikke hentes mere arbejde ud. Nyttevirkningen har da nået sin
+  største mulige værdi, og den kan findes af entropiregnskabet alene. Sætter man
+  <span class="eq" data-tex="\Delta S_{\text{total}} = 0"></span>, er</p>
+  <div class="eqd" data-tex="\frac{Q_{\text{lav}}}{Q_{h\text{øj}}} = \frac{T_{\text{lav}}}{T_{h\text{øj}}}"></div>
+  <p>og da <span class="eq" data-tex="\eta = 1 - Q_{\text{lav}}/Q_{h\text{øj}}"></span>, får man</p>
+  <div class="eqd" data-tex="\eta_{\text{max}} = 1 - \frac{T_{\text{lav}}}{T_{h\text{øj}}}"></div>
+  <p><b>Dette kaldes Carnot-grænsen.</b> Den afhænger kun af de to temperaturer &mdash; ikke af,
+  hvad værket er bygget af, eller hvor dygtige ingeniørerne er.</p>
+  <p>Sætter du flueben i <i>Vis Carnot-grænsen</i>, tegnes omridset af den <b>bredest mulige</b>
+  arbejdspil. Skru op, indtil pilen fylder omridset ud &mdash; så står entropitælleren på nul.
+  Skruer du videre, bliver pilen bredere end sit eget omrids, og det kan den ikke være.</p>
+  <p>Skruer du længere op, bliver tælleren negativ. Energiregnskabet holder stadig &mdash;
+  1. hovedsætning er ikke i vejen &mdash; men entropien ville falde, og det forbyder 2. hovedsætning.
+  Sådan et værk kan ikke bygges.</p>
+
+  <h3>Kraftvarme</h3>
+  <p>Sætter du flueben i <i>Kraftvarme</i>, skifter kondensatorens varme fra at være spild til at
+  være fjernvarme. Det er nøjagtig det samme anlæg og nøjagtig den samme energistrøm &mdash;
+  kun bogføringen er en anden.</p>
+  <p>Prisen er, at <span class="eq" data-tex="T_{\text{lav}}"></span> skal op omkring 80&nbsp;&deg;C,
+  før vandet kan bruges i fjernvarmenettet. Det sænker Carnot-grænsen, så der er mindre el at hente.
+  Er det snyd at kalde det nytte? Nej &mdash; varmen bliver rent faktisk brugt. Men
+  <b>energikvaliteten</b> er en anden: fjernvarme ved 80&nbsp;&deg;C kan varme et hus op, men den
+  kan ikke drive en motor.</p>
+
+  <h3>Om modellen</h3>
+  <p>Simuleringen regner <b>ikke</b> med tab. I virkeligheden går der også varme op gennem
+  skorstenen og ud gennem værkets vægge; typisk omkring en tiendedel. Derfor viser modellen en
+  samlet udnyttelse på 100&nbsp;% i kraftvarmetilstand, mens de bedste virkelige kraftvarmeværker
+  når op omkring 94&nbsp;%.</p>
+  <p>Inde i generatoren drejer rotoren &mdash; den magnet, hvis omdrejning skaber
+  spændingen. Den sidder på turbinens aksel, så den drejer samme vej og med samme fart.
+  Statoren, ringen udenom, står stille.</p>
+  <p>Turbinen drejer med <b>konstant fart</b>, uanset hvor meget arbejde der trækkes ud. Det er
+  ikke en forenkling: en turbine på elnettet skal holde en fast omdrejningstal, fordi den leverer
+  vekselstrøm med fast frekvens. Mere arbejde betyder større kraft på skovlene, ikke højere fart.</p>
+  <p>Flammen vokser med den tilførte effekt. Alt andet i tegningen er skematisk.</p>
+
+  <div class="close-row"><button class="btn-sm modal-close">Luk</button></div>
+</div></div>
+
+<div class="modal" id="mOpgaver"><div class="modal-inner">
+  <h2>Opgaver</h2>
+
+  <h3>Opgave 1 &mdash; Aflæs og regn</h3>
+  <p>Nulstil, så <span class="eq" data-tex="P_{h\text{øj}} = 1000\,\text{MW}"></span>,
+  <span class="eq" data-tex="P_{\text{el}} = 450\,\text{MW}"></span>,
+  <span class="eq" data-tex="T_{h\text{øj}} = 500\,\text{°C}"></span> og
+  <span class="eq" data-tex="T_{\text{lav}} = 25\,\text{°C}"></span>.
+  Sæt flueben i <i>Skjul nyttevirkning</i>.</p>
+  <ol>
+    <li>Aflæs <span class="eq" data-tex="Q_{h\text{øj}}"></span> og
+        <span class="eq" data-tex="Q_{\text{lav}}"></span>. Vis, at
+        <span class="eq" data-tex="A = Q_{h\text{øj}} - Q_{\text{lav}}"></span> passer med måleren.</li>
+    <li>Beregn nyttevirkningen. Fjern fluebenet og kontrollér.</li>
+    <li>Beregn <span class="eq" data-tex="\eta_{\text{max}}"></span> af formlen. Sæt derefter flueben i
+        <i>Vis Carnot-grænsen</i> og kontrollér.</li>
+    <li>Beregn <span class="eq" data-tex="\Delta S_{\text{total}}"></span> og sammenlign med måleren.
+        Husk absoluttemperatur.</li>
+    <li>Regn opgave&nbsp;3 om, men brug Celsius-tallene i formlen for
+        <span class="eq" data-tex="\eta_{\text{max}}"></span>. Hvad får du, og hvorfor er svaret
+        meningsløst?</li>
+  </ol>
+
+  <h3>Opgave 2 &mdash; Find grænsen selv</h3>
+  <p>Behold temperaturerne. Slå <i>Vis Carnot-grænsen</i> fra igen, og hold øje med
+  <span class="eq" data-tex="\Delta S_{\text{total}}"></span>.</p>
+  <ol>
+    <li>Skru langsomt op for generatoren, indtil entropitælleren skifter fortegn. Noter den største
+        effekt, der stadig er mulig, og beregn nyttevirkningen der.</li>
+    <li>Sammenlign med <span class="eq" data-tex="1 - T_{\text{lav}}/T_{h\text{øj}}"></span>.</li>
+    <li>Skru et hak længere op. Energiregnskabet
+        <span class="eq" data-tex="Q_{h\text{øj}} = A + Q_{\text{lav}}"></span> holder stadig &mdash;
+        hvilken hovedsætning er det så, værket bryder, og hvordan kan du se det på tælleren?</li>
+    <li>Sæt <span class="eq" data-tex="T_{\text{lav}}"></span> op til 80&nbsp;&deg;C og find grænsen
+        igen. Hvor meget elektrisk effekt mistede værket?</li>
+  </ol>
+
+  <h3>Opgave 3 &mdash; Temperaturernes betydning</h3>
+  <p>Sæt <span class="eq" data-tex="T_{\text{lav}} = 10\,\text{°C}"></span> og
+  <i>Vis Carnot-grænsen</i> til. Udfyld skemaet:</p>
+  <table class="tbl">
+    <tr><th><span class="eq" data-tex="T_{h\text{øj}}"></span> (&deg;C)</th>
+        <th><span class="eq" data-tex="T_{h\text{øj}}"></span> (K)</th>
+        <th><span class="eq" data-tex="\eta_{\text{max}}"></span></th></tr>
+    <tr><td>100</td><td></td><td></td></tr>
+    <tr><td>200</td><td></td><td></td></tr>
+    <tr><td>400</td><td></td><td></td></tr>
+    <tr><td>700</td><td></td><td></td></tr>
+    <tr><td>1000</td><td></td><td></td></tr>
+  </table>
+  <ol>
+    <li>Tegn <span class="eq" data-tex="\eta_{\text{max}}"></span> som funktion af
+        <span class="eq" data-tex="T_{h\text{øj}}"></span> i kelvin. Bliver kurven ved med at stige
+        lige stejlt?</li>
+    <li>Hvad skulle der til, for at <span class="eq" data-tex="\eta_{\text{max}}"></span> blev
+        100&nbsp;%? Kan det lade sig gøre?</li>
+    <li>Hold nu <span class="eq" data-tex="T_{h\text{øj}}"></span> fast på 500&nbsp;&deg;C og prøv
+        i stedet at sænke <span class="eq" data-tex="T_{\text{lav}}"></span> fra 25&nbsp;&deg;C til
+        0&nbsp;&deg;C. Hvad vinder man? Hvorfor gør man det ikke bare?</li>
+  </ol>
+
+  <h3>Opgave 4 &mdash; To virkelige værker</h3>
+  <ol>
+    <li>Et kraftværk har kedeltemperaturen 600&nbsp;&deg;C og kondensatortemperaturen
+        18&nbsp;&deg;C. Beregn <span class="eq" data-tex="\eta_{\text{max}}"></span>, og
+        kontrollér med simuleringen.</li>
+    <li>Af sikkerhedsgrunde kan man i et atomkraftværk ikke acceptere en kedeltemperatur på mere
+        end omkring 350&nbsp;&deg;C. Behold 18&nbsp;&deg;C i kondensatoren og bestem den
+        maksimale nyttevirkning. Hvor stor en del af Carnot-grænsen mister man i forhold til
+        opgave&nbsp;1?</li>
+    <li>Danske kulkraftværker kommer op på omkring 50&nbsp;%. Sæt
+        <span class="eq" data-tex="P_{h\text{øj}} = 1000\,\text{MW}"></span> og
+        <span class="eq" data-tex="T_{h\text{øj}} = 600\,\text{°C}"></span>,
+        <span class="eq" data-tex="T_{\text{lav}} = 18\,\text{°C}"></span>, og indstil
+        generatoren, så nyttevirkningen bliver 50&nbsp;%. Hvor stor er entropiproduktionen så?
+        Hvor stor ville den være, hvis værket kørte helt på Carnot-grænsen?</li>
+  </ol>
+
+  <h3>Opgave 5 &mdash; Kraftvarme og energikvalitet</h3>
+  <p>Sæt <span class="eq" data-tex="T_{h\text{øj}} = 500\,\text{°C}"></span>,
+  <span class="eq" data-tex="P_{h\text{øj}} = 1000\,\text{MW}"></span> og
+  <span class="eq" data-tex="T_{\text{lav}} = 25\,\text{°C}"></span>.
+  Find den maksimale elektriske effekt. Sæt derefter flueben i <i>Kraftvarme</i> og
+  <span class="eq" data-tex="T_{\text{lav}}"></span> op på 80&nbsp;&deg;C, og find den igen.</p>
+  <ol>
+    <li>Hvor meget el mister værket, og hvor meget brugbar varme får man i stedet?</li>
+    <li>Simuleringen viser en samlet udnyttelse på 100&nbsp;%. Et virkeligt kraftvarmeværk kommer
+        op på 94&nbsp;%. Hvad er det, modellen ikke regner med?</li>
+    <li>Er 950&nbsp;MJ fjernvarme lige så meget værd som 950&nbsp;MJ elektrisk energi? Begrund
+        med begrebet energikvalitet.</li>
+    <li>Om sommeren kan et kraftvarmeværk være nødt til at stå stille. Forklar hvorfor, ud fra det
+        du kan se i simuleringen.</li>
+  </ol>
+
+  <div class="close-row"><button class="btn-sm modal-close">Luk</button></div>
+</div></div>
+
+<script>
+"use strict";
+
+/* ================= Lille TeX-sætter =================
+   Formler skrives som TeX i attributten data-tex og sættes op ved indlæsning.
+   Der understøttes netop den delmængde, disse simuleringer bruger:
+
+     \frac{a}{b}   \sqrt{a}   a_{n}   a^{2}   \left( … \right)
+     \lambda \pi \omega \gamma \mu \Delta      græske bogstaver
+     \cdot \times \pm \approx \le \ge \ne \Leftrightarrow \to
+     \sin \cos \tan \log \ln                   opret (ikke kursiv)
+     \text{…}                                  opret tekst, fx enheder
+     |a|                                       numerisk værdi
+     \\  \\,                                    tyndt mellemrum, fx foran enheder
+     0,75                                      danske decimaltal skrives direkte
+
+   Variable sættes kursivt, tal og enheder opret — præcis som i LaTeX.
+   Skriften er Latin Modern Math, indlejret i stilarket som en delmængde.
+   Ingen eksterne biblioteker, så filen virker også uden netforbindelse. */
+(function () {
+  'use strict';
+  const GREEK = {
+    alpha:'α', beta:'β', gamma:'γ', delta:'δ', theta:'θ', lambda:'λ', mu:'μ',
+    eta:'η', pi:'π', rho:'ρ', sigma:'σ', phi:'φ', omega:'ω',
+    Delta:'Δ', Lambda:'Λ', Omega:'Ω', Sigma:'Σ'
+  };
+  /* [tegn, klasse] — 'o' = regneoperator (smal luft), 'r' = relation (bred luft) */
+  const OPS = {
+    cdot:['·','o'], times:['×','o'], div:['÷','o'], pm:['±','o'], mp:['∓','o'],
+    approx:['≈','r'], ne:['≠','r'], le:['≤','r'], ge:['≥','r'],
+    Leftrightarrow:['⟺','r'], Rightarrow:['⟹','r'], to:['→','r'],
+    ldots:['…','p'], dots:['…','p']
+  };
+  const FUNCS = ['sin','cos','tan','log','ln','exp','max','min'];
+
+  /* Matematik-skrifttyper har ingen kursiv-variant. De kursive bogstaver er
+     selvstændige tegn i Unicodes matematiske alfabet, og det er dem, en
+     variabel skal sættes med. h har sin egen plads (U+210E, Plancks konstant),
+     fordi U+1D455 er reserveret. */
+  function kursiv(c) {
+    const o = c.charCodeAt(0);
+    if (c === 'h') return '\u210E';
+    if (o >= 97 && o <= 122) return String.fromCodePoint(0x1D44E + o - 97);   /* a-z */
+    if (o >= 65 && o <= 90)  return String.fromCodePoint(0x1D434 + o - 65);   /* A-Z */
+    return c;
+  }
+  /* små græske bogstaver er variable og sættes kursivt; store holdes oprette */
+  const GREEK_IT = {
+    alpha:0x1D6FC, beta:0x1D6FD, gamma:0x1D6FE, delta:0x1D6FF, eta:0x1D702,
+    theta:0x1D703,
+    lambda:0x1D706, mu:0x1D707, pi:0x1D70B, rho:0x1D70C, sigma:0x1D70E,
+    phi:0x1D711, omega:0x1D714
+  };
+  const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  function render(src, display) {
+    let i = 0, prev = null;      /* type af forrige tegn — til fortegnsreglen */
+    const s = src;
+
+    function ws() { while (i < s.length && s[i] === ' ') i++; }
+
+    /* et argument: {...} eller præcis ét element */
+    function arg() {
+      ws();
+      if (s[i] === '{') { i++; const h = seq('}'); if (s[i] === '}') i++; return h; }
+      return one() || '';
+    }
+
+    /* hæft _ og ^ på et grundelement */
+    function scripts(base) {
+      let sub = null, sup = null;
+      for (;;) {
+        ws();
+        if (s[i] === '_' && sub === null) { i++; sub = arg(); }
+        else if (s[i] === '^' && sup === null) { i++; sup = arg(); }
+        else break;
+      }
+      if (sub === null && sup === null) return base;
+      let h = base;
+      if (sup !== null) h += '<span class="msup">' + sup + '</span>';
+      if (sub !== null) h += '<span class="msub">' + sub + '</span>';
+      return h;
+    }
+
+    /* ét element uden efterfølgende scripts */
+    function one() {
+      ws();
+      if (i >= s.length) return null;
+      const c = s[i];
+
+      if (c === '\\') {
+        let j = i + 1, name = '';
+        while (j < s.length && /[A-Za-z]/.test(s[j])) name += s[j++];
+        if (!name) {
+          /* \  \, \; = tynde mellemrum;  ellers et bogstaveligt tegn */
+          const nxt = s[i + 1];
+          i += 2;
+          if (nxt === ' ' || nxt === ',' || nxt === ';') return '<span class="mthin"></span>';
+          return '<span class="mp">' + esc(nxt || '') + '</span>';
+        }
+        i = j;
+        if (name === 'frac') {
+          const a = arg(), b = arg();
+          mark('v');
+          return '<span class="mfrac"><span class="mnum">' + a +
+                 '</span><span class="mden">' + b + '</span></span>';
+        }
+        if (name === 'sqrt') {
+          const a = arg();
+          return '<span class="msqrt"><span class="mrad">√</span>' +
+                 '<span class="mrc">' + a + '</span></span>';
+        }
+        if (name === 'text') {
+          /* \text{} skal læses som RÅ tekst — ellers bliver enheder som m/s
+             fortolket som variable og sat kursivt. */
+          ws();
+          let t = '';
+          if (s[i] === '{') {
+            i++; let d = 1;
+            while (i < s.length && d > 0) {
+              if (s[i] === '{') d++;
+              else if (s[i] === '}') { d--; if (!d) { i++; break; } }
+              t += s[i++];
+            }
+          } else { t = s[i++] || ''; }
+          mark('v');
+          return '<span class="mtext">' + esc(t) + '</span>';
+        }
+        if (name === 'left')  { ws(); const p = s[i++] || '('; mark('open'); return '<span class="mfence mfl">' + esc(p) + '</span>'; }
+        if (name === 'right') { ws(); const p = s[i++] || ')'; return '<span class="mfence mfr">' + esc(p) + '</span>'; }
+        if (name === 'quad')  { return '<span class="mquad"></span>'; }
+        if (GREEK_IT[name])   { mark('v'); return '<span class="mv">' + String.fromCodePoint(GREEK_IT[name]) + '</span>'; }
+        if (GREEK[name])      { mark('v'); return '<span class="mv">' + GREEK[name] + '</span>'; }
+        if (OPS[name])        { mark(OPS[name][1]); return '<span class="m' + OPS[name][1] + '">' + OPS[name][0] + '</span>'; }
+        if (FUNCS.indexOf(name) >= 0) { return '<span class="mfun">' + name + '</span>'; }
+        return '<span class="mtext">' + esc(name) + '</span>';
+      }
+
+      if (c === '{') { i++; const h = seq('}'); if (s[i] === '}') i++; return h; }
+
+      /* tal — hele tallet i ét, så komma og punktum ikke bliver operatorer */
+      if (/[0-9]/.test(c)) {
+        let n = '';
+        while (i < s.length && /[0-9.,]/.test(s[i])) n += s[i++];
+        n = n.replace(/[.,]$/, m => (i--, ''));
+        mark('n');
+        return '<span class="mn">' + n + '</span>';
+      }
+      if (/[A-Za-z]/.test(c)) { i++; mark('v'); return '<span class="mv">' + kursiv(c) + '</span>'; }
+      if ('+-−'.indexOf(c) >= 0) {
+        i++;
+        /* fortegn (unært) hvis der ikke står noget at regne på til venstre */
+        const kl = (prev === null || prev === 'o' || prev === 'r' || prev === 'open') ? 'mu' : 'mo';
+        mark('o');
+        return '<span class="' + kl + '">' + (c === '-' ? '−' : c) + '</span>';
+      }
+      if ('=<>'.indexOf(c) >= 0) { i++; mark('r'); return '<span class="mr">' + esc(c) + '</span>'; }
+      if (c === '/') { i++; return '<span class="mo mslash">/</span>'; }
+      if (c === '|') { i++; return '<span class="mabs">|</span>'; }
+      if (c === '(' || c === ')' || c === '[' || c === ']') {
+        i++; mark(c === '(' || c === '[' ? 'open' : 'v');
+        return '<span class="mp">' + c + '</span>';
+      }
+      if (c === ',') { i++; return '<span class="mcomma">,</span>'; }
+      if (c === ' ') { i++; return ''; }
+      i++;
+      return '<span class="mp">' + esc(c) + '</span>';
+    }
+
+    function seq(stop) {
+      let out = '';
+      while (i < s.length && s[i] !== stop) {
+        const before = i;
+        const a = one();
+        if (a === null) break;
+        out += scripts(a);
+        if (i === before) { i++; }      /* sikkerhedsventil mod uendelig løkke */
+      }
+      return out;
+    }
+
+    /* holder styr på, hvad der sidst blev sat — så et minus kan skelnes fra
+       et fortegn. Kaldes af one() via de enkelte grene. */
+    function mark(t) { prev = t; }
+
+    return '<span class="' + (display ? 'mathd' : 'math') + '">' + seq(null) + '</span>';
+  }
+
+  function setUp(root) {
+    (root || document).querySelectorAll('[data-tex]').forEach(function (el) {
+      if (el.dataset.done) return;
+      el.innerHTML = render(el.getAttribute('data-tex'), el.classList.contains('eqd'));
+      el.dataset.done = '1';
+    });
+  }
+  window.TeX = { render: render, setUp: setUp };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setUp(); });
+  else setUp();
+})();
+
+/* =====================================================================
+   FYSIKKERNE  (DOM-fri)
+   ---------------------------------------------------------------------
+   Model: et varmekraftværk i stationær drift. Kedlen modtager effekten
+   P_høj ved den absolutte temperatur T_høj. Generatoren leverer den
+   elektriske effekt P_el. Resten går til kondensatoren ved T_lav.
+
+   Alle energier opgøres for ét sekunds drift, Q = P·Δt med Δt = 1 s,
+   så en effekt i MW bliver en energi i MJ med samme talværdi.
+
+       Q_høj = P_høj                     tilført varme        (MJ)
+       A     = P_el                      udført arbejde       (MJ)
+       Q_lav = Q_høj − A                 afgivet varme        (MJ)
+       η     = A / Q_høj                 nyttevirkning
+       η_max = 1 − T_lav/T_høj           Carnot-grænsen
+
+   Entropiregnskabet. Kedlen afgiver varme og taber entropi, kondensatoren
+   modtager varme og vinder entropi. Arbejdet bærer ingen entropi:
+
+       ΔS_total = Q_lav/T_lav − Q_høj/T_høj        (MJ/K, vises i kJ/K)
+
+   ΔS_total = 0 er den reversible grænse og giver netop η = η_max.
+   ΔS_total < 0 svarer til en maskine, der overholder 1. hovedsætning,
+   men bryder 2. — den kan ikke bygges.
+
+   Der regnes ikke med tab til omgivelserne. Absolut nulpunkt −273,15 °C.
+   ===================================================================== */
+
+var T0 = 273.15;
+var P_MAX = 2000;          // største effekt, skyderen tillader — låser båndskalaen
+var A_TRIN = 5;            // skyderens opløsning i MW — bruges også til grænsetolerancen
+
+function vaerk(Phoej, Pel, ThoejC, TlavC){
+  var Th = ThoejC + T0, Tl = TlavC + T0;
+  var Qh = Phoej;
+  var A  = Math.max(0, Math.min(Pel, Qh));
+  var Ql = Qh - A;
+  var eta    = Qh > 0 ? A/Qh : 0;
+  var etaMax = 1 - Tl/Th;
+  var Amax   = Qh*etaMax;
+  var dS     = (Ql/Tl - Qh/Th)*1000;          // MJ/K → kJ/K
+  /* Grænsen kan ikke rammes eksakt med en skyder. Tolerancen sættes til det
+     halve skridt, målt i entropi: så er der altid netop ét trin på skyderen,
+     der meldes som grænsen, og nabotrinnene falder til hver sin side. */
+  var tol    = (A_TRIN/2)/Tl*1000;
+  var stand  = dS < -tol ? "umulig" : (dS <= tol ? "graense" : "mulig");
+  return { Qh:Qh, A:A, Ql:Ql, eta:eta, etaMax:etaMax, Amax:Amax,
+           dS:dS, tol:tol, stand:stand, Th:Th, Tl:Tl };
+}
+
+/* =====================================================================
+   HJÆLPERE
+   ===================================================================== */
+function daNum(x, dec){
+  if(!isFinite(x)) return "\u2013";
+  var s = Math.abs(x).toFixed(dec).replace(".", ",");
+  return (x < 0 ? "\u2212" : "") + s;
+}
+var isDark = true;
+function D(d, l){ return isDark ? d : l; }
+
+function rgba(hex, a){
+  var r = parseInt(hex.substr(1,2),16), g = parseInt(hex.substr(3,2),16), b = parseInt(hex.substr(5,2),16);
+  return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+}
+
+/* Farverne er valgt, så de tre energibånd og vandledningen kan skelnes fra
+   hinanden i begge temaer. Vandet er bevidst violet: det er hverken varme
+   eller arbejde, og de tre andre nuancer er optaget. */
+function farver(){
+  return {
+    ind:   D("#ffd24a","#8a5f00"),
+    arb:   D("#00ff9f","#0f7a5a"),
+    kold:  D("#39d6ff","#155fa8"),
+    fjern: D("#ff7043","#a83e10"),
+    rod:   D("#ff5a76","#a80f2c"),
+    tekst: D("#d0eef5","#141414"),
+    dim:   D("#9ed3e2","#2c2c2c"),
+    ramme: D("#28536e","#b9ab93"),
+    bag:   D("#060e18","#f4eee3"),
+    metal: D("#b6d6e4","#2a2a2a"),
+    vand:  D("#c9a6ff","#5a2ea6"),
+    /* Ilden har sine egne nuancer. Med lav gennemsigtighed over den mørke
+       baggrund bliver gult til brunt, så lagene tegnes næsten dækkende. */
+    ildYd: D("#ff7a10","#e0600a"),
+    ildMi: D("#ffb020","#f09a10"),
+    ildKe: D("#fff0a8","#ffe27a"),
+    /* Stangmagnetens to poler. Rød er en anelse dybere end advarselsrøden,
+       så et rødt bånd og en rød magnetpol ikke er samme farve. */
+    magN:  D("#e8384f","#b8102a"),
+    magS:  D("#f4f9fc","#ffffff")
+  };
+}
+
+/* =====================================================================
+   TILSTAND
+   ===================================================================== */
+var STD = { Ph:1000, Pe:450, Th:500, Tl:25 };
+var st = { Ph:STD.Ph, Pe:STD.Pe, Th:STD.Th, Tl:STD.Tl,
+           kraftvarme:false, visCarnot:false, skjulEta:false };
+
+var turbVinkel = 0, loopFase = 0, uret = 0;
+
+/* =====================================================================
+   CANVAS-OPSÆTNING
+   ===================================================================== */
+function setupCanvas(cv){
+  var dpr = Math.min(3, window.devicePixelRatio || 1);
+  var r = cv.getBoundingClientRect();
+  var w = Math.max(60, Math.round(r.width)), h = Math.max(60, Math.round(r.height));
+  if(cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)){
+    cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
+  }
+  var ctx = cv.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return { ctx:ctx, w:w, h:h };
+}
+
+/* Geometrien samlet ét sted, så tegningen kan efterprøves uden at kigge.
+   Båndenes tykkelse er proportional med energistrømmen, med samme skala
+   for alle tre — det er hele pointen med et Sankey-diagram. */
+function geometri(w, h, v){
+  var TH = Math.min(h*0.26, w*0.11);              // tykkelse ved P_MAX
+  var t  = function(Q){ return TH*Q/P_MAX; };
+  var yTop = h*0.20;                               // båndenes faste overkant
+  var thH = t(v.Qh), thA = t(v.A), thL = t(v.Ql);
+  var xSplit = w*0.545;
+  var xLavC  = xSplit - thL/2;
+  return {
+    TH:TH, yTop:yTop, thH:thH, thA:thA, thL:thL,
+    yMid: yTop + thH/2,
+    xIn: w*0.015, xSplit:xSplit, xLavC:xLavC,
+    xElEnd: w*0.985,
+    kedel:  { x0:w*0.070, x1:w*0.230 },
+    turbine:{ x0:w*0.300, x1:w*0.420 },
+    gener:  { x0:w*0.600, x1:w*0.730 },
+    kond:   { x0:xLavC - w*0.095, x1:xLavC + w*0.095, y0:h*0.585, y1:h*0.775 },
+    yUd: h*0.965,
+    yRetur: h*0.685,
+    xRetur: w*0.105,
+    xPumpe: w*0.290,
+    thAmax: t(v.Amax)
+  };
+}
+
+/* --- små tegnehjælpere --- */
+function baand(ctx, x0, y0, x1, y1, c){
+  if(x1 - x0 < 0.4 || y1 - y0 < 0.4) return;
+  ctx.fillStyle = rgba(c, isDark ? 0.30 : 0.26);
+  ctx.fillRect(x0, y0, x1-x0, y1-y0);
+  ctx.strokeStyle = c; ctx.lineWidth = isDark ? 1.4 : 1.8;
+  ctx.strokeRect(x0+0.5, y0+0.5, x1-x0-1, y1-y0-1);
+}
+function pilHoej(ctx, x0, xSp, xEnd, yTop, tyk, c){   /* vandret pil mod højre */
+  if(tyk < 0.4) return;
+  var ov = Math.max(7, tyk*0.35), yB = yTop + tyk;
+  ctx.beginPath();
+  ctx.moveTo(x0, yTop); ctx.lineTo(xSp, yTop); ctx.lineTo(xSp, yTop-ov);
+  ctx.lineTo(xEnd, yTop + tyk/2);
+  ctx.lineTo(xSp, yB+ov); ctx.lineTo(xSp, yB); ctx.lineTo(x0, yB);
+  ctx.closePath();
+  ctx.fillStyle = rgba(c, isDark ? 0.30 : 0.26); ctx.fill();
+  ctx.strokeStyle = c; ctx.lineWidth = isDark ? 1.4 : 1.8; ctx.stroke();
+}
+/* Spøgelsesbåndet: omridset af den STØRSTE pil, der kan lade sig gøre.
+   Samme overkant og samme startpunkt som den virkelige, men uden fyld.
+   Så vokser arbejdsbåndet inde i sit eget omrids, og i den umulige
+   tilstand er det bredere end omridset — det er løbet ud over kanten. */
+function pilOmrids(ctx, x0, xSp, xEnd, yTop, tyk, c){
+  if(tyk < 0.6) return;
+  var ov = Math.max(7, tyk*0.35), yB = yTop + tyk;
+  ctx.save();
+  ctx.setLineDash([7,5]);
+  ctx.lineWidth = isDark ? 1.6 : 2;
+  ctx.strokeStyle = c;
+  ctx.beginPath();
+  ctx.moveTo(x0, yTop); ctx.lineTo(xSp, yTop); ctx.lineTo(xSp, yTop-ov);
+  ctx.lineTo(xEnd, yTop + tyk/2);
+  ctx.lineTo(xSp, yB+ov); ctx.lineTo(xSp, yB); ctx.lineTo(x0, yB);
+  ctx.stroke();
+  ctx.restore();
+}
+function pilNed(ctx, x0, y0, ySp, yEnd, tyk, c){      /* lodret pil nedad */
+  if(tyk < 0.4) return;
+  var ov = Math.max(7, tyk*0.35), x1 = x0 + tyk;
+  ctx.beginPath();
+  ctx.moveTo(x0, y0); ctx.lineTo(x0, ySp); ctx.lineTo(x0-ov, ySp);
+  ctx.lineTo(x0 + tyk/2, yEnd);
+  ctx.lineTo(x1+ov, ySp); ctx.lineTo(x1, ySp); ctx.lineTo(x1, y0);
+  ctx.closePath();
+  ctx.fillStyle = rgba(c, isDark ? 0.30 : 0.26); ctx.fill();
+  ctx.strokeStyle = c; ctx.lineWidth = isDark ? 1.4 : 1.8; ctx.stroke();
+}
+/* Ilden. Hver tunge har fod i fodlinjen og spids opad mod kedlen. Formen er
+   en dråbe: bugen sidder lavt og bugner udad, spidsen er smal og vipper fra
+   side til side. Tungerne har forskellig højde og hver sin takt, så rækken
+   ikke ser ud som en bjergkæde. Højden følger den tilførte effekt. */
+function flamme(ctx, x, yFod, bredde, hoejde, F){
+  var lag = [
+    { sk:1.00, farve:F.ildYd, alfa:0.88, n:5, fart:5.3 },
+    { sk:0.66, farve:F.ildMi, alfa:0.94, n:3, fart:7.1 },
+    { sk:0.34, farve:F.ildKe, alfa:0.96, n:2, fart:9.4 }
+  ];
+  /* et blødt skær omkring gløderne */
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(x, yFod, bredde*0.50, hoejde*0.07, 0, 0, Math.PI*2);
+  ctx.fillStyle = rgba(F.ildYd, isDark ? 0.35 : 0.28); ctx.fill();
+  ctx.restore();
+
+  for(var L=0; L<lag.length; L++){
+    var g = lag[L];
+    for(var i=0; i<g.n; i++){
+      var f  = g.n === 1 ? 0 : (i - (g.n-1)/2)/((g.n-1)/2);        /* −1 … 1 */
+      var hx = x + f*bredde*0.42*g.sk;
+      /* ulige tunger er lavere, og hver har sin egen fase */
+      var lav = 1 - 0.30*f*f - 0.12*(i % 2);
+      var hh  = hoejde*g.sk*lav*(1 + 0.20*Math.sin(uret*g.fart + i*2.7 + L*1.1));
+      var bb  = bredde*0.115*g.sk*(1 - 0.22*Math.abs(f));
+      var vip = Math.sin(uret*g.fart*0.6 + i*2.2 + L*1.7)*bb*0.9;
+      ctx.beginPath();
+      ctx.moveTo(hx - bb, yFod);
+      /* venstre side: bug lavt, derefter ind mod spidsen */
+      ctx.bezierCurveTo(hx - bb*2.05, yFod - hh*0.30,
+                        hx + vip - bb*1.10, yFod - hh*0.68,
+                        hx + vip,           yFod - hh);
+      /* højre side tilbage */
+      ctx.bezierCurveTo(hx + vip + bb*1.10, yFod - hh*0.68,
+                        hx + bb*2.05,       yFod - hh*0.30,
+                        hx + bb,            yFod);
+      ctx.closePath();
+      ctx.fillStyle = rgba(g.farve, g.alfa); ctx.fill();
+    }
+  }
+}
+function kasse(ctx, x0, y0, x1, y1, c, fyld){
+  ctx.beginPath();
+  var r = 4;
+  ctx.moveTo(x0+r, y0); ctx.lineTo(x1-r, y0); ctx.quadraticCurveTo(x1, y0, x1, y0+r);
+  ctx.lineTo(x1, y1-r); ctx.quadraticCurveTo(x1, y1, x1-r, y1);
+  ctx.lineTo(x0+r, y1); ctx.quadraticCurveTo(x0, y1, x0, y1-r);
+  ctx.lineTo(x0, y0+r); ctx.quadraticCurveTo(x0, y0, x0+r, y0);
+  ctx.closePath();
+  if(fyld){ ctx.fillStyle = fyld; ctx.fill(); }
+  ctx.strokeStyle = c; ctx.lineWidth = isDark ? 1.5 : 2; ctx.stroke();
+}
+function tekst(ctx, s, x, y, c, px, just, fed){
+  ctx.fillStyle = c;
+  ctx.font = (fed ? "bold " : "") + px + "px 'Courier New',monospace";
+  ctx.textAlign = just || "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(s, x, y);
+  ctx.textAlign = "left";
+}
+/* Symboler med sænket skrift sættes af stumper, ikke af Unicodes sænkede
+   bogstaver: dem findes der hverken ø eller j blandt. Hver stump er
+   [tekst, størrelsesfaktor, nedrykning i em]. */
+function symbol(ctx, stumper, x, y, c, px, just, fed){
+  var i, bredde = [], samlet = 0;
+  for(i=0;i<stumper.length;i++){
+    ctx.font = (fed ? "bold " : "") + (px*stumper[i][1]).toFixed(2) + "px 'Courier New',monospace";
+    var b = ctx.measureText(stumper[i][0]).width;
+    bredde.push(b); samlet += b;
+  }
+  var cx = just === "center" ? x - samlet/2 : (just === "right" ? x - samlet : x);
+  ctx.fillStyle = c; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  for(i=0;i<stumper.length;i++){
+    ctx.font = (fed ? "bold " : "") + (px*stumper[i][1]).toFixed(2) + "px 'Courier New',monospace";
+    ctx.fillText(stumper[i][0], cx, y + px*stumper[i][2]);
+    cx += bredde[i];
+  }
+  return samlet;
+}
+function sym(base, sub, hale){
+  var d = [[base,1,0],[sub,0.68,0.26]];
+  if(hale) d.push([hale,1,0]);
+  return d;
+}
+
+/* --- lukket vandkredsløb: kedel → turbine → kondensator → pumpe → kedel --- */
+function vandsti(g){
+  return [ [g.xRetur, g.yMid], [g.xLavC, g.yMid], [g.xLavC, g.yRetur],
+           [g.xRetur, g.yRetur] ];
+}
+function stiLaengde(p){
+  var L = 0;
+  for(var i=0;i<p.length;i++){
+    var a = p[i], b = p[(i+1)%p.length];
+    L += Math.abs(b[0]-a[0]) + Math.abs(b[1]-a[1]);
+  }
+  return L;
+}
+function stiPunkt(p, s){
+  for(var i=0;i<p.length;i++){
+    var a = p[i], b = p[(i+1)%p.length];
+    var d = Math.abs(b[0]-a[0]) + Math.abs(b[1]-a[1]);
+    if(s <= d || i === p.length-1){
+      var f = d > 0 ? s/d : 0;
+      if(f > 1) f = 1;
+      return [ a[0] + (b[0]-a[0])*f, a[1] + (b[1]-a[1])*f ];
+    }
+    s -= d;
+  }
+  return p[0];
+}
+
+/* =====================================================================
+   TEGNING
+   ===================================================================== */
+function tegn(){
+  var cv = document.getElementById("scene");
+  if(!cv) return;
+  var s = setupCanvas(cv), ctx = s.ctx, w = s.w, h = s.h;
+  var v = vaerk(st.Ph, st.Pe, st.Th, st.Tl);
+  var g = geometri(w, h, v);
+  var F = farver();
+  var umulig = (v.stand === "umulig");
+  var cKold = st.kraftvarme ? F.fjern : F.kold;
+  var cArb  = umulig ? F.rod : F.arb;
+  var px = Math.max(9.5, Math.min(13, w/72));
+
+  ctx.fillStyle = F.bag; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle = F.ramme; ctx.lineWidth = 1;
+  ctx.strokeRect(0.5,0.5,w-1,h-1);
+
+  /* ---- energibånd ---- */
+  baand(ctx, g.xIn, g.yTop, g.xSplit, g.yTop + g.thH, F.ind);
+  pilNed(ctx, g.xLavC - g.thL/2, g.yTop + g.thA, g.yUd - Math.max(14, g.thL*0.55),
+         g.yUd, g.thL, cKold);
+  pilHoej(ctx, g.xSplit, g.xElEnd - Math.max(16, g.thA*0.55), g.xElEnd,
+          g.yTop, g.thA, cArb);
+
+  /* ---- Carnot-grænsen som spøgelsesbånd ---- */
+  if(st.visCarnot && g.thAmax > 0.6){
+    var ovC = Math.max(7, g.thAmax*0.35);
+    pilOmrids(ctx, g.xSplit, g.xElEnd - Math.max(16, g.thAmax*0.55), g.xElEnd,
+              g.yTop, g.thAmax, F.tekst);
+    tekst(ctx, "Carnot-gr\u00e6nsen", g.xElEnd - 6,
+          g.yTop + g.thAmax + ovC + px*1.0, F.tekst, px*0.86, "right", true);
+  }
+
+  /* ---- kedel med flamme ---- */
+  var k = g.kedel;
+  var kY0 = g.yTop - 8, kY1 = g.yTop + g.thH + 8;
+  /* Flammen. Ilden står UNDER kedlen og slikker opad mod den, så tungerne
+     har fod nederst og spids øverst. Højden følger den tilførte effekt.
+     Den tegnes før kedlen, så spidserne går ind under kedelbunden. */
+  var fH = h*0.075 + h*0.130*(v.Qh/P_MAX);
+  var fB = (k.x1-k.x0)*0.46;
+  var fx = (k.x0+k.x1)/2, fy = kY1 + fH*0.88;     // fodlinjen, nederst
+  flamme(ctx, fx, fy, fB, fH, F);
+  kasse(ctx, k.x0, kY0, k.x1, kY1, F.metal, rgba(D("#0f2233","#ffffff"), isDark?0.55:0.55));
+  tekst(ctx, "KEDEL", (k.x0+k.x1)/2, kY0 - px*0.95, F.tekst, px, "center", true);
+  symbol(ctx, sym("T", "h\u00f8j", " = " + daNum(st.Th,0) + " \u00b0C"),
+         k.x1 + px*0.8, kY1 + px*1.6, F.tekst, px*0.95, "left", true);
+
+  /* ---- turbine ---- */
+  var tb = g.turbine, tcx = (tb.x0+tb.x1)/2, tcy = g.yMid;
+  var tr = Math.max(13, Math.min((tb.x1-tb.x0)/2, h*0.115, g.thH*0.55 + 8));
+  ctx.save();
+  ctx.translate(tcx, tcy);
+  /* huset står stille, rotoren drejer — og den drejer med KONSTANT fart,
+     fordi en turbine på elnettet skal holde en fast frekvens */
+  ctx.strokeStyle = F.metal; ctx.lineWidth = isDark ? 1.5 : 2;
+  ctx.beginPath(); ctx.arc(0, 0, tr, 0, Math.PI*2); ctx.stroke();
+  ctx.save(); ctx.rotate(turbVinkel);
+  ctx.fillStyle = rgba(F.metal, isDark ? 0.55 : 0.40);
+  for(var b=0;b<10;b++){
+    ctx.save(); ctx.rotate(b*Math.PI/5);
+    ctx.beginPath();
+    ctx.moveTo(-tr*0.10, -tr*0.30);
+    ctx.lineTo( tr*0.10, -tr*0.34);
+    ctx.lineTo( tr*0.16, -tr*0.90);
+    ctx.lineTo(-tr*0.04, -tr*0.90);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(0,0,tr*0.22,0,Math.PI*2);
+  ctx.fillStyle = F.metal; ctx.fill();
+  ctx.restore();
+  ctx.restore();
+  tekst(ctx, "TURBINE", tcx, Math.min(tcy - tr - px*1.05, g.yTop - px*0.95),
+        F.tekst, px, "center", true);
+
+  /* ---- generator ---- */
+  var ge = g.gener;
+  var gY0 = g.yTop - 8, gY1 = g.yTop + Math.max(g.thA, 4) + 8;
+  kasse(ctx, ge.x0, gY0, ge.x1, gY1, F.metal, rgba(D("#0f2233","#ffffff"), 0.5));
+  var gcx = (ge.x0+ge.x1)/2, gcy = (gY0+gY1)/2;
+  var grr = Math.max(8, Math.min((ge.x1-ge.x0)*0.27, (gY1-gY0)*0.36));
+  /* Statoren står stille. Inde i den drejer rotoren — en topolet magnet på
+     samme aksel som turbinen, altså samme retning og samme faste fart.
+     Polerne er malet hver sin farve, så omdrejningen kan ses. */
+  ctx.strokeStyle = cArb; ctx.lineWidth = isDark ? 1.6 : 2.1;
+  ctx.beginPath(); ctx.arc(gcx, gcy, grr, 0, Math.PI*2); ctx.stroke();
+  ctx.save();
+  ctx.translate(gcx, gcy); ctx.rotate(turbVinkel);
+  var rl = grr*0.78, rb = grr*0.30;
+  /* stangmagneten tegnes som en kapsel, så de to poler bliver to halvdele */
+  function kapsel(){
+    ctx.beginPath();
+    ctx.moveTo(-rb, -rl + rb);
+    ctx.arc(0, -rl + rb, rb, Math.PI, 0);
+    ctx.lineTo(rb, rl - rb);
+    ctx.arc(0, rl - rb, rb, 0, Math.PI);
+    ctx.closePath();
+  }
+  /* Nordpolen rød, sydpolen hvid — som en stangmagnet i samlingen. Halvdelene
+     males hver for sig ved at klippe kapslen over på midten. Bogstaver duer
+     ikke her: ved de fleste indstillinger er rotoren kun et dusin pixel bred,
+     og et N, der står på hovedet halvdelen af tiden, bliver til støj. */
+  ctx.save();
+  ctx.beginPath(); ctx.rect(-rl, -rl, 2*rl, rl); ctx.clip();
+  kapsel(); ctx.fillStyle = F.magN; ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.beginPath(); ctx.rect(-rl, 0, 2*rl, rl); ctx.clip();
+  kapsel(); ctx.fillStyle = F.magS; ctx.fill();
+  ctx.restore();
+  kapsel();
+  ctx.strokeStyle = F.metal; ctx.lineWidth = isDark ? 1.4 : 1.8; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-rb, 0); ctx.lineTo(rb, 0); ctx.stroke();
+  ctx.restore();
+
+  tekst(ctx, "GENERATOR", gcx, gY0 - px*0.95, F.tekst, px, "center", true);
+
+  /* ---- kondensator ---- */
+  var kd = g.kond;
+  kasse(ctx, kd.x0, kd.y0, kd.x1, kd.y1, F.metal, rgba(D("#0f2233","#ffffff"), 0.5));
+  ctx.strokeStyle = rgba(cKold, 0.85); ctx.lineWidth = isDark ? 1.4 : 1.8;
+  for(var r2=0;r2<3;r2++){
+    var yy = kd.y0 + (kd.y1-kd.y0)*(0.28 + r2*0.22);
+    ctx.beginPath();
+    ctx.moveTo(kd.x0 + 9, yy);
+    for(var q=0;q<6;q++){
+      var xx0 = kd.x0 + 9 + (kd.x1-kd.x0-18)*q/6;
+      var xx1 = kd.x0 + 9 + (kd.x1-kd.x0-18)*(q+1)/6;
+      ctx.quadraticCurveTo((xx0+xx1)/2, yy + (q%2?6:-6), xx1, yy);
+    }
+    ctx.stroke();
+  }
+  tekst(ctx, "KONDENSATOR", (kd.x0+kd.x1)/2, kd.y0 - px*0.95, F.tekst, px, "center", true);
+  symbol(ctx, sym("T", "lav", " = " + daNum(st.Tl,0) + " \u00b0C"),
+         kd.x0 - px*0.5, kd.y0 + (kd.y1-kd.y0)*0.16, F.tekst, px*0.95, "right", true);
+
+  /* ---- vandets kredsløb, tegnet ovenpå ---- */
+  var sti = vandsti(g), L = stiLaengde(sti);
+  ctx.strokeStyle = rgba(F.vand, 0.75); ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(sti[0][0], sti[0][1]);
+  for(var j=1;j<sti.length;j++) ctx.lineTo(sti[j][0], sti[j][1]);
+  ctx.closePath(); ctx.stroke();
+  var N = 16;
+  ctx.fillStyle = F.vand;
+  for(var n=0;n<N;n++){
+    var p = stiPunkt(sti, ((n/N + loopFase) % 1) * L);
+    ctx.beginPath(); ctx.arc(p[0], p[1], 2.6, 0, Math.PI*2); ctx.fill();
+  }
+  /* Pumpen: et hus med et løbehjul, der drejer med vandet. */
+  var pr = 9.5;
+  ctx.beginPath(); ctx.arc(g.xPumpe, g.yRetur, pr, 0, Math.PI*2);
+  ctx.fillStyle = F.bag; ctx.fill();
+  ctx.strokeStyle = F.vand; ctx.lineWidth = isDark ? 1.6 : 2.1; ctx.stroke();
+  ctx.save();
+  ctx.translate(g.xPumpe, g.yRetur); ctx.rotate(loopFase*Math.PI*2*3);
+  ctx.strokeStyle = F.vand; ctx.lineWidth = isDark ? 1.5 : 1.9;
+  ctx.lineCap = "round";
+  for(var vg=0; vg<4; vg++){
+    ctx.save(); ctx.rotate(vg*Math.PI/2);
+    ctx.beginPath();
+    ctx.moveTo(0, -pr*0.22);
+    ctx.quadraticCurveTo(pr*0.30, -pr*0.55, pr*0.10, -pr*0.80);
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.lineCap = "butt";
+  ctx.beginPath(); ctx.arc(0, 0, pr*0.17, 0, Math.PI*2);
+  ctx.fillStyle = F.vand; ctx.fill();
+  ctx.restore();
+  tekst(ctx, "pumpe", g.xPumpe, g.yRetur + px*1.5, F.dim, px*0.86, "center", true);
+
+  /* ---- båndetiketter ---- */
+  symbol(ctx, sym("Q", "h\u00f8j"), g.xIn + 3, g.yTop - px*1.0, F.ind, px, "left", true);
+  tekst(ctx, "A", g.xElEnd - 6, g.yTop - px*1.0, cArb, px, "right", true);
+  symbol(ctx, sym("Q", "lav", st.kraftvarme ? "  fjernvarme" : "  k\u00f8levand"),
+         g.xLavC + g.thL/2 + px*1.1, g.yUd - px*1.1, cKold, px, "left", true);
+
+  /* ---- advarsel ---- */
+  if(umulig){
+    var bw = Math.min(w*0.62, 420), bh = px*2.5;
+    var bx = (w-bw)/2, by = h*0.028;
+    ctx.fillStyle = rgba(F.rod, isDark ? 0.20 : 0.16);
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = F.rod; ctx.lineWidth = 2;
+    ctx.strokeRect(bx+1, by+1, bw-2, bh-2);
+    tekst(ctx, "UMULIGT \u2014 entropien ville falde", w/2, by + bh/2,
+          F.rod, px*1.05, "center", true);
+  }
+}
+
+/* =====================================================================
+   AFLÆSNINGER
+   ===================================================================== */
+function saetTekst(id, s){ var e = document.getElementById(id); if(e) e.textContent = s; }
+
+function opdaterAflaesning(){
+  var v = vaerk(st.Ph, st.Pe, st.Th, st.Tl);
+
+  saetTekst("vPh", daNum(st.Ph,0) + " MW");
+  saetTekst("vPe", daNum(v.A,0) + " MW");
+  saetTekst("vTh", daNum(st.Th,0) + " \u00b0C");
+  saetTekst("vTl", daNum(st.Tl,0) + " \u00b0C");
+  saetTekst("vThK", daNum(st.Th + T0, 2) + " K");
+  saetTekst("vTlK", daNum(st.Tl + T0, 2) + " K");
+
+  saetTekst("mQh", daNum(v.Qh,0));
+  saetTekst("mA",  daNum(v.A,0));
+  saetTekst("mQl", daNum(v.Ql,0));
+  saetTekst("mEta", daNum(v.eta*100,1));
+  saetTekst("mEtaM", daNum(v.etaMax*100,1));
+  saetTekst("mS", daNum(v.dS,1));
+
+  var mQl = document.getElementById("mQl");
+  if(mQl) mQl.className = "mval " + (st.kraftvarme ? "fjern" : "kold");
+  var mQlLab = document.getElementById("mQlLab");
+  if(mQlLab) mQlLab.innerHTML = st.kraftvarme
+    ? 'Fjernvarme <span class="eq" data-tex="Q_{\\text{lav}}"></span>'
+    : 'Kondensator <span class="eq" data-tex="Q_{\\text{lav}}"></span>';
+  var mA = document.getElementById("mA");
+  if(mA) mA.className = "mval " + (v.stand === "umulig" ? "rod" : "arb");
+  var mS = document.getElementById("mS");
+  if(mS) mS.className = "mval " + (v.stand === "umulig" ? "rod" : "tot");
+
+  var wE = document.getElementById("wEta");
+  if(wE) wE.className = st.skjulEta ? "usynlig" : "";
+  var wM = document.getElementById("wEtaM");
+  if(wM) wM.className = st.visCarnot ? "" : "usynlig";
+
+  /* statuslinjen */
+  var t = "";
+  if(v.stand === "umulig"){
+    t = "<b class=\"rod\">Umulig proces.</b> Energiregnskabet holder, men entropien ville falde. "
+      + "Det forbyder 2. hovedsætning.";
+  } else if(v.stand === "graense"){
+    t = "<b>P\u00e5 gr\u00e6nsen.</b> Entropiproduktionen er praktisk talt nul, alts\u00e5 er processen "
+      + "reversibel. H\u00f8jere kan nyttevirkningen ikke komme.";
+  } else {
+    t = "<b>Mulig proces.</b> Entropien vokser, alts\u00e5 er den irreversibel. "
+      + "Der er stadig arbejde at hente.";
+  }
+  if(st.kraftvarme && v.Qh > 0){
+    t += " Samlet udnyttelse: (A + Q<sub>lav</sub>) / Q<sub>h\u00f8j</sub> = "
+      + daNum((v.A + v.Ql)/v.Qh*100, 0) + " % \u2014 modellen regner ikke med tab.";
+  }
+  var e = document.getElementById("statusTekst");
+  if(e) e.innerHTML = t;
+
+  if(window.TeX && window.TeX.setUp) window.TeX.setUp(document.getElementById("mQlLab"));
+}
+
+function saetLegender(){
+  var F = farver();
+  var a = document.getElementById("lg1"); if(a) a.style.background = F.ind;
+  var b = document.getElementById("lg2"); if(b) b.style.background = F.arb;
+  var c = document.getElementById("lg3"); if(c) c.style.background = st.kraftvarme ? F.fjern : F.kold;
+  var d = document.getElementById("lg4"); if(d) d.style.background = F.vand;
+  var e = document.getElementById("lg3t");
+  if(e){
+    e.innerHTML = st.kraftvarme
+      ? '<span class="eq" data-tex="Q_{\\text{lav}}"></span> fjernvarme'
+      : '<span class="eq" data-tex="Q_{\\text{lav}}"></span> k\u00f8levand';
+    if(window.TeX && window.TeX.setUp) window.TeX.setUp(e);
+  }
+}
+
+/* =====================================================================
+   BINDINGER
+   ===================================================================== */
+function opdaterPeMax(){
+  var s = document.getElementById("sPe");
+  if(!s) return;
+  s.max = String(st.Ph);
+  if(st.Pe > st.Ph){ st.Pe = st.Ph; s.value = String(st.Pe); }
+}
+
+function bind(){
+  var sPh = document.getElementById("sPh"), sPe = document.getElementById("sPe"),
+      sTh = document.getElementById("sTh"), sTl = document.getElementById("sTl");
+
+  sPh.addEventListener("input", function(){
+    st.Ph = +this.value; opdaterPeMax(); opdaterAflaesning();
+  });
+  sPe.addEventListener("input", function(){ st.Pe = +this.value; opdaterAflaesning(); });
+  sTh.addEventListener("input", function(){ st.Th = +this.value; opdaterAflaesning(); });
+  sTl.addEventListener("input", function(){ st.Tl = +this.value; opdaterAflaesning(); });
+
+  document.getElementById("cKraft").addEventListener("change", function(){
+    st.kraftvarme = this.checked; saetLegender(); opdaterAflaesning();
+  });
+  document.getElementById("cSkjulEta").addEventListener("change", function(){
+    st.skjulEta = this.checked; opdaterAflaesning();
+  });
+  document.getElementById("cCarnot").addEventListener("change", function(){
+    st.visCarnot = this.checked; opdaterAflaesning();
+  });
+
+  document.getElementById("bReset").addEventListener("click", function(){
+    st.Ph = STD.Ph; st.Pe = STD.Pe; st.Th = STD.Th; st.Tl = STD.Tl;
+    sPh.value = String(STD.Ph); opdaterPeMax();
+    sPe.value = String(STD.Pe); sTh.value = String(STD.Th); sTl.value = String(STD.Tl);
+    opdaterAflaesning();
+  });
+
+  /* modaler */
+  function aabn(id){ document.getElementById(id).classList.add("vis"); }
+  document.getElementById("bForklar").addEventListener("click", function(){ aabn("mForklar"); });
+  document.getElementById("bOpgaver").addEventListener("click", function(){ aabn("mOpgaver"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".modal-close"), function(b){
+    b.addEventListener("click", function(){
+      Array.prototype.forEach.call(document.querySelectorAll(".modal"), function(m){ m.classList.remove("vis"); });
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".modal"), function(m){
+    m.addEventListener("click", function(e){ if(e.target === m) m.classList.remove("vis"); });
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape"){
+      Array.prototype.forEach.call(document.querySelectorAll(".modal"), function(m){ m.classList.remove("vis"); });
+    }
+  });
+
+  /* kopier kode — synkront, så udklipsholderen accepterer gestussen */
+  document.getElementById("bKopier").addEventListener("click", function(){
+    var b = this, org = b.textContent;
+    var kilde = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    function ok(){ b.textContent = "Kopieret!"; setTimeout(function(){ b.textContent = org; }, 1600); }
+    function fejl(){ b.textContent = "Kunne ikke"; setTimeout(function(){ b.textContent = org; }, 1600); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(kilde).then(ok, fejl);
+    } else fejl();
+  });
+
+  /* tema */
+  document.getElementById("bTema").addEventListener("click", function(){
+    isDark = !isDark;
+    if(isDark){ document.documentElement.removeAttribute("data-theme"); this.textContent = "Lyst tema"; }
+    else { document.documentElement.setAttribute("data-theme","light"); this.textContent = "M\u00f8rkt tema"; }
+    saetLegender(); tegn();
+  });
+}
+
+/* =====================================================================
+   ANIMATION
+   ===================================================================== */
+var tSidst = 0;
+function loop(ts){
+  var dt = tSidst ? Math.min(0.05, (ts - tSidst)/1000) : 0.016;
+  tSidst = ts;
+  uret += dt;
+  turbVinkel += dt*3.4;                 // konstant omdrejningstal
+  loopFase = (loopFase + dt*0.085) % 1; // vandet løber rundt med konstant fart
+  tegn();
+  requestAnimationFrame(loop);
+}
+
+/* =====================================================================
+   START
+   ===================================================================== */
+bind();
+opdaterPeMax();
+saetLegender();
+opdaterAflaesning();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
