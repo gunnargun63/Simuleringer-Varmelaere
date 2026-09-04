@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fra is til damp</title>
+<title>Opvarmningskurver</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-
 :root {
   --bg0: #030810;
   --bg1: #060e18;
@@ -494,6 +493,23 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
 }
 .dtab-note { font-size: 13px; color: var(--text); }
 
+/* ---------- Nummerering i opgavemodalen ----------
+   Reglen nedenfor sætter counter-reset paa den indre <ul>, og det overskriver
+   browserens egen "counter-reset: list-item" paa samme element. Firefox
+   respekterer det og lader derfor de indre <li> taelle videre paa den YDRE
+   liste, saa opgaverne blev nummereret 1, 5, 9 i stedet for 1, 2, 3. Chrome
+   goer det ikke. Loesningen er at nummerere den ydre liste med en taeller,
+   vi selv styrer, og samtidig give den indre liste sin egen list-item igen. */
+.modal ol { counter-reset: opg; list-style: none; }
+.modal ol > li { counter-increment: opg; position: relative; padding-left: 1.5em; }
+.modal ol > li::before {
+  content: counter(opg) '.'; position: absolute; left: 0;
+  color: var(--text); font-weight: 600;
+}
+[data-theme="light"] .modal ol > li::before { font-weight: 700; }
+.modal ol ul { counter-reset: dl list-item; }
+.modal ol ul > li::before { color: var(--green); }
+
 </style>
 </head>
 <body>
@@ -506,7 +522,7 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
         <circle class="bulb" cx="13" cy="19.5" r="4.2"/>
         <rect class="merc" x="11.6" y="6" width="2.8" height="12"/>
       </svg>
-      <h1>Fra is til damp</h1>
+      <h1>Opvarmningskurver</h1>
     </div>
     <div class="hdr-btns">
       <button class="btn-hdr" id="btnForklaring">Forklaring</button>
@@ -562,7 +578,7 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
 
         <div class="ctl-row">
           <div class="ctl-label">
-            <span>Tidsfaktor</span>
+            <span>Animationsfart</span>
             <span class="val" id="fVal">&times;20</span>
           </div>
           <input type="range" id="fSlider" min="1" max="200" step="1" value="20">
@@ -642,7 +658,7 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
     <span class="eqd" data-tex="\Delta E_{\text{term}} = m\cdot c\cdot\Delta T"></span>
     <p>Det betyder, at et stof med stor varmefylde <span class="eq" data-tex="c"></span> giver en skrå kurve med lav hældning: der skal meget energi til hver eneste grad. Læg mærke til, at det første skrå stykke er stejlere end det andet. Det er ikke tilfældigt — varmefylden for et fast stof er normalt lavere end for samme stof i væskefasen.</p>
 
-    <p>På de to <span class="acc">vandrette</span> stykker sker der noget andet. Her tilføres der lige så meget energi som før, men temperaturen rører sig ikke. Energien går ikke til bevægelse, men til at <span class="acc">bryde bindingerne</span> mellem molekylerne. Den kaldes <span class="acc">latent varme</span>, af latin for skjult, netop fordi den ikke kan ses på et termometer:</p>
+    <p>På de to <span class="acc">vandrette</span> stykker sker der noget andet. Her tilføres der lige så meget energi som før, men temperaturen rører sig ikke. Energien går ikke til bevægelse, men til hhv. at <span class="acc">nedbryde gitterstrukturen</span> og <span class="acc">bryde bindingerne</span> mellem molekylerne. Den kaldes <span class="acc">latent varme</span>, af latin for skjult, netop fordi den ikke kan ses på et termometer:</p>
     <span class="eqd" data-tex="\Delta E = L\cdot\Delta m"></span>
     <p>hvor <span class="eq" data-tex="L_s"></span> er smeltevarmen og <span class="eq" data-tex="L_f"></span> fordampningsvarmen.</p>
 
