@@ -6,37 +6,42 @@
 <title>Opvarmningskurver</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Share+Tech+Mono&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
 <style>
+/* Palet og typografi efter tema_standard.md v3.1 (kanonisk reference:
+   straalingslovene.html). Mørkt tema er standard. */
 :root {
-  --bg0: #030810;
-  --bg1: #060e18;
-  --bg2: #0a1622;
-  --bg3: #0f1e2d;
+  --bg0: #030810; --bg1: #060e18; --bg2: #0a1622; --bg3: #0f1e2d;
   --border: #1a3a52;
-  --green:  #00ff9f;
-  --cyan:   #00cfff;
-  --yellow: #ffd93d;
-  --text: #d0eef5;
-  --dim:  #8ec8d8;
-  --mono: 'Courier New', 'Lucida Console', monospace;
-  --ui: 'Share Tech Mono', monospace;
-  --body: 'Exo 2', sans-serif;
+  --green: #00ff9f; --cyan: #00cfff; --yellow: #ffd93d; --red: #ff5a76;
+  --text: #d0eef5; --dim: #8ec8d8;
+  --font: 'Courier New', 'Lucida Console', monospace;
   --tr: 0.15s ease;
-  --n1:#00ff9f; --n2:#00cfff; --n3:#ffd93d; --n4:#ff8a5c; --n5:#c77dff; --n6:#ff5c8a;
+
+  /* domænefarver — navngivet efter rolle */
+  --fast: #00cfff;      /* opvarmning af fast stof */
+  --smelt: #ffd93d;     /* smelteplateau */
+  --vaeske: #00ff9f;    /* opvarmning af væske */
+  --damp: #ff8a5c;      /* fordampning, molekyler der forlader væsken */
+  --maal: #ffd93d;      /* målingen på grafen */
+  --temp: #00ff9f;      /* temperaturaflæsningen */
+  --binding: #00ff9f;   /* bindinger i molekylefeltet */
+  --svag: #00cfff;      /* svage tiltrækninger (ethanol) */
 }
 [data-theme="light"] {
-  --bg0: #e8e0d2;
-  --bg1: #f4eee3;
-  --bg2: #fdfaf4;
-  --bg3: #fdfaf4;
-  --border: #c8c0b0;
-  --green:  #1D9E75;
-  --cyan:   #378ADD;
-  --yellow: #c07800;
-  --text: #1a1a1a;
-  --dim:  #333333;
-  --n1:#1D9E75; --n2:#378ADD; --n3:#9c5e00; --n4:#c2410c; --n5:#7a2da8; --n6:#c0306a;
+  --bg0: #e8e0d2; --bg1: #f4eee3; --bg2: #fdfaf4; --bg3: #fdfaf4;
+  --border: #d6cbb8;
+  --green: #1D9E75; --cyan: #378ADD; --yellow: #c07800; --red: #a80f2c;
+  --text: #1a1a1a; --dim: #333333;
+
+  --fast: #155fa8;
+  --smelt: #8a5f00;
+  --vaeske: #0f7a5a;
+  --damp: #a83e10;
+  --maal: #8a5f00;
+  --temp: #0f7a5a;
+  --binding: #0f7a5a;
+  --svag: #155fa8;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,7 +50,9 @@ html, body { height: 100%; overflow: hidden; }
 body {
   background: var(--bg0);
   color: var(--text);
-  font-family: var(--body);
+  font-family: var(--font);
+  font-size: 12px;
+  line-height: 1.5;
   padding: 8px 12px 10px;
   display: flex;
   flex-direction: column;
@@ -74,36 +81,30 @@ header {
   margin-bottom: 8px;
   flex: 0 0 auto;
 }
-[data-theme="light"] header { background: #fdfaf4; }
 .title-group { display: flex; align-items: center; gap: 10px; }
 h1 {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Orbitron', var(--font);
   font-weight: 700;
   font-size: 16px;
-  letter-spacing: .16em;
+  letter-spacing: .20em;
   color: var(--green);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 html:not([data-theme="light"]) h1 { text-shadow: 0 0 10px rgba(0,255,159,.4); }
 
-/* Streng-ikon med svingende bevægelse */
-.icon-str { width: 26px; height: 26px; display: block; }
-.icon-str .peg { fill: var(--green); }
-.icon-str .wv { stroke: var(--green); fill: none; transform-origin: 13px 13px; animation: strOsc 1.5s ease-in-out infinite; }
-@keyframes strOsc { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(-1); } }
-html:not([data-theme="light"]) .icon-str { filter: drop-shadow(0 0 4px rgba(0,255,159,.6)); }
-
 .hdr-btns { display: flex; gap: 7px; flex-wrap: wrap; }
 .btn-hdr {
-  font-family: var(--ui);
+  font-family: var(--font);
   font-size: 12px;
   letter-spacing: .08em;
   border: 1px solid var(--border);
   background: var(--bg3);
   color: var(--text);
-  padding: 6px 13px;
+  padding: 6px 12px;
   cursor: pointer;
   text-transform: uppercase;
+  white-space: nowrap;
   transition: var(--tr);
   user-select: none;
 }
@@ -114,7 +115,7 @@ html:not([data-theme="light"]) .btn-hdr:hover { box-shadow: 0 0 10px rgba(0,255,
 /* ---------- Hovedlayout ---------- */
 .main-grid {
   display: grid;
-  grid-template-columns: 268px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 8px;
   flex: 1 1 0;
   min-height: 0;
@@ -131,25 +132,24 @@ html:not([data-theme="light"]) .btn-hdr:hover { box-shadow: 0 0 10px rgba(0,255,
   padding: 8px 11px;
   flex: 0 0 auto;
 }
-[data-theme="light"] .panel { background: #fdfaf4; }
 .panel.grow { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
 
-.canvas-holder { flex: 1 1 0; min-height: 190px; position: relative; background: var(--bg2); border: 1px solid var(--border); }
-[data-theme="light"] .canvas-holder { background: #fdfaf4; }
-canvas#scene { display: block; width: 100%; height: 100%; cursor: crosshair; }
+.canvas-holder { flex: 1 1 0; min-height: 190px; position: relative; background: var(--bg1); border: 1px solid var(--border); }
 
 .sec-title {
-  font-family: var(--ui);
+  font-family: var(--font);
   font-size: 11px;
+  font-weight: 700;
   letter-spacing: .22em;
   color: var(--green);
   text-transform: uppercase;
   border-bottom: 1px solid var(--border);
   padding-bottom: 4px;
   margin-bottom: 8px;
+  line-height: 1.3;
   flex: 0 0 auto;
+  white-space: nowrap;
 }
-[data-theme="light"] .sec-title { font-weight: 700; }
 .sym { text-transform: none; }
 
 /* ---------- Matematisk sats ----------
@@ -238,20 +238,11 @@ canvas#scene { display: block; width: 100%; height: 100%; cursor: crosshair; }
 .mfl { padding-right: .1em; }
 .mfr { padding-left: .1em; }
 
-/* Underpunkter i opgaverne */
-.modal ol > li { margin-bottom: .55em; }
-.modal ol ul { margin: .45em 0 .2em 1.1em; list-style: none; padding: 0; counter-reset: dl; }
-.modal ol ul > li { position: relative; padding-left: 1.5em; margin-bottom: .3em; counter-increment: dl; }
-.modal ol ul > li::before {
-  content: counter(dl, lower-alpha) ')'; position: absolute; left: 0;
-  color: var(--green); font-weight: 600;
-}
-
 /* ---------- Slidere ---------- */
 .ctl-row { margin-bottom: 8px; }
 .ctl-row:last-child { margin-bottom: 0; }
 .ctl-label {
-  font-family: var(--ui);
+  font-family: var(--font);
   font-size: 12px;
   letter-spacing: .08em;
   color: var(--text);
@@ -261,15 +252,19 @@ canvas#scene { display: block; width: 100%; height: 100%; cursor: crosshair; }
   align-items: baseline;
   gap: 8px;
   margin-bottom: 4px;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 [data-theme="light"] .ctl-label { font-weight: 700; }
 .ctl-label .val {
-  font-family: var(--mono);
+  font-family: var(--font);
   font-weight: 700;
   color: var(--cyan);
+  letter-spacing: 0;
   text-transform: none;
   white-space: nowrap;
 }
+[data-theme="light"] .ctl-label .val { color: #2767a8; }
 
 input[type="range"] {
   width: 100%;
@@ -298,133 +293,85 @@ input[type="range"]::-moz-range-thumb {
 }
 .slider-ends {
   display: flex; justify-content: space-between;
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
-  color: var(--dim); margin-top: 2px;
+  font-family: var(--font); font-size: 10px; font-weight: 700;
+  color: var(--dim); margin-top: 2px; line-height: 1.2; white-space: nowrap;
 }
-.ctl-row.off { opacity: .35; pointer-events: none; }
 
 /* ---------- Knapper ---------- */
 .btn-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 8px; }
-.btn-row + .btn-row { margin-top: 7px; }
 .btn {
-  font-family: var(--ui);
+  font-family: var(--font);
   font-size: 12px;
+  font-weight: 700;
   letter-spacing: .1em;
   border: 1px solid var(--green);
   background: var(--bg3);
   color: var(--green);
   padding: 6px 12px;
+  line-height: 1.3;
   cursor: pointer;
   text-transform: uppercase;
+  white-space: nowrap;
   transition: var(--tr);
   user-select: none;
 }
-[data-theme="light"] .btn { font-weight: 700; }
+[data-theme="light"] .btn { color: #0f7a5a; }
 .btn:hover { background: rgba(0,255,159,.09); }
 html:not([data-theme="light"]) .btn:hover { box-shadow: 0 0 10px rgba(0,255,159,.4); }
 [data-theme="light"] .btn:hover { background: rgba(29,158,117,.10); }
 .btn.sec { border-color: var(--cyan); color: var(--cyan); }
+[data-theme="light"] .btn.sec { color: #155fa8; }
 .btn.sec:hover { background: rgba(0,207,255,.09); }
 [data-theme="light"] .btn.sec:hover { background: rgba(55,138,221,.10); }
+.btn-lille { font-size: 10.5px; padding: 5px 8px; letter-spacing: .04em; }
 
-/* ---------- Kontakter ---------- */
-.sw-row {
-  display: flex; align-items: center; gap: 9px;
-  font-family: var(--ui); font-size: 12px; letter-spacing: .08em;
-  text-transform: uppercase; margin-bottom: 8px; cursor: pointer; user-select: none;
+.btn-sm {
+  font-family: var(--font); font-size: 11px; letter-spacing: .08em;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text);
+  padding: 5px 12px; cursor: pointer; text-transform: uppercase;
+  white-space: nowrap; transition: var(--tr); user-select: none;
 }
-[data-theme="light"] .sw-row { font-weight: 700; }
-.sw { position: relative; width: 34px; height: 18px; flex-shrink: 0; }
-.sw input { opacity: 0; width: 0; height: 0; }
-.sw i {
-  position: absolute; inset: 0; background: var(--bg3);
-  border: 1px solid var(--border); transition: var(--tr);
-}
-.sw i:before {
-  content: ''; position: absolute; width: 12px; height: 12px;
-  left: 2px; top: 2px; background: var(--dim); transition: var(--tr);
-}
-.sw input:checked + i { border-color: var(--green); }
-.sw input:checked + i:before { transform: translateX(16px); background: var(--green); }
+.btn-sm:hover { border-color: var(--green); color: var(--green); }
+[data-theme="light"] .btn-sm { font-weight: 700; }
 
 /* ---------- Aflæsninger ---------- */
 .readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.ro { background: var(--bg2); border: 1px solid var(--border); padding: 5px 9px; }
-[data-theme="light"] .ro { background: #ffffff; }
+.ro { background: var(--bg3); border: 1px solid var(--border); padding: 5px 8px; min-width: 0; }
 .ro.wide { grid-column: 1 / -1; }
 .ro .k {
-  font-family: var(--ui); font-size: 11px; letter-spacing: .06em;
-  color: var(--text); display: block; margin-bottom: 1px;
+  font-family: var(--font); font-size: 11px; letter-spacing: .02em;
+  color: var(--dim); display: block; margin-bottom: 1px; line-height: 1.3; white-space: nowrap;
 }
 [data-theme="light"] .ro .k { font-weight: 700; }
-.ro .v { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--cyan); display: block; }
-.ro .v.grn { color: var(--green); }
-.ro .v.yel { color: var(--yellow); }
-
-.preset-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.btn-sm {
-  font-family: var(--ui); font-size: 11.5px; letter-spacing: .06em;
-  border: 1px solid var(--border); background: var(--bg3); color: var(--text);
-  padding: 5px 10px; cursor: pointer; text-transform: uppercase;
-  transition: var(--tr); user-select: none;
+.ro .v {
+  font-family: var(--font); font-size: 15px; font-weight: 700;
+  color: var(--text); display: block; line-height: 1.25; white-space: nowrap;
 }
-.btn-sm:hover { border-color: var(--green); color: var(--green); }
-.btn-sm.reset { margin-left: 14px; border-color: var(--cyan); color: var(--cyan); }
-.btn-sm.reset:hover { background: rgba(0,207,255,.09); }
-[data-theme="light"] .btn-sm { font-weight: 700; }
-
-/* ---------- Modaler ---------- */
-.modal-bg {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.65); z-index: 50;
-  align-items: center; justify-content: center; padding: 20px;
-}
-.modal-bg.open { display: flex; }
-.modal {
-  background: var(--bg1); border: 1px solid var(--green);
-  max-width: 720px; width: 100%; max-height: 84vh;
-  overflow-y: auto; padding: 20px 24px;
-}
-[data-theme="light"] .modal { background: #fdfaf4; border-color: #1D9E75; }
-.modal h2 {
-  font-family: 'Orbitron', sans-serif; font-size: 15px; letter-spacing: .1em;
-  color: var(--green); text-transform: uppercase; margin-bottom: 14px;
-  border-bottom: 1px solid var(--border); padding-bottom: 8px;
-}
-.modal p, .modal li { font-size: 14.5px; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
-.modal ol, .modal ul { margin: 0 0 10px 22px; }
-.modal .acc { color: var(--cyan); font-weight: 600; }
-.modal .acc-y { color: var(--yellow); font-weight: 600; }
-[data-theme="light"] .modal .acc-y { color: #c07800; }
-.modal-close-row { text-align: right; margin-top: 12px; }
+.ro .v.temp { color: var(--temp); }
+.ro .v.maal { color: var(--maal); }
 
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
   background: var(--bg3); border: 1px solid var(--green); color: var(--green);
-  font-family: var(--ui); font-size: 13px; letter-spacing: .08em;
+  font-family: var(--font); font-size: 13px; font-weight: 700; letter-spacing: .08em;
   padding: 10px 22px; opacity: 0; pointer-events: none;
   transition: opacity .3s; z-index: 99;
 }
+[data-theme="light"] .toast { color: #0f7a5a; }
 .toast.show { opacity: 1; }
 
-@media (max-width: 980px) {
-  html, body { overflow: auto; height: auto; }
-  .main-grid { grid-template-columns: 1fr; }
-  .canvas-holder { height: 46vw; min-height: 220px; }
-  .panel.grow { flex: 0 0 auto; }
-}
 /* ---------- Stofvalg ---------- */
 .stof-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 .btn-stof {
-  font-family: var(--ui); font-size: 12px; letter-spacing: .06em;
+  font-family: var(--font); font-size: 12px; letter-spacing: .06em;
   border: 1px solid var(--border); background: var(--bg3); color: var(--text);
-  padding: 7px 4px; cursor: pointer; text-transform: uppercase;
+  padding: 7px 4px; line-height: 1.3; cursor: pointer; text-transform: uppercase; white-space: nowrap;
   transition: var(--tr); user-select: none;
 }
 .btn-stof:hover { border-color: var(--green); color: var(--green); }
 .btn-stof.aktiv { border-color: var(--green); color: var(--green); background: rgba(0,255,159,.10); }
 [data-theme="light"] .btn-stof { font-weight: 700; }
-[data-theme="light"] .btn-stof.aktiv { background: rgba(29,158,117,.12); }
+[data-theme="light"] .btn-stof.aktiv { color: #0f7a5a; background: rgba(29,158,117,.12); }
 
 /* ---------- Grafens lærred ---------- */
 /* Uden denne regel bruger lærredet sin egen pixelstørrelse og flyder ud
@@ -432,84 +379,140 @@ html:not([data-theme="light"]) .btn:hover { box-shadow: 0 0 10px rgba(0,255,159,
 canvas#graf { display: block; width: 100%; height: 100%; cursor: crosshair; }
 
 /* ---------- Molekylefelt ---------- */
-.mol-grid { display: grid; grid-template-columns: 460px 1fr; gap: 16px; align-items: center; }
-.mol-holder { height: 200px; position: relative; background: var(--bg2); border: 1px solid var(--border); }
-[data-theme="light"] .mol-holder { background: #fdfaf4; }
+.mol-grid {
+  display: grid; grid-template-columns: minmax(260px, 460px) minmax(0, 1fr);
+  gap: 16px; align-items: center;
+}
+.mol-holder { height: 200px; position: relative; background: var(--bg1); border: 1px solid var(--border); }
 canvas#mol { display: block; width: 100%; height: 100%; }
+/* Alle fasetekster ligger oven i hinanden i samme gittercelle, og kun den
+   aktuelle er synlig. Feltet har dermed altid den længste teksts højde, så
+   intet under det hopper, når teksten skifter. */
 .mol-tekst {
-  font-family: var(--body); font-size: 14px; line-height: 1.6;
+  display: grid;
+  font-family: var(--font); font-size: 13px; line-height: 1.55;
   color: var(--text);
 }
-[data-theme="light"] .mol-tekst { font-weight: 600; }
+.mol-tekst > span { grid-area: 1 / 1; visibility: hidden; }
+.mol-tekst > span.vis { visibility: visible; }
 
 /* ---------- Energiregnskab ---------- */
 .ebar {
   display: flex; height: 26px; width: 100%;
-  border: 1px solid var(--border); background: var(--bg2); overflow: hidden;
+  border: 1px solid var(--border); background: var(--bg3); overflow: hidden;
 }
-[data-theme="light"] .ebar { background: #ffffff; }
 .eseg { height: 100%; width: 0; transition: width .08s linear; }
-.eseg.e1 { background: var(--n2); }
-.eseg.e2 { background: var(--n3); }
-.eseg.e3 { background: var(--n1); }
-.eseg.e4 { background: var(--n4); }
+.eseg.e1 { background: var(--fast); }
+.eseg.e2 { background: var(--smelt); }
+.eseg.e3 { background: var(--vaeske); }
+.eseg.e4 { background: var(--damp); }
 .eleg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
-.el { display: flex; align-items: flex-start; gap: 6px; }
+.el { display: flex; align-items: flex-start; gap: 6px; min-width: 0; }
 .el i {
   width: 12px; height: 12px; flex-shrink: 0; margin-top: 3px;
   border: 1px solid var(--bg0); display: block;
 }
 [data-theme="light"] .el i { border-color: #7a7266; }
-.el.l1 i { background: var(--n2); } .el.l2 i { background: var(--n3); }
-.el.l3 i { background: var(--n1); } .el.l4 i { background: var(--n4); }
-.el .kt { font-family: var(--ui); font-size: 11px; letter-spacing: .04em; color: var(--text); display: block; }
+.el.l1 i { background: var(--fast); } .el.l2 i { background: var(--smelt); }
+.el.l3 i { background: var(--vaeske); } .el.l4 i { background: var(--damp); }
+.el .kt {
+  font-family: var(--font); font-size: 11px; letter-spacing: .02em;
+  color: var(--dim); display: block; line-height: 1.3; white-space: nowrap;
+}
 [data-theme="light"] .el .kt { font-weight: 700; }
-.el .vt { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--cyan); display: block; margin-top: 1px; }
-
-@media (max-width: 980px) {
-  .eleg { grid-template-columns: repeat(2, 1fr); }
-  .mol-grid { grid-template-columns: 1fr; }
-  .mol-holder { height: 46vw; min-height: 180px; }
+.el .vt {
+  font-family: var(--font); font-size: 13px; font-weight: 700;
+  color: var(--text); display: block; margin-top: 1px; line-height: 1.3; white-space: nowrap;
 }
 
 /* ---------- Termometer-ikon ---------- */
-.icon-th { width: 26px; height: 26px; display: block; }
+.icon-th { width: 26px; height: 26px; display: block; flex-shrink: 0; }
 .icon-th .tube { fill: none; stroke: var(--green); stroke-width: 2; }
 .icon-th .bulb { fill: var(--green); }
 .icon-th .merc { fill: var(--green); transform-origin: 13px 18px; animation: thRise 2.2s ease-in-out infinite; }
 @keyframes thRise { 0%,100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
 html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255,159,.6)); }
 
-/* ---------- Datatabel i modal ---------- */
-.dtab { border-collapse: collapse; width: 100%; margin-bottom: 8px; }
-.dtab th, .dtab td {
-  border: 1px solid var(--border); padding: 5px 9px;
-  font-family: var(--mono); font-size: 13px; font-weight: 700;
-  color: var(--text); text-align: right;
+/* ---------- Modaler ----------
+   Opbygning, CSS og kopiknap følger straalingslovene.html og
+   modal-standard.md. Teksten står i opvarmningskurve-forklaring.md og
+   opvarmningskurve-opgaver.md. */
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.72);
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 26px 14px; overflow-y: auto; z-index: 50;
 }
-.dtab th { color: var(--green); font-family: var(--ui); letter-spacing: .06em; }
-.dtab td:first-child, .dtab th:first-child {
-  text-align: left; font-family: var(--body); font-weight: 600; color: var(--text);
+[data-theme="light"] .modal { background: rgba(60,50,35,.6); }
+.modal.vis { display: flex; }
+/* Brødteksten har normal vægt i begge temaer; med vægt 700 i det lyse tema
+   forsvinder fremhævningen af knapnavne. */
+.modal-inner {
+  background: var(--bg1); border: 1px solid var(--border);
+  max-width: 820px; width: 100%; padding: 24px 28px;
 }
-.dtab-note { font-size: 13px; color: var(--text); }
+.modal-inner h2 {
+  font-family: 'Orbitron', var(--font); font-size: 18px; letter-spacing: .18em;
+  color: var(--green); margin: 0 0 4px 0; text-transform: uppercase;
+}
+.modal-inner h3 {
+  font-family: 'Orbitron', var(--font); font-size: 15px; letter-spacing: .18em;
+  color: var(--green); text-transform: uppercase;
+  margin: 24px 0 12px 0; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.modal-inner p, .modal-inner li { font-size: .92rem; color: var(--text); line-height: 1.55; }
+.modal-inner p { margin: 0 0 10px 0; }
+[data-theme="light"] .modal-inner p, [data-theme="light"] .modal-inner li { color: #161616; }
+.modal-inner ol, .modal-inner ul { padding-left: 24px; margin: 0 0 12px 0; }
+.modal-inner li { margin-bottom: 4px; }
+.modal-inner .acc-g { color: var(--green); }
+.modal-inner .acc { color: var(--cyan); }
+.modal-inner .acc-y { color: var(--yellow); }
+[data-theme="light"] .modal-inner .acc-g { color: #0f7a5a; }
+[data-theme="light"] .modal-inner .acc { color: #2767a8; }
+[data-theme="light"] .modal-inner .acc-y { color: #9c5e00; }
+.close-row { display: flex; justify-content: flex-end; margin-top: 16px; }
+.modal-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  margin-bottom: 12px;
+}
+.modal-top h2 { margin: 0; }
+.modal-top .btn, .close-row .btn-sm { flex: 0 0 auto; }
+/* to kolonner, når md-filen har ===== HØJRE ===== */
+.modal-inner:has(> .modal-kol) { max-width: 1120px; }
+.modal-kol { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 36px; }
+.modal-kol h3:first-child, .modal-kol > div > h3:first-child { margin-top: 12px; }
+table.tbl { border-collapse: collapse; margin: 4px 0 14px 0; font-size: .85rem; }
+table.tbl th, table.tbl td {
+  border: 1px solid var(--border); padding: 5px 12px; text-align: right; color: var(--text);
+}
+table.tbl th:first-child, table.tbl td:first-child { text-align: left; }
+[data-theme="light"] table.tbl td { color: #161616; }
+table.tbl th { color: var(--cyan); letter-spacing: .06em; }
+[data-theme="light"] table.tbl th { color: #2767a8; }
 
-/* ---------- Nummerering i opgavemodalen ----------
-   Reglen nedenfor sætter counter-reset paa den indre <ul>, og det overskriver
-   browserens egen "counter-reset: list-item" paa samme element. Firefox
-   respekterer det og lader derfor de indre <li> taelle videre paa den YDRE
-   liste, saa opgaverne blev nummereret 1, 5, 9 i stedet for 1, 2, 3. Chrome
-   goer det ikke. Loesningen er at nummerere den ydre liste med en taeller,
-   vi selv styrer, og samtidig give den indre liste sin egen list-item igen. */
-.modal ol { counter-reset: opg; list-style: none; }
-.modal ol > li { counter-increment: opg; position: relative; padding-left: 1.5em; }
-.modal ol > li::before {
-  content: counter(opg) '.'; position: absolute; left: 0;
-  color: var(--text); font-weight: 600;
+/* ---------- Responsivt ---------- */
+@media (max-width: 1200px) {
+  .eleg { grid-template-columns: repeat(2, 1fr); }
 }
-[data-theme="light"] .modal ol > li::before { font-weight: 700; }
-.modal ol ul { counter-reset: dl list-item; }
-.modal ol ul > li::before { color: var(--green); }
-
+@media (max-width: 980px) {
+  html, body { overflow: auto; height: auto; }
+  /* Med automatisk højde må kolonnerne ikke have flex-basis 0 — ellers
+     klapper hele indholdet sammen til højden nul. */
+  .wrap, .main-grid { flex: 0 0 auto; }
+  .main-grid { grid-template-columns: 1fr; }
+  .sidebar, .content-col { overflow: visible; }
+  .canvas-holder { flex: 0 0 auto; height: 46vw; min-height: 220px; }
+  .panel.grow { flex: 0 0 auto; }
+  .mol-grid { grid-template-columns: 1fr; }
+  .mol-holder { height: 46vw; min-height: 180px; max-height: 260px; }
+}
+@media (max-width: 900px) {
+  .modal-kol { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .eleg { grid-template-columns: 1fr; }
+  .modal-inner { padding: 18px 16px; }
+}
 </style>
 </head>
 <body>
@@ -594,13 +597,13 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
       <div class="panel">
         <div class="sec-title">Afl&aelig;sninger</div>
         <div class="readouts">
-          <div class="ro"><span class="k">Temperatur <span class="sym">T</span></span><span class="v grn" id="roT">&ndash;</span></div>
+          <div class="ro"><span class="k">Temperatur <span class="sym">T</span></span><span class="v temp" id="roT">&ndash;</span></div>
           <div class="ro"><span class="k">Tilf&oslash;rt energi <span class="sym">&Delta;E</span></span><span class="v" id="roE">&ndash;</span></div>
           <div class="ro"><span class="k">Tid <span class="sym">&Delta;t</span></span><span class="v" id="roTid">&ndash;</span></div>
-          <div class="ro"><span class="k">Tilstand</span><span class="v" id="roFase">&ndash;</span></div>
-          <div class="ro wide"><span class="k" id="roAndelK">Andel smeltet</span><span class="v yel" id="roAndel">&ndash;</span></div>
+          <div class="ro"><span class="k" id="roAndelK">Andel smeltet</span><span class="v" id="roAndel">&ndash;</span></div>
+          <div class="ro wide"><span class="k">Tilstand</span><span class="v" id="roFase">&ndash;</span></div>
           <div class="ro wide"><span class="k">Energi til hele forl&oslash;bet</span><span class="v" id="roTot">&ndash;</span></div>
-          <div class="ro wide"><span class="k">M&aring;ling p&aring; grafen <span class="sym">&Delta;E</span></span><span class="v yel" id="roMaal">Klik to steder i grafen</span></div>
+          <div class="ro wide"><span class="k">M&aring;ling p&aring; grafen <span class="sym">&Delta;E</span></span><span class="v maal" id="roMaal">Klik to steder i grafen</span></div>
         </div>
       </div>
 
@@ -646,105 +649,90 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
 
 </div>
 
-<!-- Modaler SKAL ligge før script-tagget -->
-<div class="modal-bg" id="modalForklaring">
-  <div class="modal">
+<!-- ================= FORKLARING =================
+     Teksten står i opvarmningskurve-forklaring.md og sættes ind med
+     python3 byg-modaler.py opvarmningskurve.html -->
+<div class="modal" id="mForklar"><div class="modal-inner">
+  <div class="modal-top">
     <h2>Forklaring</h2>
-
-    <p>Et stof tilføres varme med konstant effekt, og grafen viser, hvordan temperaturen udvikler sig. Bemærk, at der ligger <span class="acc">tilført energi</span> ud ad førsteaksen — ikke tid. Derfor ser kurven fuldstændig ens ud, uanset hvor kraftigt der varmes op: en større effekt betyder blot, at man kommer hurtigere hen ad aksen. Effekten er jo netop, hvor hurtigt energien omsættes:</p>
-    <span class="eqd" data-tex="P = \frac{\Delta E}{\Delta t}"></span>
-
-    <p>Kurven falder i fire afsnit. På de to <span class="acc">skrå</span> stykker stiger temperaturen, fordi den tilførte energi går til at øge molekylernes kinetiske energi. Her gælder</p>
-    <span class="eqd" data-tex="\Delta E_{\text{term}} = m\cdot c\cdot\Delta T"></span>
-    <p>Det betyder, at et stof med stor varmefylde <span class="eq" data-tex="c"></span> giver en skrå kurve med lav hældning: der skal meget energi til hver eneste grad. Læg mærke til, at det første skrå stykke er stejlere end det andet. Det er ikke tilfældigt — varmefylden for et fast stof er normalt lavere end for samme stof i væskefasen.</p>
-
-    <p>På de to <span class="acc">vandrette</span> stykker sker der noget andet. Her tilføres der lige så meget energi som før, men temperaturen rører sig ikke. Energien går ikke til bevægelse, men til hhv. at <span class="acc">nedbryde gitterstrukturen</span> og <span class="acc">bryde bindingerne</span> mellem molekylerne. Den kaldes <span class="acc">latent varme</span>, af latin for skjult, netop fordi den ikke kan ses på et termometer:</p>
-    <span class="eqd" data-tex="\Delta E = L\cdot\Delta m"></span>
-    <p>hvor <span class="eq" data-tex="L_s"></span> er smeltevarmen og <span class="eq" data-tex="L_f"></span> fordampningsvarmen.</p>
-
-    <p>I molekylefeltet kan man følge, hvad energien bruges til. I det faste stof sidder molekylerne fast i et gitter og vibrerer omkring hver sin plads, kraftigere og kraftigere. Ved smeltepunktet holder vibrationerne op med at vokse; i stedet rives molekylerne løs fra deres pladser, så de kan glide forbi hinanden. De hænger stadig sammen — det er en væske, ikke en gas. Først ved kogepunktet rives de <span class="acc">helt</span> fri af hinanden, og det er dyrt: for vand kræver fordampningen næsten syv gange så meget energi som smeltningen.</p>
-
-    <p>De tre stoffer pakker sig forskelligt, og det kan ses i molekylefeltet. Vandmolekylerne sidder i et åbent sekskantet gitter, hvor hvert molekyle holdes af flere naboer på én gang. Ethanol tegnes aflangt med en <span class="acc-y">gul OH-gruppe</span> i den ene ende — og da hvert molekyle kun har én OH-gruppe, kan de kun binde sig sammen i kæder, ikke i et net. Der er derfor færre bindinger at bryde pr. molekyle, og det er netop derfor, at både smeltevarmen og fordampningsvarmen for ethanol er væsentligt mindre end for vand. Tinatomerne ligger tætpakket med seks naboer, som i et metal. Molekylefeltet for <span class="acc">Stof X</span> viser også stoffets rigtige struktur — den ledetråd må du bruge.</p>
-
-    <p>For ethanol tegnes <span class="acc">to forskellige slags tiltrækning</span>. De kraftige grønne streger mellem OH-grupperne er hydrogenbindinger: stærke og retningsbestemte, og det er dem, der danner kæderne. De tynde stiplede streger på tværs er de svage tiltrækninger mellem molekylernes kulbrintehaler. De er hver for sig meget svagere, men der er mange af dem, og uden dem ville kæderne slet ikke hænge sammen til et fast stof. Når et molekyle rives løs, forsvinder begge slags. I væsken tegnes kun hydrogenbindingerne, for det er dem, man kan pege på som enkeltbindinger.</p>
-
-    <p><em>Om modellen:</em> Systemet regnes som perfekt isoleret, så al tilført energi bliver i stoffet. Det er en idealisering — en rigtig gryde afgiver hele tiden varme til køkkenet, og især under kogningen er tabet stort. Dampen forlader systemet, så forløbet slutter, når det sidste er fordampet. Bevægelsen i molekylefeltet er <span class="acc-y">stærkt overdrevet</span>. Størrelsesforholdet er pyntet. Antallet af molekyler er 72, hvor en dråbe vand indeholder omkring <span data-tex="10^{21}"></span>. Fordampningen er simplificeret: i virkeligheden sker der også en lille fordampning mens væsken varmes op, men i simuleringen sker hele fordampningen ved kogepunktet.</p>
-
-    <h2 style="margin-top:20px;">Stofdata brugt i simuleringen</h2>
-    <table class="dtab">
-      <tr><th></th><th>Vand</th><th>Ethanol</th><th>Tin</th></tr>
-      <tr><td>Smeltepunkt</td><td>0 °C</td><td>−114 °C</td><td>232 °C</td></tr>
-      <tr><td>Kogepunkt</td><td>100 °C</td><td>78 °C</td><td>2602 °C</td></tr>
-      <tr><td>Varmefylde, fast</td><td>2040</td><td>970</td><td>227</td></tr>
-      <tr><td>Varmefylde, flydende</td><td>4182</td><td>2300</td><td>240</td></tr>
-      <tr><td>Smeltevarme <span data-tex="L_s"></span></td><td>334</td><td>109</td><td>59,2</td></tr>
-      <tr><td>Fordampningsvarme <span data-tex="L_f"></span></td><td>2257</td><td>837</td><td>2492</td></tr>
-    </table>
-    <p class="dtab-note">Varmefylder i J/(kg·K), latent varme i kJ/kg. Vands værdier er dem fra noten. Værdierne for ethanol og tin er omregnet fra molare tabelværdier. <span class="acc-y">Stof X står ikke i tabellen</span> — dets seks værdier skal måles på grafen. Det er et virkeligt stof, og alle seks værdier kan findes i en datatabel.</p>
-
-    <div class="modal-close-row"><button class="btn" data-close="modalForklaring">Luk</button></div>
+    <button class="btn btn-lille" data-kopier="mForklar">Kopier teksten</button>
   </div>
-</div>
 
-<div class="modal-bg" id="modalOpgave">
-  <div class="modal">
+  <!-- MODALTEKST:forklaring -->
+<div class="modal-kol"><div><h3>Energi på førsteaksen</h3>
+<p>Et stof tilføres varme med konstant effekt, og grafen viser, hvordan temperaturen udvikler sig. Bemærk, at der ligger <span class="acc">tilført energi</span> ud ad førsteaksen — ikke tid. Derfor ser kurven fuldstændig ens ud, uanset hvor kraftigt der varmes op: en større effekt betyder blot, at man kommer hurtigere hen ad aksen. Effekten er jo netop, hvor hurtigt energien omsættes:</p>
+<div class="eqd" data-tex="P = \frac{\Delta E}{\Delta t}"></div>
+<h3>De skrå stykker</h3>
+<p>Kurven falder i fire afsnit. På de to <span class="acc">skrå</span> stykker stiger temperaturen, fordi den tilførte energi går til at øge molekylernes kinetiske energi. Her gælder</p>
+<div class="eqd" data-tex="\Delta E_{\text{term}} = m\cdot c\cdot\Delta T"></div>
+<p>Det betyder, at et stof med stor varmefylde <span class="eq" data-tex="c"></span> giver en skrå kurve med lav hældning: der skal meget energi til hver eneste grad. Læg mærke til, at det første skrå stykke er stejlere end det andet. Det er ikke tilfældigt — varmefylden for et fast stof er normalt lavere end for samme stof i væskefasen.</p>
+<h3>De vandrette stykker</h3>
+<p>På de to <span class="acc">vandrette</span> stykker sker der noget andet. Her tilføres der lige så meget energi som før, men temperaturen rører sig ikke. Energien går ikke til bevægelse, men til hhv. at <span class="acc">nedbryde gitterstrukturen</span> og <span class="acc">bryde bindingerne</span> mellem molekylerne. Den kaldes <span class="acc">latent varme</span>, af latin for skjult, netop fordi den ikke kan ses på et termometer:</p>
+<div class="eqd" data-tex="\Delta E = L\cdot\Delta m"></div>
+<p>hvor <span class="eq" data-tex="L_{\text{s}}"></span> er smeltevarmen og <span class="eq" data-tex="L_{\text{f}}"></span> fordampningsvarmen.</p>
+<h3>Molekylefeltet</h3>
+<p>I molekylefeltet kan man følge, hvad energien bruges til. I det faste stof sidder molekylerne fast i et gitter og vibrerer omkring hver sin plads, kraftigere og kraftigere. Ved smeltepunktet holder vibrationerne op med at vokse; i stedet rives molekylerne løs fra deres pladser, så de kan glide forbi hinanden. De hænger stadig sammen — det er en væske, ikke en gas. Først ved kogepunktet rives de <span class="acc">helt</span> fri af hinanden, og det er dyrt: for vand kræver fordampningen næsten syv gange så meget energi som smeltningen.</p></div><div><h3>Tre stoffer</h3>
+<p>De tre stoffer pakker sig forskelligt, og det kan ses i molekylefeltet. Vandmolekylerne sidder i et åbent sekskantet gitter, hvor hvert molekyle holdes af flere naboer på én gang. Ethanol tegnes aflangt med en <span class="acc-y">gul OH-gruppe</span> i den ene ende — og da hvert molekyle kun har én OH-gruppe, kan de kun binde sig sammen i kæder, ikke i et net. Der er derfor færre bindinger at bryde pr. molekyle, og det er netop derfor, at både smeltevarmen og fordampningsvarmen for ethanol er væsentligt mindre end for vand. Tinatomerne ligger tætpakket med seks naboer, som i et metal. Molekylefeltet for <b>Stof X</b> viser også stoffets rigtige struktur — den ledetråd må du bruge.</p>
+<h3>To slags tiltrækning i ethanol</h3>
+<p>For ethanol tegnes <span class="acc">to forskellige slags tiltrækning</span>. De kraftige grønne streger mellem OH-grupperne er hydrogenbindinger: stærke og retningsbestemte, og det er dem, der danner kæderne. De tynde stiplede streger på tværs er de svage tiltrækninger mellem molekylernes kulbrintehaler. De er hver for sig meget svagere, men der er mange af dem, og uden dem ville kæderne slet ikke hænge sammen til et fast stof. Når et molekyle rives løs, forsvinder begge slags. I væsken tegnes kun hydrogenbindingerne, for det er dem, man kan pege på som enkeltbindinger.</p>
+<h3>Stofdata brugt i simuleringen</h3>
+<table class="tbl">
+<tr><th></th><th>Vand</th><th>Ethanol</th><th>Tin</th></tr>
+<tr><td>Smeltepunkt</td><td>0 °C</td><td>−114 °C</td><td>232 °C</td></tr>
+<tr><td>Kogepunkt</td><td>100 °C</td><td>78 °C</td><td>2602 °C</td></tr>
+<tr><td>Varmefylde, fast</td><td>2040</td><td>970</td><td>227</td></tr>
+<tr><td>Varmefylde, flydende</td><td>4182</td><td>2300</td><td>240</td></tr>
+<tr><td>Smeltevarme <span class="eq" data-tex="L_{\text{s}}"></span></td><td>334</td><td>109</td><td>59,2</td></tr>
+<tr><td>Fordampningsvarme <span class="eq" data-tex="L_{\text{f}}"></span></td><td>2257</td><td>837</td><td>2492</td></tr>
+</table>
+<p>Varmefylder i J/(kg·K), latent varme i kJ/kg. Vands værdier er dem fra noten. Værdierne for ethanol og tin er omregnet fra molare tabelværdier. <span class="acc-y">Stof X står ikke i tabellen</span> — dets seks værdier skal måles på grafen. Det er et virkeligt stof, og alle seks værdier kan findes i en datatabel.</p>
+<p><b>Bemærk:</b> Systemet regnes som perfekt isoleret, så al tilført energi bliver i stoffet. Det er en idealisering — en rigtig gryde afgiver hele tiden varme til køkkenet, og især under kogningen er tabet stort. Dampen forlader systemet, så forløbet slutter, når det sidste er fordampet. Bevægelsen i molekylefeltet er <span class="acc-y">stærkt overdrevet</span>. Størrelsesforholdet er pyntet. Antallet af molekyler er 72, hvor en dråbe vand indeholder omkring <span class="eq" data-tex="10^{21}"></span>. Fordampningen er simplificeret: i virkeligheden sker der også en lille fordampning mens væsken varmes op, men i simuleringen sker hele fordampningen ved kogepunktet.</p></div></div>
+<!-- SLUT MODALTEKST:forklaring -->
+
+  <div class="close-row"><button class="btn-sm modal-close">Luk</button></div>
+</div></div>
+
+<!-- ================= OPGAVER =================
+     Teksten står i opvarmningskurve-opgaver.md -->
+<div class="modal" id="mOpgaver"><div class="modal-inner">
+  <div class="modal-top">
     <h2>Opgaver</h2>
-    <ol>
-
-      <li>Start med vand, 500 g, −20 °C og 1000 W. Tryk <span class="acc">Start</span>, og se forløbet igennem.
-        <ul>
-          <li>Beskriv med dine egne ord, hvad der sker med temperaturen i hvert af de fire afsnit.</li>
-          <li>Klik to steder i grafen for at måle. Find den energi, der skal til for at bringe isen fra −20 °C op til 0 °C, og kontrollér din måling med <span class="eq" data-tex="\Delta E_{\text{term}} = m\cdot c\cdot\Delta T"></span>. Varmefylden står i <span class="acc">Forklaring</span>.</li>
-          <li>Der tilføres lige meget energi pr. sekund hele vejen igennem. Hvorfor står temperaturen så helt stille i de to vandrette afsnit?</li>
-        </ul>
-      </li>
-
-      <li>Bestem de to latente varmer.
-        <ul>
-          <li>Mål <span class="eq" data-tex="\Delta E"></span> for det første plateau, og bestem smeltevarmen som <span class="eq" data-tex="L_s = \Delta E/m"></span>. Sammenlign med tabellen i <span class="acc">Forklaring</span>.</li>
-          <li>Gør det samme for det andet plateau, og bestem <span class="eq" data-tex="L_f"></span>.</li>
-          <li>Hvor mange gange større er <span class="eq" data-tex="L_f"></span> end <span class="eq" data-tex="L_s"></span>? Forklar forskellen ud fra, hvad der sker med bindingerne mellem molekylerne i de to processer — kig med i molekylefeltet.</li>
-        </ul>
-      </li>
-
-      <li>De to skrå stykker.
-        <ul>
-          <li>Hvilket af dem er stejlest? Hvad betyder en stejl hældning for, hvor meget energi der skal til pr. grad?</li>
-          <li>Mål <span class="eq" data-tex="\Delta E"></span> for opvarmningen af vandet fra 0 °C til 100 °C, og bestem varmefylden som <span class="eq" data-tex="c = \frac{\Delta E}{m\cdot\Delta T}"></span>.</li>
-          <li>Bestem på samme måde <span class="eq" data-tex="c"></span> for isen, og beregn forholdet mellem de to. Passer det med, hvad du kan se på de to hældninger?</li>
-        </ul>
-      </li>
-
-      <li>Hvad betyder effekten, og hvad betyder massen?
-        <ul>
-          <li>Nulstil, og kør forløbet igennem igen med <span class="eq" data-tex="P = 2000\,\text{W}"></span>. Hvad ændrer sig på grafen, og hvad ændrer sig i aflæsningerne? Forklar med <span class="eq" data-tex="P = \Delta E/\Delta t"></span>.</li>
-          <li>Sæt nu massen ned til 250 g. Denne gang ændrer kurven sig. Hvad sker der med den — og hvad sker der <em>ikke</em>?</li>
-          <li>Aflæs, hvor lang tid det tager at koge de 500 g vand helt væk ved 1000 W. Passer det med din erfaring fra et køkken? Hvad er der set bort fra i modellen?</li>
-        </ul>
-      </li>
-
-      <li>Sammenligning af de tre stoffer.
-        <ul>
-          <li>Hvor stor en brøkdel af den samlede energi går til fordampningen af vandet? Brug <span class="acc">Energiregnskab</span>.</li>
-          <li>Skift til ethanol og kør forløbet. Sammenlign de fire dele af energiregnskabet med vandets. Hvilket af de to stoffer kræver mest energi i alt for at gå fra fast stof til damp?</li>
-          <li>Skift til tin. Smelteplateauet er nu så smalt, at det næsten ikke kan ses. Mål det alligevel, og bestem <span class="eq" data-tex="L_s"></span> for tin. Forklar, hvorfor det fylder så lidt, når det er præcis den samme slags proces som når is smelter.</li>
-        </ul>
-      </li>
-
-      <li>Et ukendt stof. Skift til <span class="acc">Stof X</span>, og kør forløbet. Der står ingen af dets data i tabellen — alt skal måles.
-        <ul>
-          <li>Aflæs smeltepunktet og kogepunktet direkte på temperaturaksen.</li>
-          <li>Mål de to plateauer, og bestem <span class="eq" data-tex="L_s"></span> og <span class="eq" data-tex="L_f"></span>.</li>
-          <li>Mål de to skrå stykker, og bestem <span class="eq" data-tex="c"></span> for både den faste form og væsken. Husk at bruge den temperaturændring, du selv har aflæst.</li>
-          <li>Stil dine seks tal op ved siden af vandets, ethanolens og tinnets. Hvad ligner Stof X mest — og hvad ligner det slet ikke? Kig også på molekylefeltet.</li>
-          <li>Stof X er et virkeligt stof. Slå op i en datatabel, og find ud af hvilket. Nøjes ikke med ét tal, der passer — kontrollér mindst tre af dine seks målinger mod tabellen, før du beslutter dig.</li>
-        </ul>
-      </li>
-
-    </ol>
-    <div class="modal-close-row"><button class="btn" data-close="modalOpgave">Luk</button></div>
+    <button class="btn btn-lille" data-kopier="mOpgaver">Kopier teksten</button>
   </div>
-</div>
+
+  <!-- MODALTEKST:opgaver -->
+<h3>1. Vands opvarmningskurve</h3>
+<p>Start med vand, 500 g, −20 °C og 1000 W. Tryk <b>Start</b>, og se forløbet igennem.</p>
+<p><b>a)</b> Beskriv med dine egne ord, hvad der sker med temperaturen i hvert af de fire afsnit.</p>
+<p><b>b)</b> Klik to steder i grafen for at måle. Find den energi, der skal til for at bringe isen fra −20 °C op til 0 °C, og kontrollér din måling med <span class="eq" data-tex="\Delta E_{\text{term}} = m\cdot c\cdot\Delta T"></span>. Varmefylden står i <b>Forklaring</b>.</p>
+<p><b>c)</b> Der tilføres lige meget energi pr. sekund hele vejen igennem. Hvorfor står temperaturen så helt stille i de to vandrette afsnit?</p>
+<h3>2. Bestem de to latente varmer</h3>
+<p><b>a)</b> Mål <span class="eq" data-tex="\Delta E"></span> for det første plateau, og bestem smeltevarmen som <span class="eq" data-tex="L_{\text{s}} = \Delta E/m"></span>. Sammenlign med tabellen i <b>Forklaring</b>.</p>
+<p><b>b)</b> Gør det samme for det andet plateau, og bestem <span class="eq" data-tex="L_{\text{f}}"></span>.</p>
+<p><b>c)</b> Hvor mange gange større er <span class="eq" data-tex="L_{\text{f}}"></span> end <span class="eq" data-tex="L_{\text{s}}"></span>? Forklar forskellen ud fra, hvad der sker med bindingerne mellem molekylerne i de to processer — kig med i molekylefeltet.</p>
+<h3>3. De to skrå stykker</h3>
+<p><b>a)</b> Hvilket af dem er stejlest? Hvad betyder en stejl hældning for, hvor meget energi der skal til pr. grad?</p>
+<p><b>b)</b> Mål <span class="eq" data-tex="\Delta E"></span> for opvarmningen af vandet fra 0 °C til 100 °C, og bestem varmefylden som <span class="eq" data-tex="c = \frac{\Delta E}{m\cdot\Delta T}"></span>.</p>
+<p><b>c)</b> Bestem på samme måde <span class="eq" data-tex="c"></span> for isen, og beregn forholdet mellem de to. Passer det med, hvad du kan se på de to hældninger?</p>
+<h3>4. Hvad betyder effekten, og hvad betyder massen?</h3>
+<p><b>a)</b> <b>Nulstil</b>, og kør forløbet igennem igen med <span class="eq" data-tex="P = 2000\,\text{W}"></span>. Hvad ændrer sig på grafen, og hvad ændrer sig i aflæsningerne? Forklar med <span class="eq" data-tex="P = \Delta E/\Delta t"></span>.</p>
+<p><b>b)</b> Sæt nu massen ned til 250 g. Denne gang ændrer kurven sig. Hvad sker der med den — og hvad sker der <i>ikke</i>?</p>
+<p><b>c)</b> Aflæs, hvor lang tid det tager at koge de 500 g vand helt væk ved 1000 W. Passer det med din erfaring fra et køkken? Hvad er der set bort fra i modellen?</p>
+<h3>5. Sammenligning af de tre stoffer</h3>
+<p><b>a)</b> Hvor stor en brøkdel af den samlede energi går til fordampningen af vandet? Brug <b>Energiregnskab</b>.</p>
+<p><b>b)</b> Skift til ethanol og kør forløbet. Sammenlign de fire dele af energiregnskabet med vandets. Hvilket af de to stoffer kræver mest energi i alt for at gå fra fast stof til damp?</p>
+<p><b>c)</b> Skift til tin. Smelteplateauet er nu så smalt, at det næsten ikke kan ses. Mål det alligevel, og bestem <span class="eq" data-tex="L_{\text{s}}"></span> for tin. Forklar, hvorfor det fylder så lidt, når det er præcis den samme slags proces som når is smelter.</p>
+<h3>6. Et ukendt stof</h3>
+<p>Skift til <b>Stof X</b>, og kør forløbet. Der står ingen af dets data i tabellen — alt skal måles.</p>
+<p><b>a)</b> Aflæs smeltepunktet og kogepunktet direkte på temperaturaksen.</p>
+<p><b>b)</b> Mål de to plateauer, og bestem <span class="eq" data-tex="L_{\text{s}}"></span> og <span class="eq" data-tex="L_{\text{f}}"></span>.</p>
+<p><b>c)</b> Mål de to skrå stykker, og bestem <span class="eq" data-tex="c"></span> for både den faste form og væsken. Husk at bruge den temperaturændring, du selv har aflæst.</p>
+<p><b>d)</b> Stil dine seks tal op ved siden af vandets, ethanolens og tinnets. Hvad ligner Stof X mest — og hvad ligner det slet ikke? Kig også på molekylefeltet.</p>
+<p><b>e)</b> Stof X er et virkeligt stof. Slå op i en datatabel, og find ud af hvilket. Nøjes ikke med ét tal, der passer — kontrollér mindst tre af dine seks målinger mod tabellen, før du beslutter dig.</p>
+<!-- SLUT MODALTEKST:opgaver -->
+
+  <div class="close-row"><button class="btn-sm modal-close">Luk</button></div>
+</div></div>
 
 <div class="toast" id="toast">Kode kopieret til udklipsholderen</div>
 
@@ -756,13 +744,14 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
    Der understøttes netop den delmængde, disse simuleringer bruger:
 
      \frac{a}{b}   \sqrt{a}   a_{n}   a^{2}   \left( … \right)
-     \lambda \pi \omega \gamma \mu \Delta      græske bogstaver
+     \lambda \pi \omega \gamma \mu \tau \Delta  græske bogstaver
      \cdot \times \pm \approx \le \ge \ne \Leftrightarrow \to
      \sin \cos \tan \log \ln                   opret (ikke kursiv)
      \text{…}                                  opret tekst, fx enheder
      |a|                                       numerisk værdi
      \\  \\,                                    tyndt mellemrum, fx foran enheder
-     0,75                                      danske decimaltal skrives direkte
+     0,75                                      danske decimaltal skrives direkte,
+                                               aldrig 0{,}75
 
    Variable sættes kursivt, tal og enheder opret — præcis som i LaTeX.
    Skriften er Latin Modern Math, indlejret i stilarket som en delmængde.
@@ -771,7 +760,7 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
   'use strict';
   const GREEK = {
     alpha:'α', beta:'β', gamma:'γ', delta:'δ', theta:'θ', lambda:'λ', mu:'μ',
-    pi:'π', rho:'ρ', sigma:'σ', phi:'φ', omega:'ω',
+    eta:'η', pi:'π', rho:'ρ', sigma:'σ', tau:'τ', phi:'φ', omega:'ω',
     Delta:'Δ', Lambda:'Λ', Omega:'Ω', Sigma:'Σ'
   };
   /* [tegn, klasse] — 'o' = regneoperator (smal luft), 'r' = relation (bred luft) */
@@ -796,9 +785,10 @@ html:not([data-theme="light"]) .icon-th { filter: drop-shadow(0 0 4px rgba(0,255
   }
   /* små græske bogstaver er variable og sættes kursivt; store holdes oprette */
   const GREEK_IT = {
-    alpha:0x1D6FC, beta:0x1D6FD, gamma:0x1D6FE, delta:0x1D6FF, theta:0x1D703,
+    alpha:0x1D6FC, beta:0x1D6FD, gamma:0x1D6FE, delta:0x1D6FF, eta:0x1D702,
+    theta:0x1D703,
     lambda:0x1D706, mu:0x1D707, pi:0x1D70B, rho:0x1D70C, sigma:0x1D70E,
-    phi:0x1D711, omega:0x1D714
+    tau:0x1D70F, phi:0x1D711, omega:0x1D714
   };
   const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -967,25 +957,338 @@ function F(navn) {
     farveCache = {};
     const cs = getComputedStyle(htmlEl);
     ['--text','--dim','--green','--cyan','--yellow','--border','--bg1','--bg2',
-     '--n1','--n2','--n3','--n4'].forEach(k => { farveCache[k] = cs.getPropertyValue(k).trim(); });
+     '--fast','--smelt','--vaeske','--damp','--maal','--binding','--svag'].forEach(k => { farveCache[k] = cs.getPropertyValue(k).trim(); });
   }
   return farveCache[navn];
 }
 
-/* ================= Modaler ================= */
-function bindModal(btnId, modalId) {
-  document.getElementById(btnId).addEventListener('click', () =>
-    document.getElementById(modalId).classList.add('open'));
-}
-bindModal('btnForklaring', 'modalForklaring');
-bindModal('btnOpgave', 'modalOpgave');
-document.querySelectorAll('[data-close]').forEach(b =>
-  b.addEventListener('click', () => document.getElementById(b.dataset.close).classList.remove('open')));
-document.querySelectorAll('.modal-bg').forEach(m =>
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-bg.open').forEach(m => m.classList.remove('open'));
-});
+/* ================= Modaler =================
+   Opbygning efter modal-standard.md: Luk, Escape og klik uden for boksen
+   lukker. Teksten bygges ind fra md-filerne med byg-modaler.py. */
+function aabnModal(id) { document.getElementById(id).classList.add('vis'); }
+function lukModaler() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('vis')); }
+document.getElementById('btnForklaring').addEventListener('click', () => aabnModal('mForklar'));
+document.getElementById('btnOpgave').addEventListener('click', () => aabnModal('mOpgaver'));
+document.querySelectorAll('.modal-close').forEach(b => b.addEventListener('click', lukModaler));
+document.querySelectorAll('.modal').forEach(m =>
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('vis'); }));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') lukModaler(); });
+
+/* Kopier teksten — kopieret samlet fra straalingslovene.html og lagt i sin
+   egen funktion, fordi resten af scriptet kører med const/let. */
+(function () {
+  /* kopier teksten i en modal ------------------------------------------
+     En sat formel er bygget af kasser og går i stykker ved et almindeligt
+     træk-og-kopier. Knappen lægger derfor to udgaver på udklipsholderen:
+     en HTML-udgave med kursiv, <sup> og <sub>, som Word og Google Docs
+     bevarer, og en ren tekstudgave med Unicode-hævet og -sænket skrift,
+     hvor det kan lade sig gøre. Brøker skrives på én linje: a/b.
+     Begge laves ud fra TeX-kilden i data-tex, ikke ud fra den satte formel. */
+  var TEX_TEGN = {
+    alpha:'\u03b1', beta:'\u03b2', gamma:'\u03b3', delta:'\u03b4', epsilon:'\u03b5',
+    varepsilon:'\u03b5', zeta:'\u03b6', eta:'\u03b7', theta:'\u03b8', iota:'\u03b9',
+    kappa:'\u03ba', lambda:'\u03bb', mu:'\u03bc', nu:'\u03bd', xi:'\u03be', pi:'\u03c0',
+    rho:'\u03c1', sigma:'\u03c3', tau:'\u03c4', upsilon:'\u03c5', phi:'\u03c6',
+    varphi:'\u03c6', chi:'\u03c7', psi:'\u03c8', omega:'\u03c9'
+  };
+  var TEX_STORE = { Gamma:'\u0393', Delta:'\u0394', Theta:'\u0398', Lambda:'\u039b',
+    Pi:'\u03a0', Sigma:'\u03a3', Phi:'\u03a6', Psi:'\u03a8', Omega:'\u03a9' };
+  var TEX_OP = { cdot:'\u00b7', times:'\u00d7', div:'\u00f7', pm:'\u00b1', mp:'\u2213' };
+  var TEX_REL = { approx:'\u2248', ne:'\u2260', neq:'\u2260', le:'\u2264', leq:'\u2264',
+    ge:'\u2265', geq:'\u2265', to:'\u2192', rightarrow:'\u2192', Rightarrow:'\u21d2',
+    Leftrightarrow:'\u21d4', propto:'\u221d', sim:'\u223c' };
+  var TEX_FUN = ['sin','cos','tan','log','ln','exp','max','min','lim'];
+  var HAEV = { '0':'\u2070','1':'\u00b9','2':'\u00b2','3':'\u00b3','4':'\u2074',
+    '5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079',
+    '+':'\u207a','-':'\u207b','\u2212':'\u207b','=':'\u207c','(':'\u207d',')':'\u207e',
+    a:'\u1d43',b:'\u1d47',c:'\u1d9c',d:'\u1d48',e:'\u1d49',f:'\u1da0',g:'\u1d4d',
+    h:'\u02b0',i:'\u2071',j:'\u02b2',k:'\u1d4f',l:'\u02e1',m:'\u1d50',n:'\u207f',
+    o:'\u1d52',p:'\u1d56',r:'\u02b3',s:'\u02e2',t:'\u1d57',u:'\u1d58',v:'\u1d5b',
+    w:'\u02b7',x:'\u02e3',y:'\u02b8',z:'\u1dbb' };
+  var SAENK = { '0':'\u2080','1':'\u2081','2':'\u2082','3':'\u2083','4':'\u2084',
+    '5':'\u2085','6':'\u2086','7':'\u2087','8':'\u2088','9':'\u2089',
+    '+':'\u208a','-':'\u208b','\u2212':'\u208b','=':'\u208c','(':'\u208d',')':'\u208e',
+    a:'\u2090',e:'\u2091',h:'\u2095',i:'\u1d62',j:'\u2c7c',k:'\u2096',l:'\u2097',
+    m:'\u2098',n:'\u2099',o:'\u2092',p:'\u209a',r:'\u1d63',s:'\u209b',t:'\u209c',
+    u:'\u1d64',v:'\u1d65',x:'\u2093' };
+
+  function htmlEsc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  /* TeX-kilde -> træ af knuder */
+  function texTrae(src) {
+    var i = 0;
+    function ws() { while (i < src.length && src[i] === ' ') i++; }
+    function gruppe(slut) {
+      var liste = [];
+      for (;;) {
+        ws();
+        if (i >= src.length) break;
+        if (slut && src[i] === slut) break;
+        if (src.substr(i, 6) === '\\right') break;
+        var foer = i, k = en();
+        if (k) liste.push(scripts(k));
+        if (i === foer) i++;
+      }
+      return liste;
+    }
+    function arg() {
+      ws();
+      if (src[i] === '{') { i++; var g = gruppe('}'); if (src[i] === '}') i++; return g; }
+      var k = en(); return k ? [k] : [];
+    }
+    function scripts(k) {
+      for (;;) {
+        ws();
+        if (src[i] === '_' && !k.sub) { i++; k = { t:'sc', base:k.base || k, sub:arg(), sup:k.sup || null }; }
+        else if (src[i] === '^' && !k.sup) { i++; k = { t:'sc', base:k.base || k, sup:arg(), sub:k.sub || null }; }
+        else break;
+      }
+      return k;
+    }
+    function en() {
+      ws();
+      var c = src[i];
+      if (c === undefined) return null;
+      if (c === '{') { i++; var g = gruppe('}'); if (src[i] === '}') i++; return { t:'grp', liste:g }; }
+      if (c === '}') return null;
+      if (c === '\\') {
+        var j = i + 1, navn = '';
+        while (j < src.length && /[A-Za-z]/.test(src[j])) navn += src[j++];
+        if (!navn) {
+          var z = src[j]; i = j + 1;
+          if (z === ',' || z === ';' || z === ':' || z === ' ') return { t:'rum', bred:false };
+          return { t:'txt', v:z };
+        }
+        i = j;
+        if (navn === 'frac') { var n = arg(), d = arg(); return { t:'frac', n:n, d:d }; }
+        if (navn === 'sqrt') return { t:'sqrt', x:arg() };
+        if (navn === 'text' || navn === 'mathrm') {
+          ws();
+          if (src[i] !== '{') return { t:'txt', v:'' };
+          var dybde = 0, start = ++i;
+          while (i < src.length && (src[i] !== '}' || dybde)) {
+            if (src[i] === '{') dybde++; else if (src[i] === '}') dybde--;
+            i++;
+          }
+          var v = src.slice(start, i); i++;
+          return { t:'txt', v:v, enhed:true };
+        }
+        if (navn === 'left') {
+          ws(); var ve = src[i++]; if (ve === '\\') ve = src[i++];
+          var ind = gruppe(null);
+          if (src.substr(i, 6) === '\\right') i += 6;
+          ws(); var ho = src[i++]; if (ho === '\\') ho = src[i++];
+          return { t:'delim', v:ve === '.' ? '' : ve, h:ho === '.' ? '' : ho, liste:ind };
+        }
+        if (navn === 'quad' || navn === 'qquad') return { t:'rum', bred:true };
+        if (TEX_TEGN[navn]) return { t:'var', v:TEX_TEGN[navn] };
+        if (TEX_STORE[navn]) return { t:'txt', v:TEX_STORE[navn] };
+        if (TEX_OP[navn]) return { t:'op', v:TEX_OP[navn] };
+        if (TEX_REL[navn]) return { t:'rel', v:TEX_REL[navn] };
+        if (navn === 'ldots' || navn === 'dots') return { t:'txt', v:'\u2026' };
+        if (navn === 'infty') return { t:'txt', v:'\u221e' };
+        if (TEX_FUN.indexOf(navn) >= 0) return { t:'fun', v:navn };
+        return { t:'txt', v:navn };
+      }
+      i++;
+      if (/[A-Za-z]/.test(c)) return { t:'var', v:c };
+      if (/[0-9.]/.test(c)) {
+        var tal = c;
+        while (i < src.length && /[0-9.]/.test(src[i])) tal += src[i++];
+        return { t:'txt', v:tal };
+      }
+      if (c === '+' || c === '-') return { t:'op', v:c === '-' ? '\u2212' : '+' };
+      if (c === '=' || c === '<' || c === '>') return { t:'rel', v:c };
+      return { t:'txt', v:c };
+    }
+    return gruppe(null);
+  }
+
+  /* træ -> { html, ren } på én linje */
+  function texLinje(liste) {
+    var html = '', ren = '', forrige = null;
+    liste.forEach(function (k, nr) {
+      var d = texKnude(k, forrige, liste[nr + 1]);
+      html += d.html; ren += d.ren;
+      forrige = k;
+    });
+    return { html: html, ren: ren };
+  }
+
+  function erSammensat(liste, ogsaaProdukt) {
+    var ind = liste.length === 1 && liste[0].t === 'grp' ? liste[0].liste : liste;
+    if (ogsaaProdukt) return ind.length > 1;
+    return ind.some(function (k) { return k.t === 'op' || k.t === 'rel'; });
+  }
+
+  function omsaet(tekst, tabel) {
+    var ud = '';
+    for (var i = 0; i < tekst.length; i++) {
+      if (!tabel[tekst[i]]) return null;
+      ud += tabel[tekst[i]];
+    }
+    return ud;
+  }
+
+  function texKnude(k, forrige, naeste) {
+    var d, a, b;
+    switch (k.t) {
+      case 'var':
+        return { html: '<i>' + htmlEsc(k.v) + '</i>', ren: k.v };
+      case 'txt':
+        return { html: htmlEsc(k.v), ren: k.v };
+      case 'fun':
+        return { html: k.v, ren: k.v };
+      case 'grp':
+        return texLinje(k.liste);
+      case 'rum':
+        return k.bred ? { html: '&emsp;', ren: '  ' } : { html: '&thinsp;', ren: ' ' };
+      case 'rel':
+        return { html: ' ' + htmlEsc(k.v) + ' ', ren: ' ' + k.v + ' ' };
+      case 'op':
+        /* fortegn: først i udtrykket eller efter et andet tegn */
+        /* mellem enheder uden luft: m·K */
+        if (k.v === '\u00b7' && forrige && (forrige.enhed || (forrige.t === 'sc' && forrige.base.enhed))) {
+          return { html: k.v, ren: k.v };
+        }
+        if (!forrige || forrige.t === 'op' || forrige.t === 'rel' ||
+            (forrige.t === 'txt' && /[(\[]$/.test(forrige.v))) {
+          return { html: k.v, ren: k.v };
+        }
+        return { html: ' ' + k.v + ' ', ren: ' ' + k.v + ' ' };
+      case 'delim':
+        d = texLinje(k.liste);
+        return { html: htmlEsc(k.v) + d.html + htmlEsc(k.h), ren: k.v + d.ren + k.h };
+      case 'sqrt':
+        d = texLinje(k.x);
+        if (erSammensat(k.x, true)) return { html: '\u221a(' + d.html + ')', ren: '\u221a(' + d.ren + ')' };
+        return { html: '\u221a' + d.html, ren: '\u221a' + d.ren };
+      case 'frac':
+        a = texLinje(k.n); b = texLinje(k.d);
+        if (erSammensat(k.n, false)) { a.html = '(' + a.html + ')'; a.ren = '(' + a.ren + ')'; }
+        if (erSammensat(k.d, true))  { b.html = '(' + b.html + ')'; b.ren = '(' + b.ren + ')'; }
+        /* står der flere faktorer efter brøken, skal hele brøken i parentes:
+           (1/2)mv², ikke 1/2mv² */
+        if (naeste && naeste.t !== 'op' && naeste.t !== 'rel' && naeste.t !== 'rum' &&
+            !(naeste.t === 'txt' && /^[,.;)\]]/.test(naeste.v))) {
+          return { html: '(' + a.html + '/' + b.html + ')', ren: '(' + a.ren + '/' + b.ren + ')' };
+        }
+        return { html: a.html + '/' + b.html, ren: a.ren + '/' + b.ren };
+      case 'sc':
+        d = texKnude(k.base, forrige);
+        if (k.sub) {
+          a = texLinje(k.sub);
+          d.html += '<sub>' + a.html + '</sub>';
+          var s = omsaet(a.ren, SAENK);
+          d.ren += s !== null ? s : (a.ren.length === 1 ? '_' + a.ren : '_(' + a.ren + ')');
+        }
+        if (k.sup) {
+          b = texLinje(k.sup);
+          d.html += '<sup>' + b.html + '</sup>';
+          var h = omsaet(b.ren, HAEV);
+          d.ren += h !== null ? h : (b.ren.length === 1 ? '^' + b.ren : '^(' + b.ren + ')');
+        }
+        return d;
+    }
+    return { html: '', ren: '' };
+  }
+
+  function texTilLinje(src) { return texLinje(texTrae(src)); }
+
+  function modalTekst(id) {
+    var kilde = document.getElementById(id).querySelector('.modal-inner');
+    var klon = kilde.cloneNode(true);
+    Array.prototype.forEach.call(klon.querySelectorAll('.modal-top button, .close-row'),
+      function (e) { e.parentNode.removeChild(e); });
+
+    /* formlerne skrives om fra TeX-kilden */
+    Array.prototype.forEach.call(klon.querySelectorAll('[data-tex]'), function (e) {
+      var l = texTilLinje(e.getAttribute('data-tex'));
+      var ny;
+      if (e.classList.contains('eqd')) {
+        ny = document.createElement('p');
+        ny.className = 'formel';
+        ny.setAttribute('style', 'text-align:center');
+      } else {
+        ny = document.createElement('span');
+      }
+      ny.innerHTML = l.html;
+      ny.setAttribute('data-ren', l.ren);
+      e.parentNode.replaceChild(ny, e);
+    });
+    /* tabeller får kanter, så de også har dem i Word */
+    Array.prototype.forEach.call(klon.querySelectorAll('th, td'), function (c) {
+      c.setAttribute('style', 'border:1px solid #999; padding:3px 10px');
+    });
+    Array.prototype.forEach.call(klon.querySelectorAll('table'), function (t) {
+      t.setAttribute('style', 'border-collapse:collapse');
+    });
+
+    var htmlUd = '<div style="font-family:Georgia,serif;line-height:1.6">' +
+                 klon.innerHTML + '</div>';
+
+    /* ren tekst */
+    Array.prototype.forEach.call(klon.querySelectorAll('[data-ren]'), function (e) {
+      e.textContent = e.getAttribute('data-ren');
+    });
+    var ren = '';
+    Array.prototype.forEach.call(klon.childNodes, function (e) { ren += blokTekst(e); });
+    ren = ren.split('\n').map(function (r) {
+      return /\S/.test(r) ? r.replace(/\s+$/, '') : '';
+    }).join('\n');
+    return { html: htmlUd, ren: ren.replace(/\n{3,}/g, '\n\n').trim() };
+  }
+
+  function blokTekst(e) {
+    if (e.nodeType === 3) return '';
+    if (e.nodeType !== 1) return '';
+    var t = e.tagName;
+    if (t === 'H2') return '\n' + e.textContent.toUpperCase() + '\n\n';
+    if (t === 'H3') return '\n' + e.textContent.replace(/\s+/g, ' ').trim() + '\n\n';
+    if (t === 'P' && e.classList.contains('formel')) return '    ' + e.textContent.trim() + '\n\n';
+    if (t === 'P') return e.textContent.replace(/\s+/g, ' ').trim() + '\n\n';
+    if (t === 'LI') return '- ' + e.textContent.replace(/\s+/g, ' ').trim() + '\n';
+    if (t === 'TR') {
+      var celler = [];
+      Array.prototype.forEach.call(e.children, function (c) {
+        celler.push(c.textContent.replace(/\s+/g, ' ').trim());
+      });
+      return celler.join('\t') + '\n';
+    }
+    var ud = '';
+    Array.prototype.forEach.call(e.childNodes, function (b) { ud += blokTekst(b); });
+    if (t === 'TABLE' || t === 'UL' || t === 'OL') ud += '\n';
+    return ud;
+  }
+
+  function reserveKopi(t, ok, fejl) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t.ren).then(ok, fejl);
+        return;
+      }
+    } catch (err) { /* falder igennem */ }
+    fejl();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-kopier]'), function (b) {
+    b.addEventListener('click', function () {
+      var org = this.textContent, knap = this;
+      var t = modalTekst(this.getAttribute('data-kopier'));
+      function ok()   { knap.textContent = 'Kopieret!';  setTimeout(function () { knap.textContent = org; }, 1600); }
+      function fejl() { knap.textContent = 'Kunne ikke'; setTimeout(function () { knap.textContent = org; }, 1600); }
+      try {
+        if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+          navigator.clipboard.write([new window.ClipboardItem({
+            'text/html':  new Blob([t.html], { type: 'text/html' }),
+            'text/plain': new Blob([t.ren],  { type: 'text/plain' })
+          })]).then(ok, function () { reserveKopi(t, ok, fejl); });
+        } else reserveKopi(t, ok, fejl);
+      } catch (err) { reserveKopi(t, ok, fejl); }
+    });
+  });
+  window.modalTekst = modalTekst;   /* til test */
+})();
 
 /* ================= Kopier kode ================= */
 document.getElementById('btnKopier').addEventListener('click', () => {
@@ -997,17 +1300,21 @@ document.getElementById('btnKopier').addEventListener('click', () => {
   });
 });
 
-/* ================= Dansk talformatering ================= */
-/* Fysik-konvention: decimalkomma, men ALDRIG tusindtalsseparator */
-function daNum(x, digits) {
-  return x.toLocaleString('da-DK', {
-    minimumFractionDigits: digits, maximumFractionDigits: digits, useGrouping: false });
+/* ================= Dansk talformatering =================
+   Decimalkomma, rigtigt minustegn og ingen tusindtalsseparator. Et tal, der
+   afrundes til nul fra negativ side, vises uden fortegn (ikke "−0,0"). */
+function daNum(v, dec) {
+  if (!isFinite(v)) return '\u2013';
+  let s = v.toFixed(dec);
+  if (/^-0(\.0+)?$/.test(s)) s = s.slice(1);
+  return s.replace('.', ',').replace('-', '\u2212');
 }
 function tidTekst(s) {
   if (s < 90) return daNum(s, 1) + ' s';
-  const t = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const r = Math.round(s % 60);
+  const hel = Math.round(s);                 /* afrund FØR opdelingen, så "60 s" ikke kan opstå */
+  const t = Math.floor(hel / 3600);
+  const m = Math.floor((hel % 3600) / 60);
+  const r = hel % 60;
   if (t > 0) return t + ' t ' + m + ' min';
   return m + ' min ' + r + ' s';
 }
@@ -1428,9 +1735,9 @@ function vaelgStof(key) {
   const ts = el('tSlider');
   ts.min = st.tMin; ts.max = st.tMax; ts.value = st.tStd;
   T0 = st.tStd;
-  el('tEnd0').textContent = daNum(st.tMin, 0).replace('-', '−') + ' °C';
-  el('tEnd1').textContent = daNum(st.tMax, 0).replace('-', '−') + ' °C';
-  el('tVal').textContent  = daNum(T0, 0).replace('-', '−') + ' °C';
+  el('tEnd0').textContent = daNum(st.tMin, 0) + ' °C';
+  el('tEnd1').textContent = daNum(st.tMax, 0) + ' °C';
+  el('tVal').textContent  = daNum(T0, 0) + ' °C';
 
   const fs = el('fSlider');
   fs.value = st.tempoStd; tempo = st.tempoStd;
@@ -1456,7 +1763,7 @@ el('mSlider').addEventListener('input', e => {
 });
 el('tSlider').addEventListener('input', e => {
   T0 = +e.target.value;
-  el('tVal').textContent = daNum(T0, 0).replace('-', '−') + ' °C';
+  el('tVal').textContent = daNum(T0, 0) + ' °C';
   beregnTrin(); nulstil();
 });
 el('fSlider').addEventListener('input', e => {
@@ -1540,10 +1847,10 @@ function visMaaling() {
 /* ================= Tegning af grafen ================= */
 function segmenter() {
   return [
-    { e0: 0,     e1: tr.b1, t0: T0,    t1: st.Ts, farve: '--n2', navn: st.segFast },
-    { e0: tr.b1, e1: tr.b2, t0: st.Ts, t1: st.Ts, farve: '--n3', navn: 'Smeltning' },
-    { e0: tr.b2, e1: tr.b3, t0: st.Ts, t1: st.Tk, farve: '--n1', navn: st.segVaeske },
-    { e0: tr.b3, e1: tr.b4, t0: st.Tk, t1: st.Tk, farve: '--n4', navn: 'Fordampning' }
+    { e0: 0,     e1: tr.b1, t0: T0,    t1: st.Ts, farve: '--fast', navn: st.segFast },
+    { e0: tr.b1, e1: tr.b2, t0: st.Ts, t1: st.Ts, farve: '--smelt', navn: 'Smeltning' },
+    { e0: tr.b2, e1: tr.b3, t0: st.Ts, t1: st.Tk, farve: '--vaeske', navn: st.segVaeske },
+    { e0: tr.b3, e1: tr.b4, t0: st.Tk, t1: st.Tk, farve: '--damp', navn: 'Fordampning' }
   ];
 }
 
@@ -1559,7 +1866,7 @@ function tegnGraf(s) {
   /* --- gitter --- */
   const dx = pentTrin(aksE / 1000 / 7) * 1000;
   const dy = pentTrin((st.aksTop - st.tMin) / 10);
-  c.strokeStyle = D('rgba(26,58,82,0.55)', 'rgba(140,124,96,0.22)');
+  c.strokeStyle = D('#1d3a52', '#ddd2c0');
   c.lineWidth = 1;
   for (let e = dx; e < aksE; e += dx) {
     const x = xE(f, e);
@@ -1571,15 +1878,15 @@ function tegnGraf(s) {
   }
 
   /* --- akser --- */
-  c.strokeStyle = D('#2f6d92', '#8a8274');
+  c.strokeStyle = D('#5a7a90', '#888888');
   c.lineWidth = 1.5 + tyk * .5;
   c.beginPath(); c.moveTo(f.x0, f.y0); c.lineTo(f.x0, f.y1); c.lineTo(f.x1, f.y1); c.stroke();
 
-  c.fillStyle = F('--text');
+  c.fillStyle = D('#bfe2ef', '#222222');                 /* tickstal */
   c.font = '700 12px "Courier New", monospace';
   c.textAlign = 'right'; c.textBaseline = 'middle';
   for (let t = Math.ceil(st.tMin / dy) * dy; t <= st.aksTop; t += dy) {
-    c.fillText(daNum(t, 0).replace('-', '−'), f.x0 - 7, yT(f, t));
+    c.fillText(daNum(t, 0), f.x0 - 7, yT(f, t));
   }
   c.textAlign = 'center'; c.textBaseline = 'top';
   for (let e = 0; e <= aksE + 1; e += dx) {
@@ -1587,7 +1894,8 @@ function tegnGraf(s) {
     c.fillText(daNum(e / 1000, 0), xE(f, e), f.y1 + 7);
   }
 
-  c.font = '700 11px "Share Tech Mono", monospace';
+  c.fillStyle = D('#eaf6fa', '#111111');                 /* aksenavne */
+  c.font = '700 12px "Courier New", monospace';
   c.textAlign = 'right'; c.textBaseline = 'bottom';
   c.fillText('tilført energi ΔE  (kJ)', f.x1, f.y1 + 34);
   c.save();
@@ -1613,7 +1921,7 @@ function tegnGraf(s) {
   });
 
   /* --- navne på afsnittene --- */
-  c.font = '700 12px "Share Tech Mono", monospace';
+  c.font = '700 12px "Courier New", monospace';
   c.textAlign = 'center'; c.textBaseline = 'bottom';
   segs.forEach(sg => {
     if (E <= sg.e0) return;
@@ -1632,7 +1940,7 @@ function tegnGraf(s) {
 
   /* --- måling --- */
   if (marks.length) {
-    c.strokeStyle = F('--yellow'); c.lineWidth = 1.5 + tyk * .5;
+    c.strokeStyle = F('--maal'); c.lineWidth = 1.5 + tyk * .5;
     marks.forEach(v => {
       const x = xE(f, v);
       c.beginPath(); c.moveTo(x, f.y0); c.lineTo(x, f.y1); c.stroke();
@@ -1640,7 +1948,7 @@ function tegnGraf(s) {
     if (marks.length === 2) {
       const xa = xE(f, marks[0]), xb = xE(f, marks[1]), y = f.y0 + 20;
       c.beginPath(); c.moveTo(xa, y); c.lineTo(xb, y); c.stroke();
-      c.fillStyle = F('--yellow');
+      c.fillStyle = F('--maal');
       c.font = '700 12px "Courier New", monospace';
       c.textAlign = 'center'; c.textBaseline = 'bottom';
       c.fillText(daNum(Math.abs(marks[1] - marks[0]) / 1000, 1) + ' kJ', (xa + xb) / 2, y - 5);
@@ -1653,10 +1961,15 @@ function tegnGraf(s) {
     c.strokeStyle = D('rgba(208,238,245,.45)', 'rgba(26,26,26,.40)');
     c.lineWidth = 1;
     c.beginPath(); c.moveTo(x, f.y0); c.lineTo(x, f.y1); c.stroke();
-    c.fillStyle = F('--text');
+    /* tallet står lige over førsteaksen — øverst står målingen */
     c.font = '700 11px "Courier New", monospace';
-    c.textAlign = 'center'; c.textBaseline = 'top';
-    c.fillText(daNum(hoverE / 1000, 1), x, f.y0 + 2);
+    c.textAlign = 'center'; c.textBaseline = 'bottom';
+    const hTxt = daNum(hoverE / 1000, 1);
+    const hw = c.measureText(hTxt).width + 6;
+    c.fillStyle = D('#060e18', '#f4eee3');
+    c.fillRect(x - hw / 2, f.y1 - 17, hw, 15);
+    c.fillStyle = F('--text');
+    c.fillText(hTxt, x, f.y1 - 3);
   }
 
   /* --- det aktuelle punkt --- */
@@ -1688,7 +2001,7 @@ function tegnMol(s) {
   const rp = molR * sk;
 
   /* beholderen */
-  c.strokeStyle = D('#2f6d92', '#8a8274'); c.lineWidth = 2;
+  c.strokeStyle = D('#5a7a90', '#888888'); c.lineWidth = 2;
   c.beginPath();
   c.moveTo(X(0), Y(1)); c.lineTo(X(0), Y(0)); c.lineTo(X(boxW), Y(0)); c.lineTo(X(boxW), Y(1));
   c.stroke();
@@ -1703,7 +2016,7 @@ function tegnMol(s) {
      molekyler, der begge stadig sidder i gitteret. */
   if (svagPar.length) {
     c.save();
-    c.setLineDash([3, 3]); c.lineWidth = 1.5; c.strokeStyle = F('--cyan');
+    c.setLineDash([3, 3]); c.lineWidth = 1.5; c.strokeStyle = F('--svag');
     svagPar.forEach(p => {
       const a = mols[p[0]], b = mols[p[1]];
       if (a.fri || b.fri) return;
@@ -1712,7 +2025,7 @@ function tegnMol(s) {
     c.restore();
   }
 
-  c.strokeStyle = F('--green'); c.lineWidth = 2;
+  c.strokeStyle = F('--binding'); c.lineWidth = 2;
   const streg = (a, b) => {
     const pa = bindePunkt(a), pb = bindePunkt(b);
     c.beginPath(); c.moveTo(X(pa.x), Y(pa.y)); c.lineTo(X(pb.x), Y(pb.y)); c.stroke();
@@ -1742,7 +2055,7 @@ function tegnMol(s) {
   mols.forEach(o => {
     if (o.vaek) return;
     const kx = X(o.x), ky = Y(o.y);
-    c.fillStyle = o.flyver ? F('--n4') : F('--cyan');
+    c.fillStyle = o.flyver ? F('--damp') : F('--cyan');
     c.strokeStyle = kant;
     if (form === 'aflang') {
       /* aflangt molekyle: kulbrintehalen som en ellipse, OH-gruppen som en
@@ -1754,7 +2067,7 @@ function tegnMol(s) {
       c.restore();
       const ox = kx + Math.cos(o.vin) * ohAfst * sk;
       const oy = ky - Math.sin(o.vin) * ohAfst * sk;
-      c.fillStyle = o.flyver ? F('--n4') : F('--yellow');
+      c.fillStyle = o.flyver ? F('--damp') : F('--yellow');
       c.beginPath(); c.arc(ox, oy, rp * .46, 0, 6.283); c.fill(); c.stroke();
     } else {
       c.beginPath(); c.arc(kx, ky, rp, 0, 6.283); c.fill(); c.stroke();
@@ -1770,13 +2083,26 @@ const MOLTEKST = {
   faerdig:     'Alt stoffet er fordampet og har forladt systemet.'
 };
 
+/* Teksterne lægges oven i hinanden i feltet, så det har fast højde */
+let molFase = null;
+(function () {
+  const holder = el('molTekst');
+  holder.textContent = '';
+  Object.keys(MOLTEKST).forEach(k => {
+    const sp = document.createElement('span');
+    sp.dataset.fase = k;
+    sp.textContent = MOLTEKST[k];
+    holder.appendChild(sp);
+  });
+})();
+
 /* ================= Aflæsninger og energiregnskab ================= */
 const FASENAVN = { fast: 'fast', smeltning: 'smelter', vaeske: 'væske',
                    fordampning: 'koger', faerdig: 'damp' };
 
 function opdaterUdlaesning(s) {
   const stor = Math.abs(s.T) >= 200;
-  el('roT').textContent   = daNum(s.T, stor ? 0 : 1).replace('-', '−') + ' °C';
+  el('roT').textContent   = daNum(s.T, stor ? 0 : 1) + ' °C';
   el('roE').textContent   = daNum(E / 1000, 1) + ' kJ';
   el('roTid').textContent = tidTekst(tid);
   el('roTot').textContent = daNum(tr.b4 / 1000, 1) + ' kJ';
@@ -1795,7 +2121,11 @@ function opdaterUdlaesning(s) {
     el('roAndel').textContent  = daNum(s.smeltet * 100, 0) + ' %';
   }
 
-  el('molTekst').textContent = MOLTEKST[s.fase];
+  if (molFase !== s.fase) {
+    molFase = s.fase;
+    el('molTekst').querySelectorAll('span').forEach(sp =>
+      sp.classList.toggle('vis', sp.dataset.fase === s.fase));
+  }
 }
 
 function opdaterBar() {
@@ -1845,7 +2175,6 @@ bygMolekyler(st);
 beregnAkse(); beregnTrin();
 visMaaling();
 requestAnimationFrame(loop);
-
 </script>
 </body>
 </html>
