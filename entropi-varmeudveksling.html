@@ -22,7 +22,7 @@
   --border:#d6cbb8;
   --green:#1D9E75; --cyan:#378ADD; --yellow:#c07800;
   --text:#1a1a1a; --dim:#333333;
-  --kold:#378ADD; --varm:#9c5e00; --tot:#1D9E75;
+  --kold:#1763b0; --varm:#9c5e00; --tot:#12805f;   /* samme som kurverne på lærredet */
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -64,6 +64,7 @@ h1{
   background:var(--bg2); border:1px solid var(--border); color:var(--text);
   font-family:var(--font); font-size:11px; letter-spacing:.08em;
   padding:6px 11px; cursor:pointer; transition:var(--tr);
+  text-transform:uppercase; white-space:nowrap;
 }
 .btn-sm:hover{border-color:var(--green); color:var(--green);}
 [data-theme="light"] .btn-sm{font-weight:700;}
@@ -95,6 +96,7 @@ h1{
 .ctl-lab{font-size:11px; color:var(--dim); letter-spacing:.04em; text-transform:none;}
 [data-theme="light"] .ctl-lab{font-weight:700;}
 .ctl-val{font-size:12px; font-weight:700; color:var(--cyan); white-space:nowrap;}
+[data-theme="light"] .ctl-val{color:#2767a8;}
 input[type=range]{
   -webkit-appearance:none; appearance:none; width:100%; height:5px;
   background:var(--bg3); border:1px solid var(--border); outline:none; cursor:pointer;
@@ -117,6 +119,9 @@ input[type=range]:disabled{opacity:.45; cursor:not-allowed;}
 }
 .btn:hover{border-color:var(--green); color:var(--green);}
 .btn.run{border-color:var(--green); color:var(--green);}
+[data-theme="light"] .btn.run{color:#0f7a5a;}
+/* .btn har flex:1 i denne fil; kopiknappen i modalen må ikke strække sig */
+.btn-lille{flex:0 0 auto; font-size:10.5px; padding:5px 8px; letter-spacing:.04em;}
 
 .chk{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--dim); cursor:pointer;}
 [data-theme="light"] .chk{font-weight:700;}
@@ -169,14 +174,21 @@ canvas#grafS{display:block; position:absolute; inset:0; width:100%; height:100%;
   display:flex; gap:16px; flex-wrap:wrap; align-items:baseline;
   min-height:2.7em;   /* plads reserveret, så udfyldningen ikke flytter layoutet */
 }
+/* Reservationen skal følge bredden: i smalle spalter ombrydes de tre tal til
+   to eller tre linjer, og uden plads til dem ville graferne hoppe nedad, i det
+   øjeblik processen bliver færdig. Grænserne er målt i browseren. */
+@media (min-width:901px) and (max-width:1080px){ .cmp-line{min-height:5.2em;} }
+@media (max-width:700px){ .cmp-line{min-height:5.2em;} }
+@media (max-width:520px){ .cmp-line{min-height:6.9em;} }
 [data-theme="light"] .cmp-line{font-weight:700;}
 .cmp-line .lbl{color:var(--green); letter-spacing:.14em; text-transform:uppercase; font-size:10px;}
+[data-theme="light"] .cmp-line .lbl{color:#0f7a5a;}
 .cmp-line b{color:var(--text); font-size:12.5px;}
 [data-theme="light"] .cmp-line b{color:#111;}
 .hidden-note{font-size:11px; color:var(--dim);}
 [data-theme="light"] .hidden-note{font-weight:700;}
 
-/* ---------- modal ---------- */
+/* ===== VALGFRI: modaler — se modal-standard.md ===== */
 .modal{
   position:fixed; inset:0; background:rgba(0,0,0,.72);
   display:none; align-items:flex-start; justify-content:center;
@@ -184,40 +196,140 @@ canvas#grafS{display:block; position:absolute; inset:0; width:100%; height:100%;
 }
 [data-theme="light"] .modal{background:rgba(60,50,35,.6);}
 .modal.vis{display:flex;}
+/* Layoutet følger henfaldstyper. Brødteksten har normal vægt i begge temaer;
+   med vægt 700 i det lyse tema forsvandt al fremhævning af knapnavne. */
+/* Grundstørrelsen sættes på boksen, ikke på afsnittene. Ellers arver alt, der
+   ligger uden for et <p> — fx en fritstående formel i en .eqd — body'ens 12px
+   og bliver sat mindre end symbolerne inde i teksten. */
 .modal-inner{
   background:var(--bg1); border:1px solid var(--border);
-  max-width:820px; width:100%; padding:20px 22px;
+  max-width:820px; width:100%; padding:24px 28px;
+  font-size:.92rem;
 }
 .modal-inner h2{
-  font-family:'Orbitron',var(--font); font-size:13px; letter-spacing:.18em;
-  color:var(--green); margin:0 0 14px 0; text-transform:uppercase;
+  font-family:'Orbitron',var(--font); font-size:18px; letter-spacing:.18em;
+  color:var(--green); margin:0 0 4px 0; text-transform:uppercase;
 }
 .modal-inner h3{
-  font-size:11px; letter-spacing:.18em; color:var(--cyan); text-transform:uppercase;
-  margin:18px 0 7px 0; font-weight:700;
+  font-family:'Orbitron',var(--font); font-size:15px; letter-spacing:.18em;
+  color:var(--green); text-transform:uppercase;
+  margin:24px 0 12px 0; padding-bottom:6px; border-bottom:1px solid var(--border);
 }
-.modal-inner p, .modal-inner li{font-size:12px; color:var(--text); line-height:1.75;}
-[data-theme="light"] .modal-inner p,[data-theme="light"] .modal-inner li{color:#161616; font-weight:700;}
-.modal-inner ol,.modal-inner ul{padding-left:19px; margin:7px 0;}
-.modal-inner li{margin-bottom:7px;}
+.modal-inner p, .modal-inner li{color:var(--text); line-height:1.55;}
+.modal-inner p{margin:0 0 10px 0;}
+[data-theme="light"] .modal-inner p,[data-theme="light"] .modal-inner li{color:#161616;}
+.modal-inner ol,.modal-inner ul{padding-left:24px; margin:0 0 12px 0;}
+.modal-inner li{margin-bottom:4px;}
+.modal-inner .acc-g{color:var(--green);}
+.modal-inner .acc{color:var(--cyan);}
+.modal-inner .acc-y{color:var(--yellow);}
+[data-theme="light"] .modal-inner .acc-g{color:#0f7a5a;}
+[data-theme="light"] .modal-inner .acc{color:#2767a8;}
+[data-theme="light"] .modal-inner .acc-y{color:#9c5e00;}
 .close-row{display:flex; justify-content:flex-end; margin-top:16px;}
-table.tbl{border-collapse:collapse; width:100%; margin:9px 0; font-size:11px;}
-table.tbl th,table.tbl td{border:1px solid var(--border); padding:5px 8px; text-align:left; color:var(--text);}
-[data-theme="light"] table.tbl th,[data-theme="light"] table.tbl td{color:#161616; font-weight:700;}
+.modal-top{display:flex; align-items:center; justify-content:space-between; gap:14px;
+  margin-bottom:12px;}
+.modal-top h2{margin:0;}
+.modal-top .btn, .close-row .btn{flex:0 0 auto;}
+/* to kolonner, når md-filen har ===== HØJRE ===== */
+.modal-inner:has(> .modal-kol){max-width:1120px;}
+.modal-kol{display:grid; grid-template-columns:1fr 1fr; gap:8px 36px;}
+@media (max-width:900px){ .modal-kol{grid-template-columns:1fr;} }
+table.tbl{border-collapse:collapse; margin:4px 0 14px 0; font-size:.85rem;}
+table.tbl th,table.tbl td{border:1px solid var(--border); padding:5px 12px; text-align:right; color:var(--text);}
+table.tbl th:first-child,table.tbl td:first-child{text-align:left;}
+[data-theme="light"] table.tbl td{color:#161616;}
 table.tbl th{color:var(--cyan); letter-spacing:.06em;}
 [data-theme="light"] table.tbl th{color:#2767a8;}
 
-/* ---------- formelsætter ---------- */
-.eq{display:inline-block; vertical-align:middle; font-family:'Latin Modern Math','Cambria Math',Georgia,serif;
-    font-style:normal; text-transform:none; white-space:nowrap;}
-.eqd{display:block; text-align:center; margin:13px 0; font-size:15px;
-     font-family:'Latin Modern Math','Cambria Math',Georgia,serif; text-transform:none;}
-.eq .var,.eqd .var{font-style:italic;}
-.eq .frac,.eqd .frac{display:inline-flex; flex-direction:column; align-items:center;
-  vertical-align:middle; margin:0 .18em; text-align:center;}
-.eq .frac>.num,.eqd .frac>.num{padding:0 .28em; border-bottom:1.4px solid currentColor;}
-.eq .frac>.den,.eqd .frac>.den{padding:0 .28em;}
-.eq sub,.eqd sub{font-size:.68em; font-style:normal;}
+/* ---------- matematisk sats (blok A, tex-saetter.md) ---------- */
+/* ---------- Matematisk sats ----------
+   Formler skrives som TeX i data-tex og sættes op af TeX-sætteren i scriptet.
+
+   SKRIFTEN er Latin Modern Math — den samme Computer Modern-tegning, LaTeX
+   selv bruger. Den er indlejret i filen som en delmængde på ca. 20 kB med
+   netop de tegn, formlerne bruger, så den virker uden netforbindelse og uden
+   at eleverne skal installere noget. Findes skriften allerede på maskinen
+   (fx med en TeX-installation), bruges den lokale i stedet.
+
+   Matematik-skrifttyper har ingen kursiv-VARIANT: de kursive bogstaver er
+   selvstændige tegn i Unicodes matematiske alfabet (U+1D44E og frem).
+   Sætteren oversætter derfor variable til de tegn — font-style bruges ikke.
+
+   Størrelsen følger brødteksten. I LaTeX er en fremhævet ligning sat i
+   nøjagtig samme grad som teksten omkring; det er kun luften og brøkernes
+   opsætning, der ændrer sig. */
+@font-face {
+  font-family: 'LM Math Sub';
+  src: local('Latin Modern Math'), local('LatinModernMath-Regular'),
+       url(data:font/woff2;base64,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) format('woff2');
+  font-display: swap;
+}
+.math, .mathd {
+  font-family: 'LM Math Sub', 'Latin Modern Math', 'STIX Two Math',
+               'Cambria Math', serif;
+  font-style: normal;            /* kursiven ligger i tegnene selv */
+  font-variant-ligatures: none;
+  white-space: nowrap;
+  text-transform: none;
+}
+/* Latin Modern har lav x-højde; 1,14 em matcher brødtekstens
+   optiske størrelse, så formlerne hverken springer i øjnene
+   eller forsvinder i teksten. */
+.math  { font-size: 1.14em; }
+.mathd { font-size: 1.18em; }
+
+/* Fremhævet ligning på egen linje. Størrelsen arves fra beholderen, ikke fra
+   afsnittene omkring — så beholderen skal have en font-size, hvis dens afsnit
+   afviger fra body'ens. Se fælden i afsnit 4. */
+.eqd { display: block; text-align: center; margin: 1.1em 0; line-height: 1.9; }
+
+.mv, .mn, .mtext, .mp { font-style: normal; }
+.mfun { font-style: normal; padding-right: .08em; }  /* sin, cos, … */
+.mo   { padding: 0 .19em; }                          /* + − · × */
+.mu   { padding: 0 .02em 0 0; }                      /* fortegn */
+.mr   { padding: 0 .28em; }                          /* = ≈ ⟺ */
+.mcomma { padding-right: .18em; }
+.mabs { padding: 0 .06em; }
+.mslash { padding: 0 .04em; }
+.mquad { display: inline-block; width: 1.1em; }
+.mthin { display: inline-block; width: .18em; }
+
+/* Sænkede og hævede tal */
+.msub, .msup { font-size: .72em; line-height: 0; }
+.msub { vertical-align: -.26em; }
+.msup { vertical-align: .55em; }
+
+/* Brøk — centreret om regnelinjen, som TeX' math axis */
+.mfrac {
+  display: inline-block; vertical-align: middle; text-align: center;
+  margin: 0 .14em; font-size: .88em;
+}
+.mathd .mfrac { font-size: .96em; }
+.mfrac > .mnum { display: block; padding: 0 .3em .08em; line-height: 1.12; }
+.mfrac > .mden {
+  display: block; padding: .1em .3em 0; line-height: 1.12;
+  border-top: .05em solid currentColor;
+}
+
+/* Kvadratrod */
+.msqrt { display: inline-block; vertical-align: middle; white-space: nowrap; }
+.msqrt > .mrad {
+  display: inline-block; vertical-align: middle;
+  transform: scaleY(1.45) translateY(-.03em); transform-origin: center;
+}
+.msqrt > .mrc {
+  display: inline-block; vertical-align: middle;
+  border-top: .05em solid currentColor; padding: .1em .18em .04em .08em;
+}
+
+/* Parenteser, der vokser med indholdet */
+.mfence {
+  display: inline-block; vertical-align: middle;
+  transform: scaleY(1.55); transform-origin: center;
+}
+.mfl { padding-right: .1em; }
+.mfr { padding-left: .1em; }
 
 .legend{display:flex; gap:13px; flex-wrap:wrap; font-size:10.5px; flex:0 0 auto;}
 [data-theme="light"] .legend{font-weight:700;}
@@ -250,7 +362,7 @@ table.tbl th{color:var(--cyan); letter-spacing:.06em;}
 
     <div class="ctl">
       <div class="ctl-top">
-        <span class="ctl-lab"><span class="eq"><span class="var">m</span></span> &mdash; masse af is</span>
+        <span class="ctl-lab"><span class="eq" data-tex="m"></span> &mdash; masse af is</span>
         <span class="ctl-val" id="vM">1,00 kg</span>
       </div>
       <input type="range" id="sM" min="10" max="200" step="5" value="100">
@@ -258,7 +370,7 @@ table.tbl th{color:var(--cyan); letter-spacing:.06em;}
 
     <div class="ctl">
       <div class="ctl-top">
-        <span class="ctl-lab"><span class="eq"><span class="var">T</span><sub>is</sub></span> &mdash; isens start</span>
+        <span class="ctl-lab"><span class="eq" data-tex="T_{\text{is}}"></span> &mdash; isens start</span>
         <span class="ctl-val" id="vTis">0 &deg;C</span>
       </div>
       <input type="range" id="sTis" min="-40" max="0" step="1" value="0">
@@ -266,7 +378,7 @@ table.tbl th{color:var(--cyan); letter-spacing:.06em;}
 
     <div class="ctl">
       <div class="ctl-top">
-        <span class="ctl-lab"><span class="eq"><span class="var">T</span><sub>sø</sub></span> &mdash; søens temp.</span>
+        <span class="ctl-lab"><span class="eq" data-tex="T_{\text{sø}}"></span> &mdash; søens temp.</span>
         <span class="ctl-val" id="vTso">10 &deg;C</span>
       </div>
       <input type="range" id="sTso" min="0" max="80" step="1" value="10">
@@ -297,17 +409,17 @@ table.tbl th{color:var(--cyan); letter-spacing:.06em;}
 
     <div class="strip">
       <div class="meters">
-        <div class="meter"><span class="mlabel">Tilført varme <span class="eq"><span class="var">Q</span></span></span>
+        <div class="meter"><span class="mlabel">Tilført varme <span class="eq" data-tex="Q"></span></span>
           <span class="mval" id="mQ">0,0</span> <span class="munit">kJ</span></div>
-        <div class="meter"><span class="mlabel">Is-system <span class="eq"><span class="var">T</span></span></span>
+        <div class="meter"><span class="mlabel">Is-system <span class="eq" data-tex="T"></span></span>
           <span class="mval kold" id="mTis">0,0</span> <span class="munit">&deg;C</span></div>
-        <div class="meter"><span class="mlabel">Sø <span class="eq"><span class="var">T</span></span></span>
+        <div class="meter"><span class="mlabel">Sø <span class="eq" data-tex="T"></span></span>
           <span class="mval varm" id="mTso">10,0</span> <span class="munit">&deg;C</span></div>
-        <div class="meter ent"><span class="mlabel"><span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span></span>
+        <div class="meter ent"><span class="mlabel"><span class="eq" data-tex="\Delta S_{\text{is}}"></span></span>
           <span class="mval kold" id="mSis">0,0</span> <span class="munit">J/K</span></div>
-        <div class="meter ent"><span class="mlabel"><span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span></span>
+        <div class="meter ent"><span class="mlabel"><span class="eq" data-tex="\Delta S_{\text{sø}}"></span></span>
           <span class="mval varm" id="mSso">0,0</span> <span class="munit">J/K</span></div>
-        <div class="meter ent"><span class="mlabel"><span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span></span>
+        <div class="meter ent"><span class="mlabel"><span class="eq" data-tex="\Delta S_{\text{total}}"></span></span>
           <span class="mval tot" id="mStot">0,0</span> <span class="munit">J/K</span></div>
       </div>
       <div class="cmp-line" id="cmpLinje">
@@ -329,9 +441,9 @@ table.tbl th{color:var(--cyan); letter-spacing:.06em;}
         <div class="sec-title" id="grafStitel">Entropi mod tilført varme</div>
         <div class="cv-holder graf-holder"><canvas id="grafS"></canvas></div>
         <div class="legend" id="lgS">
-          <span class="lg"><span class="sw" id="lgw3"></span> <span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span></span>
-          <span class="lg"><span class="sw" id="lgw4"></span> <span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span></span>
-          <span class="lg"><span class="sw" id="lgw5"></span> <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span></span>
+          <span class="lg"><span class="sw" id="lgw3"></span> <span class="eq" data-tex="\Delta S_{\text{is}}"></span></span>
+          <span class="lg"><span class="sw" id="lgw4"></span> <span class="eq" data-tex="\Delta S_{\text{sø}}"></span></span>
+          <span class="lg"><span class="sw" id="lgw5"></span> <span class="eq" data-tex="\Delta S_{\text{total}}"></span></span>
         </div>
       </div>
     </div>
@@ -339,163 +451,290 @@ table.tbl th{color:var(--cyan); letter-spacing:.06em;}
   </div>
 </div>
 
-<!-- ================= MODALER ================= -->
+<!-- ================= FORKLARING =================
+     Teksten står i entropi-varmeudveksling-forklaring.md og sættes ind med
+     python3 byg-modaler.py entropi-varmeudveksling.html -->
 <div class="modal" id="mForklar"><div class="modal-inner">
-  <h2>Forklaring</h2>
+  <div class="modal-top">
+    <h2>Forklaring</h2>
+    <button class="btn btn-lille" data-kopier="mForklar">Kopier teksten</button>
+  </div>
 
-  <h3>Opstillingen</h3>
-  <p>En isterning lægges i en sø. Søen er så stor, at dens temperatur ikke ændrer sig, uanset
-  hvor meget varme den afgiver. Vi kalder den et <b>varmereservoir</b>. Isen varmes op til
-  smeltepunktet (hvis den er koldere end 0&nbsp;&deg;C), smelter, og smeltevandet varmes derefter
-  op til søens temperatur. Processen standser, når de to temperaturer er ens.</p>
-
-  <h3>Entropi</h3>
-  <p>Når et system ved den absolutte temperatur <span class="eq"><span class="var">T</span></span>
-  tilføres en lille varmemængde <span class="eq"><span class="var">Q</span></span>, er tilvæksten i entropi</p>
-  <div class="eqd">&Delta;<span class="var">S</span> =
-    <span class="frac"><span class="num"><span class="var">Q</span></span><span class="den"><span class="var">T</span></span></span></div>
-  <p>Is-systemets entropi <b>stiger</b>, fordi det modtager varme. Søens entropi <b>falder</b>,
-  fordi den afgiver varme. Men søen er varmere, og <span class="eq"><span class="var">T</span></span>
-  står i nævneren &mdash; derfor bliver søens fald mindre end isens stigning, og totalentropien bliver positiv.
-  Det er 2. hovedsætning, <span class="eq">&Delta;<span class="var">S</span> &ge; 0</span>.</p>
-
-  <h3>De tre bidrag</h3>
-  <p>Is-systemets samlede entropitilvækst består af op til tre led:</p>
-  <div class="eqd">&Delta;<span class="var">S</span><sub>is</sub> =
-    <span class="frac"><span class="num"><span class="var">m</span>&middot;<span class="var">c</span><sub>is</sub>&middot;&Delta;<span class="var">T</span></span><span class="den"><span class="var">T</span><sub>middel</sub></span></span> +
-    <span class="frac"><span class="num"><span class="var">m</span>&middot;<span class="var">L</span><sub>s</sub></span><span class="den"><span class="var">T</span><sub>smelt</sub></span></span> +
-    <span class="frac"><span class="num"><span class="var">m</span>&middot;<span class="var">c</span><sub>vand</sub>&middot;&Delta;<span class="var">T</span></span><span class="den"><span class="var">T</span><sub>middel</sub></span></span></div>
-  <p>Midterste led er <b>eksakt</b>, fordi temperaturen står helt stille under smeltningen.
-  De to yderste led er tilnærmelser, hvor der regnes med gennemsnitstemperaturen.
-  Søens bidrag er også eksakt, fordi søens temperatur er konstant:</p>
-  <div class="eqd">&Delta;<span class="var">S</span><sub>sø</sub> = &minus;
-    <span class="frac"><span class="num"><span class="var">Q</span><sub>total</sub></span><span class="den"><span class="var">T</span><sub>sø</sub></span></span></div>
-
-  <h3>Sammenligningen</h3>
-  <p><b>Gennemsnitsmetoden</b> bruger én gennemsnitstemperatur pr. trin &mdash; den, du selv regner med i hånden.
-  <b>Simuleringens løbende sum</b> lægger <span class="eq"><span class="var">Q</span>/<span class="var">T</span></span>
-  sammen i fire tusinde små skridt undervejs; det er i praksis integralet, regnet numerisk.
-  Sammenligningen viser, hvor god genvejen med gennemsnitstemperaturen er &mdash; ved en sø på
-  10&nbsp;&deg;C er afvigelsen under en tyvendedel af en J/K, ved 80&nbsp;&deg;C er den nogle få J/K.</p>
-
-  <h3>Den reversible grænse</h3>
-  <p>Sæt søens temperatur til 0&nbsp;&deg;C. Isen smelter stadig, men nu er
-  <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span> nul: entropien er uændret,
-  og processen er <b>reversibel</b>. Det er ikke varmen, der producerer entropi &mdash; det er
-  <b>temperaturforskellen</b>. Skru langsomt op for søens temperatur og se totalentropien vokse.</p>
-
-  <h3>Farverne og blandingen</h3>
-  <p>De lyse molekyler er dem, der kom fra isterningen. Farven er <b>ren bogføring</b> &mdash;
-  fysisk er de nøjagtig de samme vandmolekyler som søens.</p>
-  <p>Når processen er slut, ligger smeltevandet stadig fortrinsvis, hvor isterningen lå.
-  Det kunne se ud, som om der mangler noget: skulle molekylerne ikke fordele sig jævnt,
-  før entropien er på sit højeste? Nej. Blandingen ville <b>ikke</b> give mere entropi,
-  netop fordi molekylerne er ens. Naturen kan ikke se forskel på et vandmolekyle fra
-  isterningen og et fra søen, så en ombytning af to af dem fører ikke til en ny tilstand.
-  Entropien nåede sit maksimum i det øjeblik, de to temperaturer blev ens.</p>
-  <p>Havde isterningen derimod bestået af et <i>andet</i> stof &mdash; fx salt, der opløses
-  i vandet &mdash; ville opblandingen give et selvstændigt entropibidrag. Det regner denne
-  simulering ikke med, og den beskriver kun ét stof.</p>
-
-  <h3>Om molekylefeltet</h3>
-  <p>Molekylernes fart er <b>overdrevet</b>. I virkeligheden er der ikke stor forskel på farten
-  ved 0 og 100&nbsp;&deg;C &mdash; forskellen ville være umulig at se på skærmen.</p>
-  <p>Antallet af molekyler er heller ikke i forhold: en rigtig sø indeholder mange
-  størrelsesordener flere molekyler end isterningen &mdash; det er netop derfor, dens temperatur
-  ikke ændrer sig.</p>
-
-  <h3>Talværdier</h3>
-  <p>Varmefylde for is 2040&nbsp;J/(kg&middot;K), for vand 4182&nbsp;J/(kg&middot;K), smeltevarme
-  334&nbsp;kJ/kg. Absolut nulpunkt sat til &minus;273,15&nbsp;&deg;C.</p>
+  <!-- MODALTEKST:forklaring -->
+<div class="modal-kol"><div><h3>Opstillingen</h3>
+<p>En isterning lægges i en sø. Søen er så stor, at dens temperatur ikke ændrer sig, uanset hvor meget varme den afgiver. Vi kalder den et <b>varmereservoir</b>. Isen varmes op til smeltepunktet (hvis den er koldere end 0 °C), smelter, og smeltevandet varmes derefter op til søens temperatur. Processen standser, når de to temperaturer er ens.</p>
+<h3>Entropi</h3>
+<p>Når et system ved den absolutte temperatur <span class="eq" data-tex="T"></span> tilføres en lille varmemængde <span class="eq" data-tex="Q"></span>, er tilvæksten i entropi</p>
+<div class="eqd" data-tex="\Delta S = \frac{Q}{T}"></div>
+<p>Is-systemets entropi <b>stiger</b>, fordi det modtager varme. Søens entropi <b>falder</b>, fordi den afgiver varme. Men søen er varmere, og <span class="eq" data-tex="T"></span> står i nævneren — derfor bliver søens fald mindre end isens stigning, og totalentropien bliver positiv. Det er 2. hovedsætning, <span class="eq" data-tex="\Delta S \ge 0"></span>.</p>
+<h3>De tre bidrag</h3>
+<p>Is-systemets samlede entropitilvækst består af op til tre led:</p>
+<div class="eqd" data-tex="\Delta S_{\text{is}} = \frac{m\cdot c_{\text{is}}\cdot\Delta T}{T_{\text{middel}}} + \frac{m\cdot L_{\text{s}}}{T_{\text{smelt}}} + \frac{m\cdot c_{\text{vand}}\cdot\Delta T}{T_{\text{middel}}}"></div>
+<p>Midterste led er <b>eksakt</b>, fordi temperaturen står helt stille under smeltningen. De to yderste led er tilnærmelser, hvor der regnes med gennemsnitstemperaturen. Søens bidrag er også eksakt, fordi søens temperatur er konstant:</p>
+<div class="eqd" data-tex="\Delta S_{\text{sø}} = -\frac{Q_{\text{total}}}{T_{\text{sø}}}"></div>
+<h3>Sammenligningen</h3>
+<p><b>Gennemsnitsmetoden</b> bruger én gennemsnitstemperatur pr. trin — den, du selv regner med i hånden. <b>Simuleringens løbende sum</b> lægger <span class="eq" data-tex="Q/T"></span> sammen i fire tusinde små skridt undervejs; det er i praksis integralet, regnet numerisk. Sammenligningen viser, hvor god genvejen med gennemsnitstemperaturen er — ved en sø på 10 °C er afvigelsen under en tyvendedel af en J/K, ved 80 °C er den nogle få J/K.</p></div><div><h3>Den reversible grænse</h3>
+<p>Sæt søens temperatur til 0 °C. Isen smelter stadig, men nu er <span class="eq" data-tex="\Delta S_{\text{total}}"></span> nul: entropien er uændret, og processen er <b>reversibel</b>. Det er ikke varmen, der producerer entropi — det er <b>temperaturforskellen</b>. Skru langsomt op for søens temperatur og se totalentropien vokse.</p>
+<h3>Farverne og blandingen</h3>
+<p>De lyse molekyler er dem, der kom fra isterningen. Farven er <b>ren bogføring</b> — fysisk er de nøjagtig de samme vandmolekyler som søens.</p>
+<p>Når processen er slut, ligger smeltevandet stadig fortrinsvis, hvor isterningen lå. Det kunne se ud, som om der mangler noget: skulle molekylerne ikke fordele sig jævnt, før entropien er på sit højeste? Nej. Blandingen ville <b>ikke</b> give mere entropi, netop fordi molekylerne er ens. Naturen kan ikke se forskel på et vandmolekyle fra isterningen og et fra søen, så en ombytning af to af dem fører ikke til en ny tilstand. Entropien nåede sit maksimum i det øjeblik, de to temperaturer blev ens.</p>
+<p>Havde isterningen derimod bestået af et <i>andet</i> stof — fx salt, der opløses i vandet — ville opblandingen give et selvstændigt entropibidrag. Det regner denne simulering ikke med, og den beskriver kun ét stof.</p>
+<h3>Talværdier</h3>
+<p>Varmefylde for is 2040 J/(kg·K), for vand 4182 J/(kg·K), smeltevarme 334 kJ/kg. Absolut nulpunkt sat til −273,15 °C.</p>
+<p><b>Bemærk:</b> Molekylernes fart er <b>overdrevet</b>. I virkeligheden er der ikke stor forskel på farten ved 0 og 100 °C — forskellen ville være umulig at se på skærmen. Antallet af molekyler er heller ikke i forhold: en rigtig sø indeholder mange størrelsesordener flere molekyler end isterningen — det er netop derfor, dens temperatur ikke ændrer sig.</p></div></div>
+<!-- SLUT MODALTEKST:forklaring -->
 
   <div class="close-row"><button class="btn-sm modal-close">Luk</button></div>
 </div></div>
 
+<!-- ================= OPGAVER =================
+     Teksten står i entropi-varmeudveksling-opgaver.md -->
 <div class="modal" id="mOpgaver"><div class="modal-inner">
-  <h2>Opgaver</h2>
+  <div class="modal-top">
+    <h2>Opgaver</h2>
+    <button class="btn btn-lille" data-kopier="mOpgaver">Kopier teksten</button>
+  </div>
 
-  <h3>Opgave 1 &mdash; Isterningen i søen</h3>
-  <p>Sæt <span class="eq"><span class="var">m</span></span> = 1,00&nbsp;kg,
-  <span class="eq"><span class="var">T</span><sub>is</sub></span> = 0&nbsp;&deg;C og
-  <span class="eq"><span class="var">T</span><sub>sø</sub></span> = 10&nbsp;&deg;C.
-  Sæt flueben i <i>Skjul entropitæller</i> og kør processen til ende.</p>
-  <ol>
-    <li>Aflæs den samlede tilførte varme <span class="eq"><span class="var">Q</span></span>.
-        Kontrollér den ved selv at beregne varmen til smeltning og til opvarmning af smeltevandet.</li>
-    <li>Beregn de to bidrag til <span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span>
-        og læg dem sammen.</li>
-    <li>Beregn <span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span>.
-        Hvorfor må du her bruge søens temperatur direkte uden at tage noget gennemsnit?</li>
-    <li>Find <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span>.
-        Fjern fluebenet og sammenlign.</li>
-  </ol>
-  <p><b>Bemærk undervejs:</b> facit er en lille forskel mellem to store tal. Runder du de to
-  store tal af til hele J/K, inden du trækker dem fra hinanden, kan svaret nemt blive et helt J/K forkert.
-  Hvor mange betydende cifre skal du regne med undervejs?</p>
-
-  <h3>Opgave 2 &mdash; Hvor kommer entropien fra?</h3>
-  <p>Behold <span class="eq"><span class="var">m</span></span> = 1,00&nbsp;kg og
-  <span class="eq"><span class="var">T</span><sub>is</sub></span> = 0&nbsp;&deg;C.
-  Kør processen ved fire forskellige søtemperaturer og udfyld skemaet:</p>
-  <table class="tbl">
-    <tr><th><span class="eq"><span class="var">T</span><sub>sø</sub></span></th>
-        <th><span class="eq"><span class="var">Q</span></span> (kJ)</th>
-        <th><span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span></th>
-        <th><span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span></th>
-        <th><span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span></th></tr>
-    <tr><td>0 &deg;C</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>1 &deg;C</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>10 &deg;C</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>40 &deg;C</td><td></td><td></td><td></td><td></td></tr>
-  </table>
-  <ol>
-    <li>Hvad sker der med <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span>,
-        når søen er 0&nbsp;&deg;C? Isen smelter jo stadig &mdash; hvorfor stiger entropien så ikke?</li>
-    <li>Processen med søen på 0&nbsp;&deg;C kaldes <b>reversibel</b>. Forklar med dine egne ord,
-        hvad det betyder, og hvorfor de tre øvrige processer ikke er det.</li>
-    <li>Hvilken størrelse er det altså, der afgør, hvor meget entropi der produceres?</li>
-  </ol>
-
-  <h3>Opgave 3 &mdash; Massens betydning</h3>
-  <ol>
-    <li>Kør med 0,50&nbsp;kg og derefter med 1,00&nbsp;kg is, begge i en sø på 10&nbsp;&deg;C.
-        Hvad sker der med <span class="eq"><span class="var">Q</span></span>, og hvad sker der med
-        <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span>?</li>
-    <li>Læg mærke til kurvernes længde på grafen. Hvorfor bliver kurverne kortere, når massen falder,
-        i stedet for at grafen bare skalerer med?</li>
-    <li>Kør derefter 1,00&nbsp;kg is, der starter ved &minus;20&nbsp;&deg;C, i en sø på
-        10&nbsp;&deg;C. Processen har nu tre afsnit. Det første afsnit tilføres 40,8&nbsp;kJ og
-        det sidste 41,8&nbsp;kJ &mdash; altså næsten det samme. Beregn entropitilvæksten for hvert
-        af de to afsnit, og forklar ud fra formlen, hvorfor det afsnit, der får <b>mindst</b>
-        varme, giver <b>mest</b> entropi.</li>
-  </ol>
-
-  <h3>Opgave 4 &mdash; Den umulige proces</h3>
-  <p>Forestil dig, at varmen gik den anden vej: at søen ved 10&nbsp;&deg;C blev varmere,
-  mens isen ved 0&nbsp;&deg;C blev koldere.</p>
-  <ol>
-    <li>Hvilket fortegn ville <span class="eq">&Delta;<span class="var">S</span><sub>is</sub></span>
-        og <span class="eq">&Delta;<span class="var">S</span><sub>sø</sub></span> have?</li>
-    <li>Beregn, hvad <span class="eq">&Delta;<span class="var">S</span><sub>total</sub></span> ville blive,
-        hvis 100&nbsp;kJ løb den forkerte vej mellem de to temperaturer.</li>
-    <li>Hvilken hovedsætning ville processen overholde, og hvilken ville den bryde?</li>
-  </ol>
-
-  <h3>Opgave 5 &mdash; Hvor god er genvejen?</h3>
-  <p>Kør processen til ende og se på metodesammenligningen.</p>
-  <ol>
-    <li>Ved <span class="eq"><span class="var">T</span><sub>sø</sub></span> = 10&nbsp;&deg;C:
-        hvor stor er forskellen mellem gennemsnitsmetoden og den eksakte værdi, i procent?</li>
-    <li>Gentag ved 80&nbsp;&deg;C. Hvorfor bliver tilnærmelsen dårligere, jo større
-        temperaturspringet er?</li>
-    <li>Hvorfor er smeltebidraget upåvirket, uanset hvad søens temperatur er?</li>
-  </ol>
+  <!-- MODALTEKST:opgaver -->
+<h3>1. Isterningen i søen</h3>
+<p>Sæt <span class="eq" data-tex="m"></span> = 1,00 kg, <span class="eq" data-tex="T_{\text{is}}"></span> = 0 °C og <span class="eq" data-tex="T_{\text{sø}}"></span> = 10 °C. Sæt flueben i <i>Skjul entropitæller</i> og kør processen til ende.</p>
+<p><b>a)</b> Aflæs den samlede tilførte varme <span class="eq" data-tex="Q"></span>. Kontrollér den ved selv at beregne varmen til smeltning og til opvarmning af smeltevandet.</p>
+<p><b>b)</b> Beregn de to bidrag til <span class="eq" data-tex="\Delta S_{\text{is}}"></span> og læg dem sammen.</p>
+<p><b>c)</b> Beregn <span class="eq" data-tex="\Delta S_{\text{sø}}"></span>. Hvorfor må du her bruge søens temperatur direkte uden at tage noget gennemsnit?</p>
+<p><b>d)</b> Find <span class="eq" data-tex="\Delta S_{\text{total}}"></span>. Fjern fluebenet og sammenlign.</p>
+<p><b>Bemærk undervejs:</b> facit er en lille forskel mellem to store tal. Runder du de to store tal af til hele J/K, inden du trækker dem fra hinanden, kan svaret nemt blive et helt J/K forkert. Hvor mange betydende cifre skal du regne med undervejs?</p>
+<h3>2. Hvor kommer entropien fra?</h3>
+<p>Behold <span class="eq" data-tex="m"></span> = 1,00 kg og <span class="eq" data-tex="T_{\text{is}}"></span> = 0 °C. Kør processen ved fire forskellige søtemperaturer og udfyld skemaet:</p>
+<table class="tbl">
+<tr><th><span class="eq" data-tex="T_{\text{sø}}"></span></th><th><span class="eq" data-tex="Q"></span> (kJ)</th><th><span class="eq" data-tex="\Delta S_{\text{is}}"></span></th><th><span class="eq" data-tex="\Delta S_{\text{sø}}"></span></th><th><span class="eq" data-tex="\Delta S_{\text{total}}"></span></th></tr>
+<tr><td>0 °C</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>1 °C</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>10 °C</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>40 °C</td><td></td><td></td><td></td><td></td></tr>
+</table>
+<p><b>a)</b> Hvad sker der med <span class="eq" data-tex="\Delta S_{\text{total}}"></span>, når søen er 0 °C? Isen smelter jo stadig — hvorfor stiger entropien så ikke?</p>
+<p><b>b)</b> Processen med søen på 0 °C kaldes <b>reversibel</b>. Forklar med dine egne ord, hvad det betyder, og hvorfor de tre øvrige processer ikke er det.</p>
+<p><b>c)</b> Hvilken størrelse er det altså, der afgør, hvor meget entropi der produceres?</p>
+<h3>3. Massens betydning</h3>
+<p><b>a)</b> Kør med 0,50 kg og derefter med 1,00 kg is, begge i en sø på 10 °C. Hvad sker der med <span class="eq" data-tex="Q"></span>, og hvad sker der med <span class="eq" data-tex="\Delta S_{\text{total}}"></span>?</p>
+<p><b>b)</b> Læg mærke til kurvernes længde på grafen. Hvorfor bliver kurverne kortere, når massen falder, i stedet for at grafen bare skalerer med?</p>
+<p><b>c)</b> Kør derefter 1,00 kg is, der starter ved −20 °C, i en sø på 10 °C. Processen har nu tre afsnit. Det første afsnit tilføres 40,8 kJ og det sidste 41,8 kJ — altså næsten det samme. Beregn entropitilvæksten for hvert af de to afsnit, og forklar ud fra formlen, hvorfor det afsnit, der får <b>mindst</b> varme, giver <b>mest</b> entropi.</p>
+<h3>4. Den umulige proces</h3>
+<p>Forestil dig, at varmen gik den anden vej: at søen ved 10 °C blev varmere, mens isen ved 0 °C blev koldere.</p>
+<p><b>a)</b> Hvilket fortegn ville <span class="eq" data-tex="\Delta S_{\text{is}}"></span> og <span class="eq" data-tex="\Delta S_{\text{sø}}"></span> have?</p>
+<p><b>b)</b> Beregn, hvad <span class="eq" data-tex="\Delta S_{\text{total}}"></span> ville blive, hvis 100 kJ løb den forkerte vej mellem de to temperaturer.</p>
+<p><b>c)</b> Hvilken hovedsætning ville processen overholde, og hvilken ville den bryde?</p>
+<h3>5. Hvor god er genvejen?</h3>
+<p>Kør processen til ende og se på metodesammenligningen.</p>
+<p><b>a)</b> Ved <span class="eq" data-tex="T_{\text{sø}}"></span> = 10 °C: hvor stor er forskellen mellem gennemsnitsmetoden og den eksakte værdi, i procent?</p>
+<p><b>b)</b> Gentag ved 80 °C. Hvorfor bliver tilnærmelsen dårligere, jo større temperaturspringet er?</p>
+<p><b>c)</b> Hvorfor er smeltebidraget upåvirket, uanset hvad søens temperatur er?</p>
+<!-- SLUT MODALTEKST:opgaver -->
 
   <div class="close-row"><button class="btn-sm modal-close">Luk</button></div>
 </div></div>
 
 <script>
 "use strict";
+
+/* ================= TeX-sætter (blok B, tex-saetter.md) ================= */
+/* ================= Lille TeX-sætter =================
+   Formler skrives som TeX i attributten data-tex og sættes op ved indlæsning.
+   Der understøttes netop den delmængde, disse simuleringer bruger:
+
+     \frac{a}{b}   \sqrt{a}   a_{n}   a^{2}   \left( … \right)
+     \lambda \pi \omega \gamma \mu \tau \Delta  græske bogstaver
+     \cdot \times \pm \approx \le \ge \ne \Leftrightarrow \to
+     \sin \cos \tan \log \ln                   opret (ikke kursiv)
+     \text{…}                                  opret tekst, fx enheder
+     |a|                                       numerisk værdi
+     \\  \\,                                    tyndt mellemrum, fx foran enheder
+     0,75                                      danske decimaltal skrives direkte,
+                                               aldrig 0{,}75
+
+   Variable sættes kursivt, tal og enheder opret — præcis som i LaTeX.
+   Skriften er Latin Modern Math, indlejret i stilarket som en delmængde.
+   Ingen eksterne biblioteker, så filen virker også uden netforbindelse. */
+(function () {
+  'use strict';
+  const GREEK = {
+    alpha:'α', beta:'β', gamma:'γ', delta:'δ', theta:'θ', lambda:'λ', mu:'μ',
+    eta:'η', pi:'π', rho:'ρ', sigma:'σ', tau:'τ', phi:'φ', omega:'ω',
+    Delta:'Δ', Lambda:'Λ', Omega:'Ω', Sigma:'Σ'
+  };
+  /* [tegn, klasse] — 'o' = regneoperator (smal luft), 'r' = relation (bred luft) */
+  const OPS = {
+    cdot:['·','o'], times:['×','o'], div:['÷','o'], pm:['±','o'], mp:['∓','o'],
+    approx:['≈','r'], ne:['≠','r'], le:['≤','r'], ge:['≥','r'],
+    Leftrightarrow:['⟺','r'], Rightarrow:['⟹','r'], to:['→','r'],
+    ldots:['…','p'], dots:['…','p']
+  };
+  const FUNCS = ['sin','cos','tan','log','ln','exp','max','min'];
+
+  /* Matematik-skrifttyper har ingen kursiv-variant. De kursive bogstaver er
+     selvstændige tegn i Unicodes matematiske alfabet, og det er dem, en
+     variabel skal sættes med. h har sin egen plads (U+210E, Plancks konstant),
+     fordi U+1D455 er reserveret. */
+  function kursiv(c) {
+    const o = c.charCodeAt(0);
+    if (c === 'h') return '\u210E';
+    if (o >= 97 && o <= 122) return String.fromCodePoint(0x1D44E + o - 97);   /* a-z */
+    if (o >= 65 && o <= 90)  return String.fromCodePoint(0x1D434 + o - 65);   /* A-Z */
+    return c;
+  }
+  /* små græske bogstaver er variable og sættes kursivt; store holdes oprette */
+  const GREEK_IT = {
+    alpha:0x1D6FC, beta:0x1D6FD, gamma:0x1D6FE, delta:0x1D6FF, eta:0x1D702,
+    theta:0x1D703,
+    lambda:0x1D706, mu:0x1D707, pi:0x1D70B, rho:0x1D70C, sigma:0x1D70E,
+    tau:0x1D70F, phi:0x1D711, omega:0x1D714
+  };
+  const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  function render(src, display) {
+    let i = 0, prev = null;      /* type af forrige tegn — til fortegnsreglen */
+    const s = src;
+
+    function ws() { while (i < s.length && s[i] === ' ') i++; }
+
+    /* et argument: {...} eller præcis ét element */
+    function arg() {
+      ws();
+      if (s[i] === '{') { i++; const h = seq('}'); if (s[i] === '}') i++; return h; }
+      return one() || '';
+    }
+
+    /* hæft _ og ^ på et grundelement */
+    function scripts(base) {
+      let sub = null, sup = null;
+      for (;;) {
+        ws();
+        if (s[i] === '_' && sub === null) { i++; sub = arg(); }
+        else if (s[i] === '^' && sup === null) { i++; sup = arg(); }
+        else break;
+      }
+      if (sub === null && sup === null) return base;
+      let h = base;
+      if (sup !== null) h += '<span class="msup">' + sup + '</span>';
+      if (sub !== null) h += '<span class="msub">' + sub + '</span>';
+      return h;
+    }
+
+    /* ét element uden efterfølgende scripts */
+    function one() {
+      ws();
+      if (i >= s.length) return null;
+      const c = s[i];
+
+      if (c === '\\') {
+        let j = i + 1, name = '';
+        while (j < s.length && /[A-Za-z]/.test(s[j])) name += s[j++];
+        if (!name) {
+          /* \  \, \; = tynde mellemrum;  ellers et bogstaveligt tegn */
+          const nxt = s[i + 1];
+          i += 2;
+          if (nxt === ' ' || nxt === ',' || nxt === ';') return '<span class="mthin"></span>';
+          return '<span class="mp">' + esc(nxt || '') + '</span>';
+        }
+        i = j;
+        if (name === 'frac') {
+          const a = arg(), b = arg();
+          mark('v');
+          return '<span class="mfrac"><span class="mnum">' + a +
+                 '</span><span class="mden">' + b + '</span></span>';
+        }
+        if (name === 'sqrt') {
+          const a = arg();
+          return '<span class="msqrt"><span class="mrad">√</span>' +
+                 '<span class="mrc">' + a + '</span></span>';
+        }
+        if (name === 'text') {
+          /* \text{} skal læses som RÅ tekst — ellers bliver enheder som m/s
+             fortolket som variable og sat kursivt. */
+          ws();
+          let t = '';
+          if (s[i] === '{') {
+            i++; let d = 1;
+            while (i < s.length && d > 0) {
+              if (s[i] === '{') d++;
+              else if (s[i] === '}') { d--; if (!d) { i++; break; } }
+              t += s[i++];
+            }
+          } else { t = s[i++] || ''; }
+          mark('v');
+          return '<span class="mtext">' + esc(t) + '</span>';
+        }
+        if (name === 'left')  { ws(); const p = s[i++] || '('; mark('open'); return '<span class="mfence mfl">' + esc(p) + '</span>'; }
+        if (name === 'right') { ws(); const p = s[i++] || ')'; return '<span class="mfence mfr">' + esc(p) + '</span>'; }
+        if (name === 'quad')  { return '<span class="mquad"></span>'; }
+        if (GREEK_IT[name])   { mark('v'); return '<span class="mv">' + String.fromCodePoint(GREEK_IT[name]) + '</span>'; }
+        if (GREEK[name])      { mark('v'); return '<span class="mv">' + GREEK[name] + '</span>'; }
+        if (OPS[name])        { mark(OPS[name][1]); return '<span class="m' + OPS[name][1] + '">' + OPS[name][0] + '</span>'; }
+        if (FUNCS.indexOf(name) >= 0) { return '<span class="mfun">' + name + '</span>'; }
+        return '<span class="mtext">' + esc(name) + '</span>';
+      }
+
+      if (c === '{') { i++; const h = seq('}'); if (s[i] === '}') i++; return h; }
+
+      /* tal — hele tallet i ét, så komma og punktum ikke bliver operatorer */
+      if (/[0-9]/.test(c)) {
+        let n = '';
+        while (i < s.length && /[0-9.,]/.test(s[i])) n += s[i++];
+        n = n.replace(/[.,]$/, m => (i--, ''));
+        mark('n');
+        return '<span class="mn">' + n + '</span>';
+      }
+      if (/[A-Za-z]/.test(c)) { i++; mark('v'); return '<span class="mv">' + kursiv(c) + '</span>'; }
+      if ('+-−'.indexOf(c) >= 0) {
+        i++;
+        /* fortegn (unært) hvis der ikke står noget at regne på til venstre */
+        const kl = (prev === null || prev === 'o' || prev === 'r' || prev === 'open') ? 'mu' : 'mo';
+        mark('o');
+        return '<span class="' + kl + '">' + (c === '-' ? '−' : c) + '</span>';
+      }
+      if ('=<>'.indexOf(c) >= 0) { i++; mark('r'); return '<span class="mr">' + esc(c) + '</span>'; }
+      if (c === '/') { i++; return '<span class="mo mslash">/</span>'; }
+      if (c === '|') { i++; return '<span class="mabs">|</span>'; }
+      if (c === '(' || c === ')' || c === '[' || c === ']') {
+        i++; mark(c === '(' || c === '[' ? 'open' : 'v');
+        return '<span class="mp">' + c + '</span>';
+      }
+      if (c === ',') { i++; return '<span class="mcomma">,</span>'; }
+      if (c === ' ') { i++; return ''; }
+      i++;
+      return '<span class="mp">' + esc(c) + '</span>';
+    }
+
+    function seq(stop) {
+      let out = '';
+      while (i < s.length && s[i] !== stop) {
+        const before = i;
+        const a = one();
+        if (a === null) break;
+        out += scripts(a);
+        if (i === before) { i++; }      /* sikkerhedsventil mod uendelig løkke */
+      }
+      return out;
+    }
+
+    /* holder styr på, hvad der sidst blev sat — så et minus kan skelnes fra
+       et fortegn. Kaldes af one() via de enkelte grene. */
+    function mark(t) { prev = t; }
+
+    return '<span class="' + (display ? 'mathd' : 'math') + '">' + seq(null) + '</span>';
+  }
+
+  function setUp(root) {
+    (root || document).querySelectorAll('[data-tex]').forEach(function (el) {
+      if (el.dataset.done) return;
+      el.innerHTML = render(el.getAttribute('data-tex'), el.classList.contains('eqd'));
+      el.dataset.done = '1';
+    });
+  }
+  window.TeX = { render: render, setUp: setUp };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setUp(); });
+  else setUp();
+})();
 
 /* =====================================================================
    FYSIKKERNE  (DOM-fri)
@@ -587,9 +826,11 @@ function byggForloeb(m, TisC, TsoC){
    HJÆLPERE
    ===================================================================== */
 function daNum(x, dec){
-  if(!isFinite(x)) return "–";
+  if(!isFinite(x)) return "\u2013";
   var s = Math.abs(x).toFixed(dec).replace(".", ",");
-  return (x < 0 ? "\u2212" : "") + s;
+  /* et tal, der afrundes til nul fra negativ side, vises uden fortegn */
+  var nul = /^0(,0+)?$/.test(s);
+  return (x < 0 && !nul ? "\u2212" : "") + s;
 }
 var isDark = true;
 function D(d, l){ return isDark ? d : l; }
@@ -898,14 +1139,27 @@ function tegnRamme(ctx,w,h,pad){
   ctx.strokeRect(0.5,0.5,w-1,h-1);
 }
 
+/* Venstremargin skal rumme det bredeste tal på andenaksen plus aksenavnet,
+   der står lodret yderst til venstre. Ellers skjuler navnet fortegnet på
+   tallene, som det gjorde ved −2000 på entropiaksen. */
+function padVenstre(ctx, ay, mindst){
+  ctx.save();
+  ctx.font = "11px 'Courier New', monospace";
+  var bred = 0;
+  for(var i=0;i<=ay.n;i++){
+    bred = Math.max(bred, ctx.measureText(daNum(ay.lo + i*ay.step, ay.dec)).width);
+  }
+  ctx.restore();
+  return Math.max(mindst, Math.ceil(26 + bred + 7));
+}
+
 function tegnGrafT(){
   var cv = document.getElementById("grafT");
   var s = setupCanvas(cv); var ctx = s.ctx, w = s.w, h = s.h;
-  var pad = { l:48, r:12, t:14, b:38 };
-  tegnRamme(ctx,w,h,pad);
-
   var ax = pentAkse(0, aksemaal().Qmax, 6);
   var ay = pentAkse(Math.min(st.TisC, 0) - 2, Math.max(st.TsoC, 5) + 2, 6);
+  var pad = { l:padVenstre(ctx, ay, 48), r:12, t:14, b:38 };
+  tegnRamme(ctx,w,h,pad);
 
   var X = function(q){ return pad.l + ((q-ax.lo)/(ax.hi-ax.lo))*(w-pad.l-pad.r); };
   var Y = function(t){ return h-pad.b - ((t-ay.lo)/(ay.hi-ay.lo))*(h-pad.t-pad.b); };
@@ -977,9 +1231,6 @@ function tegnGrafT(){
 function tegnGrafS(){
   var cv = document.getElementById("grafS");
   var s = setupCanvas(cv); var ctx = s.ctx, w = s.w, h = s.h;
-  var pad = { l:56, r:12, t:14, b:38 };
-  tegnRamme(ctx,w,h,pad);
-
   var zoom  = document.getElementById("cZoom").checked;
 
   /* Samme referencemasse som Q-aksen, så massen ses på kurvens længde */
@@ -992,6 +1243,9 @@ function tegnGrafS(){
     var mx = Math.max(Math.abs(refN.is), Math.abs(refN.so));
     ay = pentAkse(-mx*1.10, mx*1.10, 6);
   }
+
+  var pad = { l:padVenstre(ctx, ay, 56), r:12, t:14, b:38 };
+  tegnRamme(ctx,w,h,pad);
 
   var X = function(q){ return pad.l + ((q-ax.lo)/(ax.hi-ax.lo))*(w-pad.l-pad.r); };
   var Y = function(v){ return h-pad.b - ((v-ay.lo)/(ay.hi-ay.lo))*(h-pad.t-pad.b); };
@@ -1202,6 +1456,321 @@ function bind(){
       Array.prototype.forEach.call(document.querySelectorAll(".modal"), function(m){ m.classList.remove("vis"); });
     }
   });
+
+  /* kopier teksten i modalerne — kopieret fra skabelon.html */
+  (function(){
+  /* kopier teksten i en modal ------------------------------------------
+     En sat formel er bygget af kasser og går i stykker ved et almindeligt
+     træk-og-kopier. Knappen lægger derfor to udgaver på udklipsholderen:
+     en HTML-udgave med kursiv, <sup> og <sub>, som Word og Google Docs
+     bevarer, og en ren tekstudgave med Unicode-hævet og -sænket skrift,
+     hvor det kan lade sig gøre. Brøker skrives på én linje: a/b.
+     Begge laves ud fra TeX-kilden i data-tex, ikke ud fra den satte formel. */
+  var TEX_TEGN = {
+    alpha:'\u03b1', beta:'\u03b2', gamma:'\u03b3', delta:'\u03b4', epsilon:'\u03b5',
+    varepsilon:'\u03b5', zeta:'\u03b6', eta:'\u03b7', theta:'\u03b8', iota:'\u03b9',
+    kappa:'\u03ba', lambda:'\u03bb', mu:'\u03bc', nu:'\u03bd', xi:'\u03be', pi:'\u03c0',
+    rho:'\u03c1', sigma:'\u03c3', tau:'\u03c4', upsilon:'\u03c5', phi:'\u03c6',
+    varphi:'\u03c6', chi:'\u03c7', psi:'\u03c8', omega:'\u03c9'
+  };
+  var TEX_STORE = { Gamma:'\u0393', Delta:'\u0394', Theta:'\u0398', Lambda:'\u039b',
+    Pi:'\u03a0', Sigma:'\u03a3', Phi:'\u03a6', Psi:'\u03a8', Omega:'\u03a9' };
+  var TEX_OP = { cdot:'\u00b7', times:'\u00d7', div:'\u00f7', pm:'\u00b1', mp:'\u2213' };
+  var TEX_REL = { approx:'\u2248', ne:'\u2260', neq:'\u2260', le:'\u2264', leq:'\u2264',
+    ge:'\u2265', geq:'\u2265', to:'\u2192', rightarrow:'\u2192', Rightarrow:'\u21d2',
+    Leftrightarrow:'\u21d4', propto:'\u221d', sim:'\u223c' };
+  var TEX_FUN = ['sin','cos','tan','log','ln','exp','max','min','lim'];
+  var HAEV = { '0':'\u2070','1':'\u00b9','2':'\u00b2','3':'\u00b3','4':'\u2074',
+    '5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079',
+    '+':'\u207a','-':'\u207b','\u2212':'\u207b','=':'\u207c','(':'\u207d',')':'\u207e',
+    a:'\u1d43',b:'\u1d47',c:'\u1d9c',d:'\u1d48',e:'\u1d49',f:'\u1da0',g:'\u1d4d',
+    h:'\u02b0',i:'\u2071',j:'\u02b2',k:'\u1d4f',l:'\u02e1',m:'\u1d50',n:'\u207f',
+    o:'\u1d52',p:'\u1d56',r:'\u02b3',s:'\u02e2',t:'\u1d57',u:'\u1d58',v:'\u1d5b',
+    w:'\u02b7',x:'\u02e3',y:'\u02b8',z:'\u1dbb' };
+  var SAENK = { '0':'\u2080','1':'\u2081','2':'\u2082','3':'\u2083','4':'\u2084',
+    '5':'\u2085','6':'\u2086','7':'\u2087','8':'\u2088','9':'\u2089',
+    '+':'\u208a','-':'\u208b','\u2212':'\u208b','=':'\u208c','(':'\u208d',')':'\u208e',
+    a:'\u2090',e:'\u2091',h:'\u2095',i:'\u1d62',j:'\u2c7c',k:'\u2096',l:'\u2097',
+    m:'\u2098',n:'\u2099',o:'\u2092',p:'\u209a',r:'\u1d63',s:'\u209b',t:'\u209c',
+    u:'\u1d64',v:'\u1d65',x:'\u2093' };
+
+  function htmlEsc(t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  /* TeX-kilde -> træ af knuder */
+  function texTrae(src) {
+    var i = 0;
+    function ws() { while (i < src.length && src[i] === ' ') i++; }
+    function gruppe(slut) {
+      var liste = [];
+      for (;;) {
+        ws();
+        if (i >= src.length) break;
+        if (slut && src[i] === slut) break;
+        if (src.substr(i, 6) === '\\right') break;
+        var foer = i, k = en();
+        if (k) liste.push(scripts(k));
+        if (i === foer) i++;
+      }
+      return liste;
+    }
+    function arg() {
+      ws();
+      if (src[i] === '{') { i++; var g = gruppe('}'); if (src[i] === '}') i++; return g; }
+      var k = en(); return k ? [k] : [];
+    }
+    function scripts(k) {
+      for (;;) {
+        ws();
+        if (src[i] === '_' && !k.sub) { i++; k = { t:'sc', base:k.base || k, sub:arg(), sup:k.sup || null }; }
+        else if (src[i] === '^' && !k.sup) { i++; k = { t:'sc', base:k.base || k, sup:arg(), sub:k.sub || null }; }
+        else break;
+      }
+      return k;
+    }
+    function en() {
+      ws();
+      var c = src[i];
+      if (c === undefined) return null;
+      if (c === '{') { i++; var g = gruppe('}'); if (src[i] === '}') i++; return { t:'grp', liste:g }; }
+      if (c === '}') return null;
+      if (c === '\\') {
+        var j = i + 1, navn = '';
+        while (j < src.length && /[A-Za-z]/.test(src[j])) navn += src[j++];
+        if (!navn) {
+          var z = src[j]; i = j + 1;
+          if (z === ',' || z === ';' || z === ':' || z === ' ') return { t:'rum', bred:false };
+          return { t:'txt', v:z };
+        }
+        i = j;
+        if (navn === 'frac') { var n = arg(), d = arg(); return { t:'frac', n:n, d:d }; }
+        if (navn === 'sqrt') return { t:'sqrt', x:arg() };
+        if (navn === 'text' || navn === 'mathrm') {
+          ws();
+          if (src[i] !== '{') return { t:'txt', v:'' };
+          var dybde = 0, start = ++i;
+          while (i < src.length && (src[i] !== '}' || dybde)) {
+            if (src[i] === '{') dybde++; else if (src[i] === '}') dybde--;
+            i++;
+          }
+          var v = src.slice(start, i); i++;
+          return { t:'txt', v:v, enhed:true };
+        }
+        if (navn === 'left') {
+          ws(); var ve = src[i++]; if (ve === '\\') ve = src[i++];
+          var ind = gruppe(null);
+          if (src.substr(i, 6) === '\\right') i += 6;
+          ws(); var ho = src[i++]; if (ho === '\\') ho = src[i++];
+          return { t:'delim', v:ve === '.' ? '' : ve, h:ho === '.' ? '' : ho, liste:ind };
+        }
+        if (navn === 'quad' || navn === 'qquad') return { t:'rum', bred:true };
+        if (TEX_TEGN[navn]) return { t:'var', v:TEX_TEGN[navn] };
+        if (TEX_STORE[navn]) return { t:'txt', v:TEX_STORE[navn] };
+        if (TEX_OP[navn]) return { t:'op', v:TEX_OP[navn] };
+        if (TEX_REL[navn]) return { t:'rel', v:TEX_REL[navn] };
+        if (navn === 'ldots' || navn === 'dots') return { t:'txt', v:'\u2026' };
+        if (navn === 'infty') return { t:'txt', v:'\u221e' };
+        if (TEX_FUN.indexOf(navn) >= 0) return { t:'fun', v:navn };
+        return { t:'txt', v:navn };
+      }
+      i++;
+      if (/[A-Za-z]/.test(c)) return { t:'var', v:c };
+      if (/[0-9.]/.test(c)) {
+        var tal = c;
+        while (i < src.length && /[0-9.]/.test(src[i])) tal += src[i++];
+        return { t:'txt', v:tal };
+      }
+      if (c === '+' || c === '-') return { t:'op', v:c === '-' ? '\u2212' : '+' };
+      if (c === '=' || c === '<' || c === '>') return { t:'rel', v:c };
+      return { t:'txt', v:c };
+    }
+    return gruppe(null);
+  }
+
+  /* træ -> { html, ren } på én linje */
+  function texLinje(liste) {
+    var html = '', ren = '', forrige = null;
+    liste.forEach(function (k, nr) {
+      var d = texKnude(k, forrige, liste[nr + 1]);
+      html += d.html; ren += d.ren;
+      forrige = k;
+    });
+    return { html: html, ren: ren };
+  }
+
+  function erSammensat(liste, ogsaaProdukt) {
+    var ind = liste.length === 1 && liste[0].t === 'grp' ? liste[0].liste : liste;
+    if (ogsaaProdukt) return ind.length > 1;
+    return ind.some(function (k) { return k.t === 'op' || k.t === 'rel'; });
+  }
+
+  function omsaet(tekst, tabel) {
+    var ud = '';
+    for (var i = 0; i < tekst.length; i++) {
+      if (!tabel[tekst[i]]) return null;
+      ud += tabel[tekst[i]];
+    }
+    return ud;
+  }
+
+  function texKnude(k, forrige, naeste) {
+    var d, a, b;
+    switch (k.t) {
+      case 'var':
+        return { html: '<i>' + htmlEsc(k.v) + '</i>', ren: k.v };
+      case 'txt':
+        return { html: htmlEsc(k.v), ren: k.v };
+      case 'fun':
+        return { html: k.v, ren: k.v };
+      case 'grp':
+        return texLinje(k.liste);
+      case 'rum':
+        return k.bred ? { html: '&emsp;', ren: '  ' } : { html: '&thinsp;', ren: ' ' };
+      case 'rel':
+        return { html: ' ' + htmlEsc(k.v) + ' ', ren: ' ' + k.v + ' ' };
+      case 'op':
+        /* fortegn: først i udtrykket eller efter et andet tegn */
+        /* mellem enheder uden luft: m·K */
+        if (k.v === '\u00b7' && forrige && (forrige.enhed || (forrige.t === 'sc' && forrige.base.enhed))) {
+          return { html: k.v, ren: k.v };
+        }
+        if (!forrige || forrige.t === 'op' || forrige.t === 'rel' ||
+            (forrige.t === 'txt' && /[(\[]$/.test(forrige.v))) {
+          return { html: k.v, ren: k.v };
+        }
+        return { html: ' ' + k.v + ' ', ren: ' ' + k.v + ' ' };
+      case 'delim':
+        d = texLinje(k.liste);
+        return { html: htmlEsc(k.v) + d.html + htmlEsc(k.h), ren: k.v + d.ren + k.h };
+      case 'sqrt':
+        d = texLinje(k.x);
+        if (erSammensat(k.x, true)) return { html: '\u221a(' + d.html + ')', ren: '\u221a(' + d.ren + ')' };
+        return { html: '\u221a' + d.html, ren: '\u221a' + d.ren };
+      case 'frac':
+        a = texLinje(k.n); b = texLinje(k.d);
+        if (erSammensat(k.n, false)) { a.html = '(' + a.html + ')'; a.ren = '(' + a.ren + ')'; }
+        if (erSammensat(k.d, true))  { b.html = '(' + b.html + ')'; b.ren = '(' + b.ren + ')'; }
+        /* står der flere faktorer efter brøken, skal hele brøken i parentes:
+           (1/2)mv², ikke 1/2mv² */
+        if (naeste && naeste.t !== 'op' && naeste.t !== 'rel' && naeste.t !== 'rum' &&
+            !(naeste.t === 'txt' && /^[,.;)\]]/.test(naeste.v))) {
+          return { html: '(' + a.html + '/' + b.html + ')', ren: '(' + a.ren + '/' + b.ren + ')' };
+        }
+        return { html: a.html + '/' + b.html, ren: a.ren + '/' + b.ren };
+      case 'sc':
+        d = texKnude(k.base, forrige);
+        if (k.sub) {
+          a = texLinje(k.sub);
+          d.html += '<sub>' + a.html + '</sub>';
+          var s = omsaet(a.ren, SAENK);
+          d.ren += s !== null ? s : (a.ren.length === 1 ? '_' + a.ren : '_(' + a.ren + ')');
+        }
+        if (k.sup) {
+          b = texLinje(k.sup);
+          d.html += '<sup>' + b.html + '</sup>';
+          var h = omsaet(b.ren, HAEV);
+          d.ren += h !== null ? h : (b.ren.length === 1 ? '^' + b.ren : '^(' + b.ren + ')');
+        }
+        return d;
+    }
+    return { html: '', ren: '' };
+  }
+
+  function texTilLinje(src) { return texLinje(texTrae(src)); }
+
+  function modalTekst(id) {
+    var kilde = document.getElementById(id).querySelector('.modal-inner');
+    var klon = kilde.cloneNode(true);
+    Array.prototype.forEach.call(klon.querySelectorAll('.modal-top button, .close-row'),
+      function (e) { e.parentNode.removeChild(e); });
+
+    /* formlerne skrives om fra TeX-kilden */
+    Array.prototype.forEach.call(klon.querySelectorAll('[data-tex]'), function (e) {
+      var l = texTilLinje(e.getAttribute('data-tex'));
+      var ny;
+      if (e.classList.contains('eqd')) {
+        ny = document.createElement('p');
+        ny.className = 'formel';
+        ny.setAttribute('style', 'text-align:center');
+      } else {
+        ny = document.createElement('span');
+      }
+      ny.innerHTML = l.html;
+      ny.setAttribute('data-ren', l.ren);
+      e.parentNode.replaceChild(ny, e);
+    });
+    /* tabeller får kanter, så de også har dem i Word */
+    Array.prototype.forEach.call(klon.querySelectorAll('th, td'), function (c) {
+      c.setAttribute('style', 'border:1px solid #999; padding:3px 10px');
+    });
+    Array.prototype.forEach.call(klon.querySelectorAll('table'), function (t) {
+      t.setAttribute('style', 'border-collapse:collapse');
+    });
+
+    var htmlUd = '<div style="font-family:Georgia,serif;line-height:1.6">' +
+                 klon.innerHTML + '</div>';
+
+    /* ren tekst */
+    Array.prototype.forEach.call(klon.querySelectorAll('[data-ren]'), function (e) {
+      e.textContent = e.getAttribute('data-ren');
+    });
+    var ren = '';
+    Array.prototype.forEach.call(klon.childNodes, function (e) { ren += blokTekst(e); });
+    ren = ren.split('\n').map(function (r) {
+      return /\S/.test(r) ? r.replace(/\s+$/, '') : '';
+    }).join('\n');
+    return { html: htmlUd, ren: ren.replace(/\n{3,}/g, '\n\n').trim() };
+  }
+
+  function blokTekst(e) {
+    if (e.nodeType === 3) return '';
+    if (e.nodeType !== 1) return '';
+    var t = e.tagName;
+    if (t === 'H2') return '\n' + e.textContent.toUpperCase() + '\n\n';
+    if (t === 'H3') return '\n' + e.textContent.replace(/\s+/g, ' ').trim() + '\n\n';
+    if (t === 'P' && e.classList.contains('formel')) return '    ' + e.textContent.trim() + '\n\n';
+    if (t === 'P') return e.textContent.replace(/\s+/g, ' ').trim() + '\n\n';
+    if (t === 'LI') return '- ' + e.textContent.replace(/\s+/g, ' ').trim() + '\n';
+    if (t === 'TR') {
+      var celler = [];
+      Array.prototype.forEach.call(e.children, function (c) {
+        celler.push(c.textContent.replace(/\s+/g, ' ').trim());
+      });
+      return celler.join('\t') + '\n';
+    }
+    var ud = '';
+    Array.prototype.forEach.call(e.childNodes, function (b) { ud += blokTekst(b); });
+    if (t === 'TABLE' || t === 'UL' || t === 'OL') ud += '\n';
+    return ud;
+  }
+
+  function reserveKopi(t, ok, fejl) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t.ren).then(ok, fejl);
+        return;
+      }
+    } catch (err) { /* falder igennem */ }
+    fejl();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-kopier]'), function (b) {
+    b.addEventListener('click', function () {
+      var org = this.textContent, knap = this;
+      var t = modalTekst(this.getAttribute('data-kopier'));
+      function ok()   { knap.textContent = 'Kopieret!';  setTimeout(function () { knap.textContent = org; }, 1600); }
+      function fejl() { knap.textContent = 'Kunne ikke'; setTimeout(function () { knap.textContent = org; }, 1600); }
+      try {
+        if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+          navigator.clipboard.write([new window.ClipboardItem({
+            'text/html':  new Blob([t.html], { type: 'text/html' }),
+            'text/plain': new Blob([t.ren],  { type: 'text/plain' })
+          })]).then(ok, function () { reserveKopi(t, ok, fejl); });
+        } else reserveKopi(t, ok, fejl);
+      } catch (err) { reserveKopi(t, ok, fejl); }
+    });
+  });
+  window.modalTekst = modalTekst;   /* til test */
+  })();
 
   /* kopier kode */
   document.getElementById("bKopier").addEventListener("click", function(){
